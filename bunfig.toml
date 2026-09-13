@@ -1,0 +1,15 @@
+logLevel = "error"
+telemetry = false
+env = true
+
+[console]
+depth = 3
+
+[serve]
+port = 9090
+
+[test]
+root = "./tests"
+coverage = true
+coverageIgnoreSourcemaps = false
+rerunEach = 2

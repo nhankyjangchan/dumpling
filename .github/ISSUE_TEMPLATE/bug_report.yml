@@ -1,0 +1,148 @@
+name: 🐛 Bug report
+description: Submit a detailed bug report to help investigate and resolve the issue with this plugin.
+title: '[BUG] '
+labels: ['bug']
+assignees: ['nhankyjangchan']
+body:
+    - type: markdown
+      id: bug_report-header-before-info
+      attributes:
+          value: ⚠️ **Before filling this form**, please ensure you've read the [documentation](https://github.com/nhankyjangchan/koa-cors) and searched for [existing issues](https://github.com/nhankyjangchan/koa-cors/issues).
+
+    - type: markdown
+      id: bug_report-header-security-info
+      attributes:
+          value: 🔒 If you believe you've found a **security vulnerability**, **DO NOT** report it through public GitHub issues, discussions, pull requests, or any other public channel. Doing so exposes the vulnerability to potential attackers before a fix can be prepared and released, endangering all users who depend on this package. Instead, please review the project's **[Security Policy](https://github.com/nhankyjangchan/koa-cors/security/policy)** for details.
+
+    - type: textarea
+      id: bug_description
+      attributes:
+          label: Describe the bug
+          description: A clear and concise description of what the bug is.
+          placeholder: When I make a request from `http://localhost:8080`, the `Access-Control-Allow-Origin` header is missing even though I configured CORS.
+      validations:
+          required: true
+
+    - type: textarea
+      id: bug_reproduction-steps
+      attributes:
+          label: Steps to reproduce
+          description: How to reproduce the behavior.
+          placeholder: |
+              1. Setup Koa with CORS: `app.use(cors({...}))`
+              2. Make request from origin: `http://localhost:8080`
+              3. See error
+      validations:
+          required: true
+
+    - type: textarea
+      id: plugin_config
+      attributes:
+          label: CORS plugin configuration used
+          description: Paste your CORS configuration exactly as it appears in your code.
+          placeholder: |
+              {
+                  origin: 'https://koajs.com/',
+                  allowMethods: ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'],
+                  exposeHeaders: ['X-Pagination-Offset', 'X-Response-Time'],
+                  allowHeaders: ['Content-Type', 'Authorization'],
+                  maxAge: 3600,
+                  credentials: true,
+                  privateNetworkAccess: false,
+                  originOpenerPolicy: false,
+                  originEmbedderPolicy: false,
+                  keepHeadersOnError: true,
+                  shouldSkip: false
+              }
+          value: |
+              {
+                  origin: 'https://koajs.com/',
+                  allowMethods: ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'],
+                  exposeHeaders: ['X-Pagination-Offset', 'X-Response-Time'],
+                  allowHeaders: ['Content-Type', 'Authorization'],
+                  maxAge: 3600,
+                  credentials: true,
+                  privateNetworkAccess: false,
+                  originOpenerPolicy: false,
+                  originEmbedderPolicy: false,
+                  keepHeadersOnError: true,
+                  shouldSkip: false
+              }
+          render: javascript
+      validations:
+          required: true
+
+    - type: textarea
+      id: bug_reproduction-code
+      attributes:
+          label: Minimal reproduction code
+          description: Please provide a minimal code snippet that reproduces the issue.
+          render: javascript
+          placeholder: |
+              import Koa from 'koa';
+              import cors from '@nhankyjangchan/koa-cors';
+
+              const app = new Koa();
+              app.use(cors({ //options }));
+
+              //the rest of the code
+      validations:
+          required: false
+
+    - type: textarea
+      id: plugin_expected-behavior
+      attributes:
+          label: Expected behavior
+          description: A clear and concise description of what you expected to happen.
+          placeholder: I expected the response to include `Access-Control-Allow-Origin` on `http://localhost:8080` and the preflight request to return 204.
+      validations:
+          required: true
+
+    - type: dropdown
+      id: environment_package-version
+      attributes:
+          label: Package version
+          description: Please specify the package version where the bug was found.
+          multiple: false
+          options:
+              - v2.1.x
+              - v2.0.x
+              - v1.4.x
+              - v1.3.x
+              - v1.2.x
+              - v1.1.x
+          default: 0
+      validations:
+          required: true
+
+    - type: input
+      id: environment_runtime
+      attributes:
+          label: Runtime type and version
+          description: Please indicate the type and version of the runtime on which you encountered the bug.
+          placeholder: Bun v1.3.12
+      validations:
+          required: true
+
+    - type: input
+      id: environment_os
+      attributes:
+          label: OS type and version
+          description: Please indicate the type and version of the OS on which you encountered the bug.
+          placeholder: GNU/Linux Debian 13
+      validations:
+          required: true
+
+    - type: textarea
+      id: bug_context
+      attributes:
+          label: Additional context
+          description: Add any other context about the problem here.
+          placeholder: Paste error logs or cURL commands here...
+      validations:
+          required: false
+
+    - type: markdown
+      id: bug_report-footer
+      attributes:
+          value: 💙 Thanks for helping improve this plugin!
