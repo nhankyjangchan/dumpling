@@ -14,8 +14,7 @@ export const utils: Readonly<Utils> = Object.freeze({
         return !!target && typeof target === 'function';
     },
     match(target: string, pattern: RegExp): boolean {
-        const isValidArgs: boolean = utils.isString(target) && pattern instanceof RegExp;
-        return isValidArgs && pattern.test(target);
+        return typeof target === 'string' && pattern instanceof RegExp && pattern.test(target);
     },
     isString(target: unknown): target is string {
         return !!target && typeof target === 'string';

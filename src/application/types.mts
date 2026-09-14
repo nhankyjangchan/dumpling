@@ -15,7 +15,7 @@ export interface DumplingImpl<D, W, R extends string> {
     route(init: RouteInit<D, W, R>): this;
 
     ws(): this;
-    launch(options?: Bun.Serve.Options<W, R>): Bun.Server<W>;
+    launch(): Bun.Server<W>;
 
     on(type: string, listener: Listener, options?: ListenerOptions): this;
     emit(e: Event): this;
