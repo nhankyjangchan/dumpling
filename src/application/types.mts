@@ -5,7 +5,7 @@ import type { Dumpling } from './module.mts';
 export type Listener = EventListener | EventListenerObject;
 export type ListenerOptions = AddEventListenerOptions | boolean;
 
-export interface DumplingImpl<D = any, W = any, R extends string = string> {
+export interface DumplingImpl<D, W, R extends string> {
     onRequest(...middlewares: Middleware<D, W, R>[]): this;
     onResponse(...middlewares: Middleware<D, W, R>[]): this;
     onError(...middlewares: Middleware<D, W, R>[]): this;
@@ -14,8 +14,7 @@ export interface DumplingImpl<D = any, W = any, R extends string = string> {
     use(...plugin: Dumpling[]): this;
     route(init: RouteInit<D, W, R>): this;
 
-    ready(): boolean;
-    ws(): unknown;
+    ws(): this;
     launch(options?: Bun.Serve.Options<W, R>): Bun.Server<W>;
 
     on(type: string, listener: Listener, options?: ListenerOptions): this;

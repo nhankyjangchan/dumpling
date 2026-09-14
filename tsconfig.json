@@ -33,7 +33,9 @@
             "@http": ["./src/http/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
             "@repository": ["./src/repository/_index.mts"],
-            "@router": ["./src/router/_index.mts"]
+            "@router": ["./src/router/_index.mts"],
+            "@utils": ["./src/utils/_index.mts"],
+            "@validator": ["./src/validator/_index.mts"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,
