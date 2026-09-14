@@ -1,11 +1,15 @@
-import type { Middleware } from '@middleware';
 import type { RequestContext } from '@http';
+import type { Middleware } from '@middleware';
 
-export type RouteOptions = {
-    method?: string;
-    path?: `/${string}`;
-    onRequest?: Middleware[];
-    onResponse?: Middleware[];
-    onError?: Middleware[];
-    handler: Response | ((rc: RequestContext) => Response | Promise<Response>)
-};
+export type RequestHandler<D, W, R extends string> = (
+    rc: RequestContext<D, W, R>
+) => Response | Promise<Response>;
+
+export interface RouteInit<D, W, R extends string> {
+    readonly method: string;
+    readonly path: `/${string}`;
+    readonly onRequest?: Middleware<D, W, R>[];
+    readonly onResponse?: Middleware<D, W, R>[];
+    readonly onError?: Middleware<D, W, R>[];
+    readonly handler: RequestHandler<D, W, R> | Response;
+}

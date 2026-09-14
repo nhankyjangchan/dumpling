@@ -1,2 +1,2 @@
-export * from './symbols.mts';
-export type * from './types.mts';
+export * from './module.mts';
+export * from './types.mts';

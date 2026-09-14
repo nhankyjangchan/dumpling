@@ -1,7 +1,7 @@
 import type { MutableError } from './types.mts';
 import type { OutgoingResponse } from './outgoing-response.mts';
 
-export class HttpError extends Error implements MutableError {
+export class HttpError extends Error {
     #response: OutgoingResponse;
     #writable: boolean;
     #readable: boolean;

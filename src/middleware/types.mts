@@ -2,7 +2,7 @@ import type { RequestContext } from '@http';
 
 export type MiddlewareBootstrap<D, W, R extends string> = (
     rc: RequestContext<D, W, R>
-) => void | Promise<void>;
+) => undefined | Response | Promise<Response | undefined>;
 
 export interface MiddlewareInit<D, W, R extends string> {
     readonly bootstrap: MiddlewareBootstrap<D, W, R>;
