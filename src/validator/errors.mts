@@ -1,7 +1,10 @@
-import type { ErrorImpl } from '@utils';
-import type { ValidationErrorInit, ValidationErrorJSON } from './types.mts';
+import type {
+    ValidationErrorImpl,
+    ValidationErrorInit,
+    ValidationErrorJSON
+} from './types.mts';
 
-export class ValidationError extends Error implements ErrorImpl<ValidationErrorJSON> {
+export class ValidationError extends Error implements ValidationErrorImpl {
     public constructor(init?: ValidationErrorInit) {
         super(init?.message, init?.options);
         this.name = 'ValidationError';

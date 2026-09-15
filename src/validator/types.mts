@@ -1,3 +1,5 @@
+import type { ErrorImpl, ErrorInit, ErrorJSON } from '@utils';
+
 export type RuleHandler<E> = (entity: E) => boolean;
 
 export interface Rule<E> {
@@ -10,12 +12,6 @@ export interface ValidatorImpl<E> {
     run(): true;
 }
 
-export interface ValidationErrorInit {
-    readonly message?: string;
-    readonly options?: ErrorOptions;
-}
-
-export interface ValidationErrorJSON {
-    name: string;
-    message: string;
-}
+export interface ValidationErrorImpl extends ErrorImpl {}
+export interface ValidationErrorInit extends ErrorInit {}
+export interface ValidationErrorJSON extends ErrorJSON {}

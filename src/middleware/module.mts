@@ -25,11 +25,11 @@ export class Middleware<D, W, R extends string> {
     ): target is MiddlewareInit<D, W, R> {
         return Validator.for<MiddlewareInit<D, W, R>>(target)
             .use({
-                message: '',
+                message: 'The middleware init is mandatory and must be a plain object;',
                 handler: (e: MiddlewareInit<D, W, R>): boolean => utils.isPlainObject(e)
             })
             .use({
-                message: '',
+                message: 'The middleware handler is mandatory and must be a function;',
                 handler: (e: MiddlewareInit<D, W, R>): boolean =>
                     utils.hasOwn(e, consts.handler) && utils.isFunction(e.handler)
             })
@@ -43,25 +43,28 @@ export class Middleware<D, W, R extends string> {
     public static isManifest(target: any): target is MiddlewareManifest {
         return Validator.for<MiddlewareManifest>(target)
             .use({
-                message: '',
+                message: 'The middleware manifest is mandatory and must be a plain object;',
                 handler: (e: MiddlewareManifest): boolean => utils.isPlainObject(e)
             })
             .use({
-                message: '',
+                message:
+                    'The middleware name in manifest was not provided or has an invalid format;',
                 handler: (e: MiddlewareManifest): boolean =>
                     utils.hasOwn(e, consts.name)
                     && utils.match(e.name, /^[a-z0-9_-]+@middleware$/)
             })
             .use({
-                message: '',
+                message:
+                    'The middleware hook in manifest was not provided or has an invalid format;',
                 handler: (e: MiddlewareManifest): boolean =>
                     utils.hasOwn(e, consts.hook)
                     && utils.match(e.hook, /^on(Request|Response|Error)$/)
             })
             .use({
-                message: '',
+                message:
+                    'The middleware type in manifest was not provided or has an invalid format;',
                 handler: (e: MiddlewareManifest): boolean =>
-                    utils.hasOwn(e, consts.type) && utils.match(e.name, /^on(async|sync)$/)
+                    utils.hasOwn(e, consts.type) && utils.match(e.type, /^(async|sync)$/)
             })
             .run();
     }

@@ -18,8 +18,18 @@ export interface Consts {
     readonly type: 'type';
 }
 
-export interface ErrorImpl<J = object> {
+export interface ErrorImpl<J extends object = object> {
     name: string;
     message: string;
     toJSON(): J;
+}
+
+export interface ErrorInit {
+    message?: string;
+    options?: ErrorOptions;
+}
+
+export interface ErrorJSON {
+    name: string;
+    message: string;
 }

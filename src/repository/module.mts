@@ -1,6 +1,7 @@
 import { RepositoryError } from './errors.mts';
+import type { RepositoryImpl } from './types.mts';
 
-export class Repository<K extends PropertyKey, V> {
+export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V> {
     readonly #entities: Map<K, V>;
 
     public constructor() {

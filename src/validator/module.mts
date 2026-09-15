@@ -17,7 +17,7 @@ export class Validator<E = unknown> implements ValidatorImpl<E> {
 
     public use(rule: Rule<E>): this {
         if (!Validator.isRule<E>(rule))
-            throw new TypeError(`Validator received an invalid rule: "${rule?.['message']}";`);
+            throw new TypeError('Validator received an invalid rule object;');
         this.#rules.push({ ...rule });
         return this;
     }
