@@ -1,25 +1,36 @@
-import type { Utils, WithProperty } from './types.mts';
+import type { Utils, WithProperty, Consts } from './types.mts';
 
 export const utils: Readonly<Utils> = Object.freeze({
-    isPlainObject(target: unknown): target is object {
-        return utils.isObject(target) && Object.getPrototypeOf(target) === Object.prototype;
-    },
     isObject(target: unknown): target is object {
-        return !!target && typeof target === 'object' && !Array.isArray(target);
+        return target !== null && typeof target === 'object' && !Array.isArray(target);
     },
-    hasOwn<P extends keyof T, T extends object>(target: T, property: P): target is T & WithProperty<P> {
-        return !!target && Object.hasOwn(target, property);
-    },
-    isFunction(target: unknown): target is Function {
-        return !!target && typeof target === 'function';
-    },
-    match(target: string, pattern: RegExp): boolean {
-        return typeof target === 'string' && pattern instanceof RegExp && pattern.test(target);
+    isFunction(target: unknown): target is (...args: any[]) => any {
+        return typeof target === 'function';
     },
     isString(target: unknown): target is string {
-        return !!target && typeof target === 'string';
+        return typeof target === 'string';
+    },
+    isPlainObject(target: unknown): target is Record<PropertyKey, unknown> {
+        return utils.isObject(target) && Object.getPrototypeOf(target) === Object.prototype;
+    },
+    hasOwn<P extends PropertyKey, T extends object>(
+        target: T,
+        property: P
+    ): target is T & WithProperty<P> {
+        return Object.hasOwn(target, property);
+    },
+    match(target: string, pattern: RegExp): boolean {
+        return pattern.test(target);
     },
     createShallowFrozenClone<T extends object>(target: T): Readonly<T> {
         return Object.freeze({ ...target });
     }
+});
+
+export const consts: Readonly<Consts> = Object.freeze({
+    handler: 'handler',
+    hook: 'hook',
+    message: 'message',
+    name: 'name',
+    type: 'type'
 });

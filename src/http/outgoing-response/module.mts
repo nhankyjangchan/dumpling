@@ -1,20 +1,16 @@
-import type { ResponseLike, Mutable } from './types.mjs';
+import type { OutgoingResponseImpl, OutgoingResponseInit } from './types.mts';
 
-export class OutgoingResponse implements Mutable, ResponseLike {
+export class OutgoingResponse implements OutgoingResponseImpl {
     #status: number;
     #message: string;
     #headers: Headers;
     #body: BodyInit | null;
-    #writable: boolean;
-    #readable: boolean;
 
-    public constructor(init: ResponseLike, modifiers?: Mutable) {
-        this.#status = init.status;
-        this.#message = init.message;
-        this.#headers = init.headers;
-        this.#body = init.body;
-        this.#writable = modifiers?.writable || true;
-        this.#readable = modifiers?.readable || true;
+    public constructor(init?: OutgoingResponseInit) {
+        this.#status = init?.status ?? 200;
+        this.#message = init?.message ?? 'Ok';
+        this.#headers = init?.headers ?? new Headers();
+        this.#body = init?.body ?? null;
     }
 
     public get status(): number {
@@ -49,23 +45,7 @@ export class OutgoingResponse implements Mutable, ResponseLike {
         this.#body = body;
     }
 
-    public get writable(): boolean {
-        return this.#writable;
-    }
-
-    public set writable(writable: boolean) {
-        this.#writable = writable;
-    }
-
-    public get readable(): boolean {
-        return this.#readable;
-    }
-
-    public set readable(readable: boolean) {
-        this.#readable = readable;
-    }
-
-    public build(): Response {
+    public toResponse(): Response {
         return new Response(this.#body, {
             status: this.#status,
             statusText: this.#message,

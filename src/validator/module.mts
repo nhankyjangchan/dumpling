@@ -1,8 +1,8 @@
-import { utils } from '@utils';
+import { utils, consts } from '@utils';
 import { ValidationError } from './errors.mts';
-import type { Rule } from './types.mts';
+import type { ValidatorImpl, Rule } from './types.mts';
 
-export class Validator<E> {
+export class Validator<E = unknown> implements ValidatorImpl<E> {
     readonly #entity: E;
     readonly #rules: Rule<E>[];
 
@@ -11,11 +11,25 @@ export class Validator<E> {
         this.#rules = [];
     }
 
+    public static for<E = unknown>(entity: E): Validator<E> {
+        return new Validator<E>(entity);
+    }
+
     public use(rule: Rule<E>): this {
         if (!Validator.isRule<E>(rule))
-            throw new TypeError('The validator received an invalid rule;');
+            throw new TypeError(`Validator received an invalid rule: "${rule?.['message']}";`);
         this.#rules.push({ ...rule });
         return this;
+    }
+
+    public static isRule<E>(target: Rule<E>): target is Rule<E> {
+        return (
+            utils.isPlainObject(target)
+            && utils.hasOwn(target, consts.handler)
+            && utils.isFunction(target.handler)
+            && utils.hasOwn(target, consts.message)
+            && utils.isString(target.message)
+        );
     }
 
     public run(): true {
@@ -24,19 +38,5 @@ export class Validator<E> {
                 throw new ValidationError({ message: rule.message });
         }
         return true;
-    }
-
-    public static isRule<E>(target: Rule<E>): target is Rule<E> {
-        return (
-            utils.isPlainObject(target)
-            && utils.hasOwn(target, 'handler')
-            && utils.isFunction(target.handler)
-            && utils.hasOwn(target, 'message')
-            && utils.isString(target.message)
-        );
-    }
-
-    public static for<E>(entity: E): Validator<E> {
-        return new Validator<E>(entity);
     }
 }

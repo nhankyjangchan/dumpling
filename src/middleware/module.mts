@@ -1,4 +1,4 @@
-import { utils } from '@utils';
+import { utils, consts } from '@utils';
 import { Validator } from '@validator';
 import type { MiddlewareHandler, MiddlewareManifest, MiddlewareInit } from './types.mts';
 
@@ -20,7 +20,9 @@ export class Middleware<D, W, R extends string> {
         return this.#manifest;
     }
 
-    public static isInit<D, W, R extends string>(target: any): target is MiddlewareInit<D, W, R> {
+    public static isInit<D, W, R extends string>(
+        target: any
+    ): target is MiddlewareInit<D, W, R> {
         return Validator.for<MiddlewareInit<D, W, R>>(target)
             .use({
                 message: '',
@@ -29,7 +31,7 @@ export class Middleware<D, W, R extends string> {
             .use({
                 message: '',
                 handler: (e: MiddlewareInit<D, W, R>): boolean =>
-                    utils.hasOwn(e, 'handler') && utils.isFunction(e.handler)
+                    utils.hasOwn(e, consts.handler) && utils.isFunction(e.handler)
             })
             .use({
                 message: '',
@@ -47,17 +49,19 @@ export class Middleware<D, W, R extends string> {
             .use({
                 message: '',
                 handler: (e: MiddlewareManifest): boolean =>
-                    utils.hasOwn(e, 'name') && utils.match(e.name, /^[a-z0-9_-]+@middleware$/)
+                    utils.hasOwn(e, consts.name)
+                    && utils.match(e.name, /^[a-z0-9_-]+@middleware$/)
             })
             .use({
                 message: '',
                 handler: (e: MiddlewareManifest): boolean =>
-                    utils.hasOwn(e, 'hook') && utils.match(e.hook, /^on(Request|Response|Error)$/)
+                    utils.hasOwn(e, consts.hook)
+                    && utils.match(e.hook, /^on(Request|Response|Error)$/)
             })
             .use({
                 message: '',
                 handler: (e: MiddlewareManifest): boolean =>
-                    utils.hasOwn(e, 'type') && utils.match(e.name, /^on(async|sync)$/)
+                    utils.hasOwn(e, consts.type) && utils.match(e.name, /^on(async|sync)$/)
             })
             .run();
     }
