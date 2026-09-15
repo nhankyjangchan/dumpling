@@ -9,7 +9,7 @@ export class Middleware<D, W, R extends string> {
     public constructor(init: MiddlewareInit<D, W, R>) {
         Middleware.isInit<D, W, R>(init);
         this.#handler = init.handler;
-        this.#manifest = utils.createShallowFrozenClone(init.manifest);
+        this.#manifest = Object.freeze({ ...init.manifest });
     }
 
     public get handler(): MiddlewareHandler<D, W, R> {

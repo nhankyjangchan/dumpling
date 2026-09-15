@@ -22,7 +22,7 @@ export class Validator<E = unknown> implements ValidatorImpl<E> {
         return this;
     }
 
-    public static isRule<E>(target: Rule<E>): target is Rule<E> {
+    public static isRule<E>(target: unknown): target is Rule<E> {
         return (
             utils.isPlainObject(target)
             && utils.hasOwn(target, consts.handler)
