@@ -30,12 +30,9 @@
         "noUncheckedSideEffectImports": true,
         "paths": {
             "@application": ["./src/application/_index.mts"],
-            "@http": ["./src/http/_index.mts"],
+            "@context": ["./src/context/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
-            "@repository": ["./src/repository/_index.mts"],
-            "@router": ["./src/router/_index.mts"],
-            "@utils": ["./src/utils/_index.mts"],
-            "@validator": ["./src/validator/_index.mts"]
+            "@response": ["./src/response/_index.mts"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,

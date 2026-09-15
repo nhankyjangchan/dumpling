@@ -1,4 +1,4 @@
-import type { RequestContext } from '@http';
+import type { RequestContext } from '@context';
 
 export type MiddlewareHandler<D, W, R extends string> = (
     rc: RequestContext<D, W, R>
@@ -10,11 +10,7 @@ export interface MiddlewareInit<D, W, R extends string> {
 }
 
 export interface MiddlewareManifest {
-    readonly name: MiddlewareName;
-    readonly hook: MiddlewareHook;
-    readonly type: MiddlewareType;
+    readonly name: `${string}@middleware`;
+    readonly hook: 'onRequest' | 'onResponse' | 'onError';
+    readonly type: 'sync' | 'async';
 }
-
-export type MiddlewareName = `${string}@middleware`;
-export type MiddlewareHook = 'onRequest' | 'onResponse' | 'onError';
-export type MiddlewareType = 'sync' | 'async';

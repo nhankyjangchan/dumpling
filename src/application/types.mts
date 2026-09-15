@@ -1,23 +1,20 @@
+import type { RequestContext } from '@context';
 import type { Middleware } from '@middleware';
-import type { RouteInit } from '@router';
-import type { Dumpling } from './module.mts';
 
 export type Listener = EventListener | EventListenerObject;
 export type ListenerOptions = AddEventListenerOptions | boolean;
 
-export interface DumplingImpl<D, W, R extends string> {
-    onRequest(...middlewares: Middleware<D, W, R>[]): this;
-    onResponse(...middlewares: Middleware<D, W, R>[]): this;
-    onError(...middlewares: Middleware<D, W, R>[]): this;
+export type RouteHandler<D, W, R extends string> = (rc: RequestContext<D, W, R>) => Response;
 
-    decorate(content: D): this;
-    use(...plugin: Dumpling[]): this;
-    route(init: RouteInit<D, W, R>): this;
+export interface DumplingInit {
+    name: `${string}@plugin`;
+}
 
-    ws(): this;
-    launch(): Bun.Server<W>;
-
-    on(type: string, listener: Listener, options?: ListenerOptions): this;
-    emit(e: Event): this;
-    off(type: string, listener: Listener, options?: ListenerOptions): this;
+export interface RouteInit<D, W, R extends string> {
+    method: string;
+    path: string;
+    onRequest: Middleware<D, W, R>[];
+    onResponse: Middleware<D, W, R>[];
+    onError: Middleware<D, W, R>[];
+    handler: RouteHandler<D, W, R>;
 }
