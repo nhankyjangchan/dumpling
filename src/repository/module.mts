@@ -1,18 +1,18 @@
 import { RepositoryError } from './errors.mts';
 import type { RepositoryImpl } from './types.mts';
 
-export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V> {
-    readonly #entities: Map<K, V>;
+export class Repository<Key extends PropertyKey, Value> implements RepositoryImpl<Key, Value> {
+    readonly #entities: Map<Key, Value>;
 
     public constructor() {
-        this.#entities = new Map<K, V>();
+        this.#entities = new Map<Key, Value>();
     }
 
     public get size(): number {
         return this.#entities.size;
     }
 
-    public register(key: K, value: V): this {
+    public register(key: Key, value: Value): this {
         if (this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" already registered;` });
         }
@@ -20,7 +20,7 @@ export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V
         return this;
     }
 
-    public unregister(key: K): this {
+    public unregister(key: Key): this {
         if (!this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" not found;` });
         }
@@ -28,11 +28,11 @@ export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V
         return this;
     }
 
-    public has(key: K): boolean {
+    public has(key: Key): boolean {
         return this.#entities.has(key);
     }
 
-    public get(key: K): V {
+    public get(key: Key): Value {
         if (!this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" not found;` });
         }
@@ -47,19 +47,19 @@ export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V
         return this;
     }
 
-    public keys(): IterableIterator<K> {
+    public keys(): IterableIterator<Key> {
         return this.#entities.keys();
     }
 
-    public values(): IterableIterator<V> {
+    public values(): IterableIterator<Value> {
         return this.#entities.values();
     }
 
-    public entries(): IterableIterator<[K, V]> {
+    public entries(): IterableIterator<[Key, Value]> {
         return this.#entities.entries();
     }
 
-    public *[Symbol.iterator](): IterableIterator<[K, V]> {
+    public *[Symbol.iterator](): IterableIterator<[Key, Value]> {
         yield* this.#entities.entries();
     }
 }

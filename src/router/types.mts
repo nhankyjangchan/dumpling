@@ -1,15 +1,21 @@
 import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
 
-export type RequestHandler<D, W, R extends string> = (
-    rc: RequestContext<D, W, R>
-) => Response | Promise<Response>;
+export type RequestHandler<
+    Decorations = unknown,
+    WebSockets = unknown,
+    Routes extends string = string
+> = (rc: RequestContext<Decorations, WebSockets, Routes>) => Response | Promise<Response>;
 
-export interface RouteInit<D, W, R extends string> {
+export interface RouteInit<
+    Decorations = unknown,
+    WebSockets = unknown,
+    Routes extends string = string
+> {
     readonly method: string;
     readonly path: `/${string}`;
-    readonly onRequest?: Middleware<D, W, R>[];
-    readonly onResponse?: Middleware<D, W, R>[];
-    readonly onError?: Middleware<D, W, R>[];
-    readonly handler: RequestHandler<D, W, R> | Response;
+    readonly onRequest?: Middleware<Decorations, WebSockets, Routes>[];
+    readonly onResponse?: Middleware<Decorations, WebSockets, Routes>[];
+    readonly onError?: Middleware<Decorations, WebSockets, Routes>[];
+    readonly handler: RequestHandler<Decorations, WebSockets, Routes> | Response;
 }

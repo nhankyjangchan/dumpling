@@ -8,7 +8,6 @@ export class ValidationError extends Error implements ValidationErrorImpl {
     public constructor(init?: ValidationErrorInit) {
         super(init?.message, init?.options);
         this.name = 'ValidationError';
-        Error.captureStackTrace?.(this, new.target);
     }
 
     public toJSON(): ValidationErrorJSON {

@@ -3,24 +3,28 @@ import type { Dumpling } from '@application';
 import type { OutgoingResponse } from '../outgoing-response/_index.mts';
 import type { RequestContextImpl, RequestContextInit } from './types.mts';
 
-export class RequestContext<D, W, R extends string> implements RequestContextImpl<D, W, R> {
-    readonly #app: Dumpling<D, W, R>;
-    readonly #server: Bun.Server<W>;
+export class RequestContext<
+    Decorations,
+    WebSockets,
+    Routes extends string
+> implements RequestContextImpl<Decorations, WebSockets, Routes> {
+    readonly #app: Dumpling<Decorations, WebSockets, Routes>;
+    readonly #server: Bun.Server<WebSockets>;
     readonly #request: Request;
     readonly #response: OutgoingResponse;
 
-    public constructor(init: RequestContextInit<D, W, R>) {
+    public constructor(init: RequestContextInit<Decorations, WebSockets, Routes>) {
         this.#app = init.app;
         this.#server = init.server;
         this.#request = init.request;
         this.#response = init.response;
     }
 
-    public get app(): Dumpling<D, W, R> {
+    public get app(): Dumpling<Decorations, WebSockets, Routes> {
         return this.#app;
     }
 
-    public get server(): Bun.Server<W> {
+    public get server(): Bun.Server<WebSockets> {
         return this.#server;
     }
 

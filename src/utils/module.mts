@@ -1,10 +1,10 @@
-import type { Utils, PlainObject, WithProperty, Consts } from './types.mts';
+import type { Utils, Fn, PlainObject, WithProperty, Consts } from './types.mts';
 
 export const utils: Readonly<Utils> = Object.freeze({
     isObject(target: unknown): target is object {
         return target !== null && typeof target === 'object' && !Array.isArray(target);
     },
-    isFunction(target: unknown): target is Function {
+    isFunction(target: unknown): target is Fn {
         return typeof target === 'function';
     },
     isString(target: unknown): target is string {
@@ -16,11 +16,11 @@ export const utils: Readonly<Utils> = Object.freeze({
     match(target: string, pattern: RegExp): boolean {
         return pattern.test(target);
     },
-    hasOwn<T extends object, P extends PropertyKey>(
-        target: T,
-        propertyName: P
-    ): target is T & WithProperty<P> {
-        return Object.hasOwn(target, propertyName);
+    hasOwn<Target extends object, Key extends PropertyKey>(
+        target: Target,
+        key: Key
+    ): target is Target & WithProperty<Key> {
+        return Object.hasOwn(target, key);
     }
 });
 

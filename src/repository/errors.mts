@@ -8,7 +8,6 @@ export class RepositoryError extends Error implements RepositoryErrorImpl {
     public constructor(init?: RepositoryErrorInit) {
         super(init?.message, init?.options);
         this.name = 'RepositoryError';
-        Error.captureStackTrace?.(this, new.target);
     }
 
     public toJSON(): RepositoryErrorJSON {

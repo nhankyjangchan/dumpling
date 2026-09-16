@@ -2,28 +2,28 @@ import { utils, consts } from '@utils';
 import { ValidationError } from './errors.mts';
 import type { ValidatorImpl, Rule } from './types.mts';
 
-export class Validator<E = unknown> implements ValidatorImpl<E> {
-    readonly #entity: E;
-    readonly #rules: Rule<E>[];
+export class Validator<Entity = unknown> implements ValidatorImpl<Entity> {
+    readonly #entity: Entity;
+    readonly #rules: Rule<Entity>[];
 
-    public constructor(entity: E) {
+    public constructor(entity: Entity) {
         this.#entity = entity;
         this.#rules = [];
     }
 
-    public static for<E = unknown>(entity: E): Validator<E> {
-        return new Validator<E>(entity);
+    public static for<Entity = unknown>(entity: Entity): Validator<Entity> {
+        return new Validator<Entity>(entity);
     }
 
-    public use(rule: Rule<E>): this {
-        if (!Validator.isRule<E>(rule)) {
+    public use(rule: Rule<Entity>): this {
+        if (!Validator.isRule<Entity>(rule)) {
             throw new TypeError('Validator received an invalid rule object;');
         }
         this.#rules.push({ ...rule });
         return this;
     }
 
-    public static isRule<E = unknown>(target: unknown): target is Rule<E> {
+    public static isRule<Entity = unknown>(target: unknown): target is Rule<Entity> {
         return (
             utils.isPlainObject(target)
             && utils.hasOwn(target, consts.handler)

@@ -1,11 +1,19 @@
 import type { RequestContext } from '@http';
 
-export type MiddlewareHandler<D, W, R extends string> = (
-    rc: RequestContext<D, W, R>
+export type MiddlewareHandler<
+    Decorations = unknown,
+    WebSockets = unknown,
+    Routes extends string = string
+> = (
+    rc: RequestContext<Decorations, WebSockets, Routes>
 ) => undefined | Response | Promise<Response | undefined>;
 
-export interface MiddlewareInit<D, W, R extends string> {
-    readonly handler: MiddlewareHandler<D, W, R>;
+export interface MiddlewareInit<
+    Decorations = unknown,
+    WebSockets = unknown,
+    Routes extends string = string
+> {
+    readonly handler: MiddlewareHandler<Decorations, WebSockets, Routes>;
     readonly manifest: MiddlewareManifest;
 }
 

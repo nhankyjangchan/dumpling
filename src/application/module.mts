@@ -1,12 +1,16 @@
-export class Dumpling<D = any, W = any, R extends string = string> extends EventTarget {
-    a: D;
-    w: W;
-    r: R;
+export class Dumpling<
+    Decorations = unknown,
+    WebSockets = unknown,
+    Routes extends string = string
+> extends EventTarget {
+    public decoration: Decorations;
+    public websockets: WebSockets;
+    public routes: Routes;
 
-    constructor(a: D, w: W, r: R) {
+    public constructor(abr: Decorations, rrfr: WebSockets, qwe: Routes) {
         super();
-        this.a = a;
-        this.w = w;
-        this.r = r;
+        this.decoration = abr;
+        this.websockets = rrfr;
+        this.routes = qwe;
     }
 }

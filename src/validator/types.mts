@@ -1,17 +1,17 @@
 import type { ErrorImpl, ErrorInit, ErrorJSON } from '@utils';
 
-export type RuleHandler<E> = (entity: E) => boolean;
+export type RuleHandler<Entity> = (entity: Entity) => boolean;
 
-export interface Rule<E> {
-    readonly handler: RuleHandler<E>;
+export interface Rule<Entity> {
     readonly message: string;
+    readonly handler: RuleHandler<Entity>;
 }
 
-export interface ValidatorImpl<E> {
-    use(rule: Rule<E>): this;
+export interface ValidatorImpl<Entity> {
+    use(rule: Rule<Entity>): this;
     run(): true;
 }
 
-export interface ValidationErrorImpl extends ErrorImpl {}
-export interface ValidationErrorInit extends ErrorInit {}
-export interface ValidationErrorJSON extends ErrorJSON {}
+export type ValidationErrorImpl = ErrorImpl;
+export type ValidationErrorInit = ErrorInit;
+export type ValidationErrorJSON = ErrorJSON;

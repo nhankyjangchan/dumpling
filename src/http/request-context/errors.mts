@@ -1,5 +1,4 @@
-import { OutgoingResponse } from '../outgoing-response/_index.mts';
-import type { OutgoingResponseInit } from '../outgoing-response/_index.mts';
+import { OutgoingResponse, type OutgoingResponseInit } from '../outgoing-response/_index.mts';
 
 export class HttpError extends OutgoingResponse {
     public constructor(init?: OutgoingResponseInit) {
