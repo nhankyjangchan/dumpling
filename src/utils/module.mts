@@ -1,16 +1,16 @@
-import type { Utils, Fn, PlainObject, WithProperty, Consts } from './types.mts';
+import type { Utils, Consts, WithProperty } from './types.mts';
 
 export const utils: Readonly<Utils> = Object.freeze({
     isObject(target: unknown): target is object {
         return target !== null && typeof target === 'object' && !Array.isArray(target);
     },
-    isFunction(target: unknown): target is Fn {
+    isFunction(target: unknown): target is (...args: unknown[]) => unknown {
         return typeof target === 'function';
     },
     isString(target: unknown): target is string {
         return typeof target === 'string';
     },
-    isPlainObject(target: unknown): target is PlainObject {
+    isPlainObject(target: unknown): target is Record<PropertyKey, unknown> {
         return utils.isObject(target) && Object.getPrototypeOf(target) === Object.prototype;
     },
     match(target: string, pattern: RegExp): boolean {

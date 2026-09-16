@@ -1,12 +1,10 @@
-export type PlainObject = Record<PropertyKey, unknown>;
 export type WithProperty<Key extends PropertyKey, Value = unknown> = Record<Key, Value>;
-export type Fn = (...args: unknown[]) => unknown;
 
 export interface Utils {
     isObject(target: unknown): target is object;
-    isFunction(target: unknown): target is Fn;
+    isFunction(target: unknown): target is (...args: unknown[]) => unknown;
     isString(target: unknown): target is string;
-    isPlainObject(target: unknown): target is PlainObject;
+    isPlainObject(target: unknown): target is Record<PropertyKey, unknown>;
     match(target: string, pattern: RegExp): boolean;
     hasOwn<Target extends object, Key extends PropertyKey>(
         target: Target,
@@ -22,18 +20,18 @@ export interface Consts {
     readonly type: 'type';
 }
 
-export interface ErrorImpl<JsonOutput extends object = object> {
-    name: string;
-    message: string;
+export interface CommonErrorImpl<JsonOutput extends object = object> {
+    readonly name: string;
+    readonly message: string;
     toJSON(): JsonOutput;
 }
 
-export interface ErrorInit {
-    message?: string;
-    options?: ErrorOptions;
+export interface CommonErrorInit {
+    readonly message?: string;
+    readonly options?: ErrorOptions;
 }
 
-export interface ErrorJSON {
-    name: string;
-    message: string;
+export interface CommonErrorJSON {
+    readonly name: string;
+    readonly message: string;
 }

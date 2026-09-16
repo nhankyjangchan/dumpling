@@ -1,17 +1,17 @@
-import type { ErrorImpl, ErrorInit, ErrorJSON } from '@utils';
+import type { CommonErrorImpl, CommonErrorInit, CommonErrorJSON } from '@utils';
 
-export type RuleHandler<Entity> = (entity: Entity) => boolean;
+export type RuleHandler<Value> = (value: Value) => boolean;
 
-export interface Rule<Entity> {
+export interface Rule<Value> {
     readonly message: string;
-    readonly handler: RuleHandler<Entity>;
+    readonly handler: RuleHandler<Value>;
 }
 
-export interface ValidatorImpl<Entity> {
-    use(rule: Rule<Entity>): this;
+export interface ValidatorImpl<Value> {
+    use(rule: Rule<Value>): this;
     run(): true;
 }
 
-export type ValidationErrorImpl = ErrorImpl;
-export type ValidationErrorInit = ErrorInit;
-export type ValidationErrorJSON = ErrorJSON;
+export type ValidationErrorImpl = CommonErrorImpl;
+export type ValidationErrorInit = CommonErrorInit;
+export type ValidationErrorJSON = CommonErrorJSON;
