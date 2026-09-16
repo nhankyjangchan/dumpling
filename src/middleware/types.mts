@@ -1,16 +1,17 @@
+import type { PlainObject } from '@utils';
 import type { RequestContext } from '@http';
 
 export type MiddlewareHandler<
-    Decorations = unknown,
-    WebSockets = unknown,
+    Decorations extends PlainObject = PlainObject,
+    WebSockets extends PlainObject = PlainObject,
     Routes extends string = string
 > = (
     rc: RequestContext<Decorations, WebSockets, Routes>
 ) => undefined | Response | Promise<Response | undefined>;
 
 export interface MiddlewareInit<
-    Decorations = unknown,
-    WebSockets = unknown,
+    Decorations extends PlainObject = PlainObject,
+    WebSockets extends PlainObject = PlainObject,
     Routes extends string = string
 > {
     readonly handler: MiddlewareHandler<Decorations, WebSockets, Routes>;
@@ -18,11 +19,8 @@ export interface MiddlewareInit<
 }
 
 export interface MiddlewareManifest {
-    readonly name: MiddlewareName;
-    readonly hook: MiddlewareHook;
-    readonly type: MiddlewareType;
+    readonly name: `${string}@middleware`;
+    readonly hook: 'onRequest' | 'onResponse' | 'onError';
+    readonly type: 'sync' | 'async';
+    readonly response: 'true' | 'false';
 }
-
-export type MiddlewareName = `${string}@middleware`;
-export type MiddlewareHook = 'onRequest' | 'onResponse' | 'onError';
-export type MiddlewareType = 'sync' | 'async';

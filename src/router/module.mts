@@ -1,59 +1,40 @@
-import { Repository } from '@repository';
-import { utils } from '@utils';
-import { Validator } from '@validator';
+import { utils, consts, type PlainObject } from '@utils';
+import { RouterError } from './errors.mts';
 import type { RouteInit } from './types.mts';
 
 export class Router<
-    Decorations = unknown,
-    WebSockets = unknown,
+    Decorations extends PlainObject = PlainObject,
+    WebSockets extends PlainObject = PlainObject,
     Routes extends string = string
 > {
-    readonly #routes: Repository<string, RouteInit<Decorations, WebSockets, Routes>>;
+    readonly #routes: Map<string, RouteInit<Decorations, WebSockets, Routes>>;
 
     public constructor() {
-        this.#routes = new Repository<string, RouteInit<Decorations, WebSockets, Routes>>();
+        this.#routes = new Map();
     }
 
     public use(init: RouteInit<Decorations, WebSockets, Routes>): this {
-        Router.isRoute<Decorations, WebSockets, Routes>(init);
+        if (Router.isRoute(init)) {
+            throw new RouterError('Invalid route initializer received;');
+        }
         const key = `${init.method.toUpperCase()} ${init.path}`;
-        const route: Readonly<RouteInit<Decorations, WebSockets, Routes>> = Object.freeze({
-            ...init
-        });
-        this.#routes.register(key, route);
+        this.#routes.set(key, Object.freeze({ ...init }));
         return this;
     }
 
-    public static isRoute<Decorations, WebSockets, Routes extends string>(
-        target: RouteInit<Decorations, WebSockets, Routes>
-    ): target is RouteInit<Decorations, WebSockets, Routes> {
-        return Validator.for(target)
-            .use({
-                message: '',
-                handler: (entity: RouteInit<Decorations, WebSockets, Routes>): boolean =>
-                    utils.isPlainObject(entity)
-            })
-            .use({
-                message: '',
-                handler: (entity: RouteInit<Decorations, WebSockets, Routes>): boolean =>
-                    utils.hasOwn(entity, 'method') && utils.isString(entity.method)
-            })
-            .use({
-                message: '',
-                handler: (entity: RouteInit<Decorations, WebSockets, Routes>): boolean =>
-                    utils.hasOwn(entity, 'path') && utils.isString(entity.path)
-            })
-            .use({
-                message: '',
-                handler: (entity: RouteInit<Decorations, WebSockets, Routes>): boolean =>
-                    utils.hasOwn(entity, 'handler') && utils.isFunction(entity.handler)
-            })
-            .run();
+    public static isRoute(target: unknown): target is RouteInit {
+        return (
+            utils.isPlainObject(target)
+            && utils.hasOwnMatch(target, consts.method, /^[\w]+$/iu)
+            && utils.hasOwnMatch(target, consts.path, /^\/[^?\s#]*(?:\?[^#\s]*)?(?:#\S*)?$/iu)
+            && utils.hasOwn(target, consts.handler)
+            && utils.isFunction(target.handler)
+        );
     }
 
     public *[Symbol.iterator](): IterableIterator<
         [string, RouteInit<Decorations, WebSockets, Routes>]
     > {
-        yield* this.#routes;
+        yield* this.#routes.entries();
     }
 }

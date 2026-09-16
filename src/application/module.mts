@@ -1,6 +1,8 @@
+import type { PlainObject } from '@utils';
+
 export class Dumpling<
-    Decorations = unknown,
-    WebSockets = unknown,
+    Decorations extends PlainObject = PlainObject,
+    WebSockets extends PlainObject = PlainObject,
     Routes extends string = string
 > extends EventTarget {
     public decoration: Decorations;

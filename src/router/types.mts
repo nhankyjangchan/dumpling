@@ -1,15 +1,16 @@
+import type { PlainObject } from '@utils';
 import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
 
-export type RequestHandler<
-    Decorations = unknown,
-    WebSockets = unknown,
+export type RouteHandler<
+    Decorations extends PlainObject,
+    WebSockets extends PlainObject,
     Routes extends string = string
 > = (rc: RequestContext<Decorations, WebSockets, Routes>) => Response | Promise<Response>;
 
 export interface RouteInit<
-    Decorations = unknown,
-    WebSockets = unknown,
+    Decorations extends PlainObject = PlainObject,
+    WebSockets extends PlainObject = PlainObject,
     Routes extends string = string
 > {
     readonly method: string;
@@ -17,5 +18,5 @@ export interface RouteInit<
     readonly onRequest?: Middleware<Decorations, WebSockets, Routes>[];
     readonly onResponse?: Middleware<Decorations, WebSockets, Routes>[];
     readonly onError?: Middleware<Decorations, WebSockets, Routes>[];
-    readonly handler: RequestHandler<Decorations, WebSockets, Routes> | Response;
+    readonly handler: RouteHandler<Decorations, WebSockets, Routes> | Response;
 }
