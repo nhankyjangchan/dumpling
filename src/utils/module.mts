@@ -1,7 +1,7 @@
 import type { Utils, Consts, WithProperty } from './types.mts';
 
 export const utils: Readonly<Utils> = Object.freeze({
-    isObject(target: unknown): target is object {
+    isObject(target: unknown): target is Record<PropertyKey, unknown> {
         return target !== null && typeof target === 'object' && !Array.isArray(target);
     },
     isFunction(target: unknown): target is (...args: unknown[]) => unknown {

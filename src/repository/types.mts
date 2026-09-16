@@ -1,7 +1,7 @@
-import type { ErrorImpl, ErrorInit, ErrorJSON } from '@utils';
+import type { CommonErrorImpl, CommonErrorInit, CommonErrorJSON } from '@utils';
 
 export interface RepositoryImpl<Key extends PropertyKey, Value> {
-    size: number;
+    readonly size: number;
     register(key: Key, value: Value): this;
     unregister(key: Key): this;
     has(key: Key): boolean;
@@ -12,6 +12,6 @@ export interface RepositoryImpl<Key extends PropertyKey, Value> {
     entries(): IterableIterator<[Key, Value]>;
 }
 
-export type RepositoryErrorImpl = ErrorImpl;
-export type RepositoryErrorInit = ErrorInit;
-export type RepositoryErrorJSON = ErrorJSON;
+export type RepositoryErrorImpl = CommonErrorImpl;
+export type RepositoryErrorInit = CommonErrorInit;
+export type RepositoryErrorJSON = CommonErrorJSON;

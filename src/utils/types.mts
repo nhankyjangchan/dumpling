@@ -1,7 +1,7 @@
 export type WithProperty<Key extends PropertyKey, Value = unknown> = Record<Key, Value>;
 
 export interface Utils {
-    isObject(target: unknown): target is object;
+    isObject(target: unknown): target is Record<PropertyKey, unknown>;
     isFunction(target: unknown): target is (...args: unknown[]) => unknown;
     isString(target: unknown): target is string;
     isPlainObject(target: unknown): target is Record<PropertyKey, unknown>;
