@@ -57,7 +57,6 @@
         "isolatedModules": true,
         "preserveSymlinks": false,
         "verbatimModuleSyntax": true,
-        "noStrictGenericChecks": false,
         "emitDecoratorMetadata": false,
         "experimentalDecorators": false,
         "lib": ["ESNext", "DOM"],

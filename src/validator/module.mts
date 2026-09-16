@@ -16,13 +16,14 @@ export class Validator<E = unknown> implements ValidatorImpl<E> {
     }
 
     public use(rule: Rule<E>): this {
-        if (!Validator.isRule<E>(rule))
+        if (!Validator.isRule<E>(rule)) {
             throw new TypeError('Validator received an invalid rule object;');
+        }
         this.#rules.push({ ...rule });
         return this;
     }
 
-    public static isRule<E>(target: unknown): target is Rule<E> {
+    public static isRule<E = unknown>(target: unknown): target is Rule<E> {
         return (
             utils.isPlainObject(target)
             && utils.hasOwn(target, consts.handler)
@@ -34,8 +35,9 @@ export class Validator<E = unknown> implements ValidatorImpl<E> {
 
     public run(): true {
         for (const rule of this.#rules) {
-            if (!rule.handler(this.#entity))
+            if (!rule.handler(this.#entity)) {
                 throw new ValidationError({ message: rule.message });
+            }
         }
         return true;
     }

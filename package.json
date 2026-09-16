@@ -35,10 +35,13 @@
         "email": "dev.schuchkin.timur@gmail.com"
     },
     "scripts": {
-        "format": "pnpm exec prettier --write ./"
+        "lint": "pnpm exec oxlint",
+        "lint:fix": "pnpm exec oxlint --fix"
     },
     "devDependencies": {
         "@types/bun": "^1.4.2",
+        "oxlint": "^1.83.0",
+        "oxlint-tsgolint": "^7.0.2001",
         "prettier": "^3.9.6"
     }
 }

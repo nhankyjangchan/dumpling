@@ -1,5 +1,5 @@
 export type PlainObject = Record<PropertyKey, unknown>;
-export type Owns<T extends object, K extends PropertyKey, V = unknown> = T & Record<K, V>;
+export type WithProperty<K extends PropertyKey, V = unknown> = Record<K, V>;
 
 export interface Utils {
     isObject(target: unknown): target is object;
@@ -7,7 +7,10 @@ export interface Utils {
     isString(target: unknown): target is string;
     isPlainObject(target: unknown): target is PlainObject;
     match(target: string, pattern: RegExp): boolean;
-    hasOwn<T extends object, K extends PropertyKey>(target: T, key: K): target is Owns<T, K>;
+    hasOwn<T extends object, P extends PropertyKey>(
+        target: T,
+        propertyName: P
+    ): target is T & WithProperty<P>;
 }
 
 export interface Consts {

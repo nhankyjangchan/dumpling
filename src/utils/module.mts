@@ -1,4 +1,4 @@
-import type { Utils, PlainObject, Owns, Consts } from './types.mts';
+import type { Utils, PlainObject, WithProperty, Consts } from './types.mts';
 
 export const utils: Readonly<Utils> = Object.freeze({
     isObject(target: unknown): target is object {
@@ -16,8 +16,11 @@ export const utils: Readonly<Utils> = Object.freeze({
     match(target: string, pattern: RegExp): boolean {
         return pattern.test(target);
     },
-    hasOwn<T extends object, K extends PropertyKey>(target: T, key: K): target is Owns<T, K> {
-        return Object.hasOwn(target, key);
+    hasOwn<T extends object, P extends PropertyKey>(
+        target: T,
+        propertyName: P
+    ): target is T & WithProperty<P> {
+        return Object.hasOwn(target, propertyName);
     }
 });
 

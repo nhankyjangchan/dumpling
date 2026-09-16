@@ -2,7 +2,7 @@ import { utils, consts } from '@utils';
 import { Validator } from '@validator';
 import type { MiddlewareHandler, MiddlewareManifest, MiddlewareInit } from './types.mts';
 
-export class Middleware<D, W, R extends string> {
+export class Middleware<D = unknown, W = unknown, R extends string = string> {
     readonly #handler: MiddlewareHandler<D, W, R>;
     readonly #manifest: MiddlewareManifest;
 
@@ -20,7 +20,7 @@ export class Middleware<D, W, R extends string> {
         return this.#manifest;
     }
 
-    public static isInit<D, W, R extends string>(
+    public static isInit<D = unknown, W = unknown, R extends string = string>(
         target: any
     ): target is MiddlewareInit<D, W, R> {
         return Validator.for<MiddlewareInit<D, W, R>>(target)
@@ -35,7 +35,8 @@ export class Middleware<D, W, R extends string> {
             })
             .use({
                 message: '',
-                handler: Middleware.isManifest
+                handler: (e: MiddlewareInit<D, W, R>): boolean =>
+                    Middleware.isManifest(e.manifest)
             })
             .run();
     }

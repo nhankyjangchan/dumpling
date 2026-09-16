@@ -13,8 +13,8 @@ export class Router<D, W, R extends string> {
     public use(init: RouteInit<D, W, R>): this {
         Router.isRoute<D, W, R>(init);
         const key = `${init.method.toUpperCase()} ${init.path}`;
-        const clone: Readonly<RouteInit<D, W, R>> = utils.createShallowFrozenClone(init);
-        this.#routes.register(key, clone);
+        const route: Readonly<RouteInit<D, W, R>> = Object.freeze({ ...init });
+        this.#routes.register(key, route);
         return this;
     }
 

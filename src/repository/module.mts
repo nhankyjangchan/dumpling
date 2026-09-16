@@ -13,15 +13,17 @@ export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V
     }
 
     public register(key: K, value: V): this {
-        if (this.#entities.has(key))
+        if (this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" already registered;` });
+        }
         this.#entities.set(key, value);
         return this;
     }
 
     public unregister(key: K): this {
-        if (!this.#entities.has(key))
+        if (!this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" not found;` });
+        }
         this.#entities.delete(key);
         return this;
     }
@@ -31,14 +33,16 @@ export class Repository<K extends PropertyKey, V> implements RepositoryImpl<K, V
     }
 
     public get(key: K): V {
-        if (!this.#entities.has(key))
+        if (!this.#entities.has(key)) {
             throw new RepositoryError({ message: `Key "${String(key)}" not found;` });
+        }
         return this.#entities.get(key)!;
     }
 
     public clear(): this {
-        if (this.#entities.size === 0)
+        if (this.#entities.size === 0) {
             throw new RepositoryError({ message: `Repository is already empty;` });
+        }
         this.#entities.clear();
         return this;
     }

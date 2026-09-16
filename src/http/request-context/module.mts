@@ -33,10 +33,7 @@ export class RequestContext<D, W, R extends string> implements RequestContextImp
     }
 
     public raise(init?: OutgoingResponse): never {
-        throw new HttpError({
-            status: init?.status ?? 500,
-            message: init?.message ?? 'Internal Server Error'
-        });
+        throw new HttpError(init);
     }
 
     public build(): Response {
