@@ -1,28 +1,18 @@
-import type { PlainObject } from '@utils';
+import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
-import type { RouteInit } from '@router';
-import type { Dumpling } from './module.mts';
 
-export type Listener = EventListener | EventListenerObject;
-export type ListenerOptions = AddEventListenerOptions | boolean;
-
-export interface DumplingImplDumpling<
-    Decorations extends PlainObject,
-    WebSockets extends PlainObject,
-    Routes extends string = string
-> {
-    onRequest(...middlewares: Middleware<Decorations, WebSockets, Routes>[]): this;
-    onResponse(...middlewares: Middleware<Decorations, WebSockets, Routes>[]): this;
-    onError(...middlewares: Middleware<Decorations, WebSockets, Routes>[]): this;
-
-    decorate(content: Decorations): this;
-    use(...plugin: Dumpling[]): this;
-    route(init: RouteInit<Decorations, WebSockets, Routes>): this;
-
-    ws(): this;
-    launch(): Bun.Server<WebSockets>;
-
-    on(type: string, listener: Listener, options?: ListenerOptions): this;
-    emit(event: Event): this;
-    off(type: string, listener: Listener, options?: ListenerOptions): this;
+export interface PluginManifest {
+    readonly name: PluginName;
+    readonly dependencies: PluginName[];
 }
+
+export type PluginName = `${string}@plugin`;
+
+export interface RouteInit {
+    readonly method: string;
+    readonly path: `/${string}`;
+    readonly middlewares: Middleware[];
+    readonly handler: RouteHandler;
+}
+
+export type RouteHandler = (rc: RequestContext) => Response | Promise<Response>;

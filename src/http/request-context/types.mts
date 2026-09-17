@@ -1,26 +1,17 @@
-import type { PlainObject } from '@utils';
 import type { OutgoingResponse, OutgoingResponseInit } from '@http/response';
 import type { Dumpling } from '@application';
 
-export interface RequestContextImpl<
-    Decorations extends PlainObject,
-    WebSockets extends PlainObject,
-    Routes extends string
-> extends RequestContextInit<Decorations, WebSockets, Routes> {
+export interface RequestContextImpl extends RequestContextInit {
     raise(init?: OutgoingResponse): never;
     build(): Response;
 }
 
-export interface RequestContextInit<
-    Decorations extends PlainObject,
-    WebSockets extends PlainObject,
-    Routes extends string
-> {
-    readonly app: Dumpling<Decorations, WebSockets, Routes>;
-    readonly server: Bun.Server<WebSockets>;
+export interface RequestContextInit {
+    readonly app: Dumpling;
+    readonly server: Bun.Server<undefined>;
     readonly request: Request;
     readonly response: OutgoingResponse;
-    state: PlainObject;
+    state: Record<PropertyKey, unknown>;
 }
 
 export type HttpErrorInit = OutgoingResponseInit;

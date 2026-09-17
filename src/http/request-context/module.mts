@@ -1,21 +1,16 @@
 import { HttpError } from './errors.mts';
-import type { PlainObject } from '@utils';
 import type { Dumpling } from '@application';
 import type { OutgoingResponse } from '@http/response';
 import type { RequestContextImpl, RequestContextInit } from './types.mts';
 
-export class RequestContext<
-    Decorations extends PlainObject,
-    WebSockets extends PlainObject,
-    Routes extends string
-> implements RequestContextImpl<Decorations, WebSockets, Routes> {
-    readonly #app: Dumpling<Decorations, WebSockets, Routes>;
-    readonly #server: Bun.Server<WebSockets>;
+export class RequestContext implements RequestContextImpl {
+    readonly #app: Dumpling;
+    readonly #server: Bun.Server<undefined>;
     readonly #request: Request;
     readonly #response: OutgoingResponse;
-    public state: PlainObject;
+    public state: Record<PropertyKey, unknown>;
 
-    public constructor(init: RequestContextInit<Decorations, WebSockets, Routes>) {
+    public constructor(init: RequestContextInit) {
         this.#app = init.app;
         this.#server = init.server;
         this.#request = init.request;
@@ -23,11 +18,11 @@ export class RequestContext<
         this.state = {};
     }
 
-    public get app(): Dumpling<Decorations, WebSockets, Routes> {
+    public get app(): Dumpling {
         return this.#app;
     }
 
-    public get server(): Bun.Server<WebSockets> {
+    public get server(): Bun.Server<undefined> {
         return this.#server;
     }
 
