@@ -4,8 +4,7 @@ import { Middleware, MiddlewareError, type $Middleware } from '@middleware';
 const createManifest = (): $Middleware.Manifest => ({
     name: 'example@middleware',
     hook: 'onRequest',
-    type: 'sync',
-    exit: 'false'
+    type: 'sync#skip'
 });
 
 const createInit = (): $Middleware.Init => ({
@@ -109,12 +108,6 @@ describe('Middleware', (): void => {
             (init.manifest as { type: string }).type = 'parallel';
             expect((): Middleware => new Middleware(init)).toThrow();
         });
-
-        test('Throws on unknown exit', (): void => {
-            const init = createInit();
-            (init.manifest as { exit: string }).exit = 'maybe';
-            expect((): Middleware => new Middleware(init)).toThrow();
-        });
     });
 
     describe('constructor error type', (): void => {
@@ -161,8 +154,7 @@ describe('Middleware', (): void => {
             const middleware = new Middleware(createInit());
             expect(middleware.manifest.name).toBe('example@middleware');
             expect(middleware.manifest.hook).toBe('onRequest');
-            expect(middleware.manifest.type).toBe('sync');
-            expect(middleware.manifest.exit).toBe('false');
+            expect(middleware.manifest.type).toBe('sync#skip');
         });
 
         test('Throws on attempted mutation', (): void => {
@@ -231,16 +223,13 @@ describe('Middleware', (): void => {
 
         test('Returns true for every valid hook/type/exit combination', (): void => {
             const hooks = ['onRequest', 'onResponse', 'onError'] as const;
-            const types = ['sync', 'async'] as const;
-            const exits = ['true', 'false'] as const;
+            const types = ['sync#skip', 'sync#check', 'async#skip', 'async#check'] as const;
 
             for (const hook of hooks) {
                 for (const type of types) {
-                    for (const exit of exits) {
-                        expect(
-                            Middleware.isManifest({ name: 'x@middleware', hook, type, exit })
-                        ).toBe(true);
-                    }
+                    expect(Middleware.isManifest({ name: 'x@middleware', hook, type })).toBe(
+                        true
+                    );
                 }
             }
         });
@@ -377,8 +366,7 @@ describe('Middleware', (): void => {
             const fake: unknown[] & Record<string, unknown> = [] as never;
             fake['name'] = 'x@middleware';
             fake['hook'] = 'onRequest';
-            fake['type'] = 'sync';
-            fake['exit'] = 'false';
+            fake['type'] = 'async#check';
 
             expect(Middleware.isManifest(fake)).toBe(true);
         });
@@ -387,8 +375,7 @@ describe('Middleware', (): void => {
             const fake = [1, 2] as unknown[] & Record<string, unknown>;
             fake['name'] = 'x@middleware';
             fake['hook'] = 'onRequest';
-            fake['type'] = 'sync';
-            fake['exit'] = 'false';
+            fake['type'] = 'async#skip';
             expect(Middleware.isManifest(fake)).toBe(false);
         });
 
@@ -396,8 +383,7 @@ describe('Middleware', (): void => {
             const manifest = Object.create(null) as Record<string, unknown>;
             manifest['name'] = 'x@middleware';
             manifest['hook'] = 'onRequest';
-            manifest['type'] = 'sync';
-            manifest['exit'] = 'false';
+            manifest['type'] = 'sync#skip';
             expect(Middleware.isManifest(manifest)).toBe(true);
         });
 
@@ -405,8 +391,7 @@ describe('Middleware', (): void => {
             class FakeManifest {
                 readonly name = 'x@middleware';
                 readonly hook = 'onRequest';
-                readonly type = 'sync';
-                readonly exit = 'false';
+                readonly type = 'async#check';
             }
             expect(Middleware.isManifest(new FakeManifest())).toBe(true);
         });
@@ -415,8 +400,7 @@ describe('Middleware', (): void => {
             class FakeManifest {
                 readonly name = 'x@middleware';
                 readonly hook = 'onRequest';
-                readonly type = 'sync';
-                readonly exit = 'false';
+                readonly type = 'async#check';
 
                 public toString(): string {
                     return 'fake';

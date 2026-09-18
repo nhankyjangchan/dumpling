@@ -31,8 +31,10 @@ export const utils = Object.freeze({
         target: object,
         keys: Keys
     ): target is Record<Keys[number], unknown> {
-        const actualKeys: string[] = Object.keys(target).toSorted();
-        const expectedKeys: string[] = keys.toSorted();
-        return Bun.deepEquals(actualKeys, expectedKeys, true);
+        const actualKeys: string[] = Object.keys(target);
+        return (
+            actualKeys.length === keys.length
+            && actualKeys.every((key: string): boolean => keys.includes(key))
+        );
     }
 } as const);

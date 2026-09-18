@@ -40,6 +40,7 @@ export default defineConfig({
         'oxc/no-rest-spread-properties': 'off',
         'oxc/no-optional-chaining': 'off',
         'unicorn/no-null': 'off',
+        'unicorn/no-array-sort': 'off',
         'unicorn/no-array-callback-reference': 'off'
     }
 });

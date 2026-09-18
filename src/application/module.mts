@@ -57,7 +57,7 @@ export class Dumpling extends EventTarget {
 
     #assertNotReady(method: 'use' | 'mount' | 'route' | 'decorate'): void {
         if (this.#isReady) {
-            throw new Error(`Cannot call "${method}" after ready();`);
+            throw new Error(`Cannot call "${method}()" after ready();`);
         }
     }
 
@@ -71,7 +71,7 @@ export class Dumpling extends EventTarget {
 
     #registerMiddleware(middleware: Middleware): void {
         if (!(middleware instanceof Middleware)) {
-            throw new MiddlewareError(`${this.#manifest.name}.use() expected middleware;`);
+            throw new MiddlewareError(`"${this.#manifest.name}.use()" expected middleware;`);
         }
         const name: $Middleware.Name = middleware.manifest.name;
         if (this.#middlewares.has(name)) {
@@ -90,7 +90,7 @@ export class Dumpling extends EventTarget {
 
     #registerPlugin(plugin: Dumpling): void {
         if (!(plugin instanceof Dumpling)) {
-            throw new PluginError(`${this.#manifest.name}.mount() expected plugin;`);
+            throw new PluginError(`"${this.#manifest.name}.mount()" expected plugin;`);
         }
         const name: $Plugin.Name = plugin.manifest.name;
         if (this.#plugins.has(name)) {
