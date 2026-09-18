@@ -1,14 +1,19 @@
 import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
 
-export interface PluginManifest {
-    readonly name: PluginName;
-    readonly dependencies: PluginName[];
+export namespace $Plugin {
+    export type ManifestKeys = Readonly<(keyof Manifest)[]>;
+
+    export interface Manifest {
+        readonly name: Name;
+        readonly injectable: boolean;
+        readonly plugins: Name[];
+    }
+
+    export type Name = `${string}@plugin`;
 }
 
-export type PluginName = `${string}@plugin`;
-
-export interface RouteInit {
+export interface Route {
     readonly method: string;
     readonly path: `/${string}`;
     readonly middlewares: Middleware[];

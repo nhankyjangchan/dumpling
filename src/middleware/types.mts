@@ -1,21 +1,26 @@
 import type { RequestContext } from '@http';
 
-export type MiddlewareHandler = (
-    rc: RequestContext
-) => undefined | Response | Promise<Response | undefined>;
+export namespace $Middleware {
+    export type Handler = (
+        rc: RequestContext
+    ) => undefined | Response | Promise<Response | undefined>;
 
-export interface MiddlewareInit {
-    readonly handler: MiddlewareHandler;
-    readonly manifest: MiddlewareManifest;
+    export type InitKeys = Readonly<(keyof Init)[]>;
+
+    export interface Init {
+        readonly handler: Handler;
+        readonly manifest: Manifest;
+    }
+
+    export type ManifestKeys = Readonly<(keyof Manifest)[]>;
+
+    export interface Manifest {
+        readonly name: Name;
+        readonly hook: Hook;
+        readonly type: Type;
+    }
+
+    export type Name = `${string}@middleware`;
+    export type Hook = 'onRequest' | 'onResponse' | 'onError';
+    export type Type = 'sync#skip' | 'sync#check' | 'async#skip' | 'async#check';
 }
-
-export interface MiddlewareManifest {
-    readonly name: MiddlewareName;
-    readonly hook: MiddlewareHook;
-    readonly type: MiddlewareType;
-    readonly response: boolean;
-}
-
-export type MiddlewareName = `${string}@middleware`;
-export type MiddlewareHook = 'onRequest' | 'onResponse' | 'onError';
-export type MiddlewareType = 'sync' | 'async';

@@ -34,10 +34,7 @@
             "@http/context": ["./src/http/request-context/_index.mts"],
             "@http/response": ["./src/http/outgoing-response/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
-            "@repository": ["./src/repository/_index.mts"],
-            "@router": ["./src/router/_index.mts"],
-            "@utils": ["./src/utils/_index.mts"],
-            "@validator": ["./src/validator/_index.mts"]
+            "@utils": ["./src/utils/_index.mts"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,
@@ -79,6 +76,6 @@
         "pretty": true,
         "skipLibCheck": false
     },
-    "include": ["./src/**/*.mts", "./scripts/*.mts"],
-    "exclude": ["./node_modules", "./build", "./tests"]
+    "include": ["./src/**/*.mts", "./scripts/*.mts", "./tests"],
+    "exclude": ["./node_modules", "./build"]
 }

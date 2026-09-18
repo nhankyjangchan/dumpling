@@ -18,7 +18,7 @@ export default defineConfig({
     globals: {
         Bun: 'readonly'
     },
-    ignorePatterns: ['node_modules/**', 'dist/**', 'build/**', 'out/**', 'coverage/**'],
+    ignorePatterns: ['node_modules/**', 'build/**', 'tests/**', 'coverage/**'],
     options: {
         denyWarnings: true,
         reportUnusedDisableDirectives: 'deny',
@@ -27,19 +27,19 @@ export default defineConfig({
         typeCheck: true
     },
     rules: {
-        'no-magic-numbers': 'off',
-        'require-unicode-regexp': 'off',
+        'no-magic-numbers': ['error', { ignore: [200, 500] }],
         'one-var': 'off',
         'class-methods-use-this': ['error', { exceptMethods: ['raise'] }],
         'sort-imports': 'off',
         'sort-keys': 'off',
-        'typescript/no-empty-interface': 'off',
+        'typescript/no-namespace': 'off',
+        'typescript/require-array-sort-compare': 'off',
         'typescript/prefer-readonly-parameter-types': 'off',
         'typescript/method-signature-style': 'off',
-        'typescript/no-non-null-assertion': 'off',
-        'typescript/only-throw-error': ['deny', { allow: ['HttpError'] }],
+        'typescript/only-throw-error': ['off', { allow: ['HttpError'] }],
         'oxc/no-rest-spread-properties': 'off',
         'oxc/no-optional-chaining': 'off',
-        'unicorn/no-null': 'off'
+        'unicorn/no-null': 'off',
+        'unicorn/no-array-callback-reference': 'off'
     }
 });

@@ -1,36 +1,38 @@
-import type { Utils, Consts, PlainObject, WithProperty } from './types.mts';
+import type { WithProperty } from './types.mts';
 
-export const utils: Readonly<Utils> = Object.freeze({
+export const utils = Object.freeze({
     isFunction(target: unknown): target is (...args: unknown[]) => unknown {
         return typeof target === 'function';
     },
-    isPlainObject(target: unknown): target is PlainObject {
+    isPlainObject(target: unknown): target is Record<PropertyKey, unknown> {
         return utils.isObject(target) && Object.getPrototypeOf(target) === Object.prototype;
     },
     isObject(target: unknown): target is object {
         return target !== null && typeof target === 'object';
     },
-    hasOwnMatch(target: object, key: PropertyKey, pattern: RegExp): boolean {
-        return utils.hasOwn(target, key) && utils.match(target[key], pattern);
+    isBoolean(target: unknown): target is boolean {
+        return typeof target === 'boolean';
     },
-    hasOwn<Target extends object, Key extends PropertyKey>(
+    hasOnlyStrings<Target extends object>(
+        target: Target
+    ): target is Target & WithProperty<keyof Target, string> {
+        return Object.values(target).every(utils.isString);
+    },
+    isString(target: unknown): target is string {
+        return typeof target === 'string';
+    },
+    hasOwn<Target extends object, const Key extends PropertyKey>(
         target: Target,
         key: Key
     ): target is Target & WithProperty<Key> {
         return Object.hasOwn(target, key);
     },
-    match(target: unknown, pattern: RegExp): boolean {
-        return typeof target === 'string' && pattern.test(target);
+    hasExactKeys<const Keys extends readonly string[]>(
+        target: object,
+        keys: Keys
+    ): target is Record<Keys[number], unknown> {
+        const actualKeys: string[] = Object.keys(target).toSorted();
+        const expectedKeys: string[] = keys.toSorted();
+        return Bun.deepEquals(actualKeys, expectedKeys, true);
     }
-});
-
-export const consts: Readonly<Consts> = Object.freeze({
-    handler: 'handler',
-    manifest: 'manifest',
-    name: 'name',
-    hook: 'hook',
-    type: 'type',
-    response: 'response',
-    method: 'method',
-    path: 'path'
-});
+} as const);

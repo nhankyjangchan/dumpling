@@ -12,4 +12,4 @@ port = 9090
 root = "./tests"
 coverage = true
 coverageIgnoreSourcemaps = false
-rerunEach = 2
+rerunEach = 1

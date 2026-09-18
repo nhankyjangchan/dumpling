@@ -1,76 +1,121 @@
-import type { Middleware, MiddlewareName } from '@middleware';
-import type { PluginManifest, PluginName, RouteInit } from './types.mts';
+import { Middleware, MiddlewareError, type $Middleware } from '@middleware';
+import { utils } from '@utils';
+import { PluginError } from './errors.mts';
+import type { $Plugin, Route } from './types.mts';
 
 export class Dumpling extends EventTarget {
-    readonly #manifest: PluginManifest;
-    #plugins: Map<PluginName, Dumpling>;
-    #middlewares: Map<MiddlewareName, Middleware>;
-    #routes: Map<string, RouteInit>;
+    static readonly #MANIFEST_KEYS: $Plugin.ManifestKeys = ['name', 'injectable', 'plugins'];
 
-    public constructor(manifest: PluginManifest) {
+    readonly #manifest: $Plugin.Manifest;
+    readonly #middlewares: Map<$Middleware.Name, Middleware>;
+    readonly #plugins: Map<$Plugin.Name, Dumpling>;
+    readonly #routes: Map<string, Route>;
+    #isReady: boolean;
+    #decorates: Record<PropertyKey, unknown>;
+
+    public constructor(manifest: $Plugin.Manifest) {
+        if (!Dumpling.isManifest(manifest)) {
+            throw new PluginError('Invalid plugin manifest;');
+        }
         super();
         this.#manifest = Object.freeze({ ...manifest });
-        this.#plugins = new Map();
         this.#middlewares = new Map();
+        this.#plugins = new Map();
         this.#routes = new Map();
+        this.#isReady = false;
+        this.#decorates = {};
     }
 
-    public get manifest(): PluginManifest {
+    public get manifest(): $Plugin.Manifest {
         return this.#manifest;
     }
 
-    public get plugins(): IterableIterator<Dumpling> {
-        return this.#plugins.values();
-    }
-
-    public get middlewares(): IterableIterator<Middleware> {
+    public get middlewares(): MapIterator<Middleware> {
         return this.#middlewares.values();
     }
 
-    public decorate(): this {
+    public get plugins(): MapIterator<Dumpling> {
+        return this.#plugins.values();
+    }
+
+    public static isManifest(target: unknown): target is $Plugin.Manifest {
+        return (
+            utils.isObject(target)
+            && utils.hasExactKeys(target, Dumpling.#MANIFEST_KEYS)
+            && utils.isString(target.name)
+            && utils.isBoolean(target.injectable)
+            && target.name.endsWith('@pluginmiddleware')
+            && Array.isArray(target.plugins)
+        );
+    }
+
+    public decorate(key: PropertyKey, value: unknown): this {
+        this.#assertNotReady('decorate');
+        this.#decorates[key] = value;
         return this;
     }
 
-    public use(...middlewares: Middleware[]): this {
+    #assertNotReady(method: 'use' | 'mount' | 'route' | 'decorate'): void {
+        if (this.#isReady) {
+            throw new Error(`Cannot call "${method}" after ready();`);
+        }
+    }
+
+    public use(...middlewares: readonly Middleware[]): this {
+        this.#assertNotReady('use');
         for (const middleware of middlewares) {
-            this.#setMiddleware(middleware);
+            this.#registerMiddleware(middleware);
         }
         return this;
     }
 
-    #setMiddleware(middleware: Middleware): void {
-        const name: MiddlewareName = middleware.manifest.name;
+    #registerMiddleware(middleware: Middleware): void {
+        if (!(middleware instanceof Middleware)) {
+            throw new MiddlewareError(`${this.#manifest.name}.use() expected middleware;`);
+        }
+        const name: $Middleware.Name = middleware.manifest.name;
         if (this.#middlewares.has(name)) {
-            throw new Error(`Middleware "${name}" already registered;`);
+            throw new MiddlewareError(`"${name}" already registered;`);
         }
         this.#middlewares.set(name, middleware);
     }
 
-    public mount(...plugins: Dumpling[]): this {
+    public mount(...plugins: readonly Dumpling[]): this {
+        this.#assertNotReady('mount');
         for (const plugin of plugins) {
-            this.#setPlugin(plugin);
+            this.#registerPlugin(plugin);
         }
         return this;
     }
 
-    #setPlugin(plugin: Dumpling): void {
-        const name: PluginName = plugin.manifest.name;
+    #registerPlugin(plugin: Dumpling): void {
+        if (!(plugin instanceof Dumpling)) {
+            throw new PluginError(`${this.#manifest.name}.mount() expected plugin;`);
+        }
+        const name: $Plugin.Name = plugin.manifest.name;
         if (this.#plugins.has(name)) {
-            throw new Error(`Plugin "${name}" already registered;`);
+            throw new PluginError(`"${name}" already registered;`);
         }
         this.#plugins.set(name, plugin);
     }
 
-    public route(init: RouteInit): this {
-        const key = `${init.method.toUpperCase()} ${init.path}`;
-        if (this.#routes.has(key)) {
-            throw new Error(`Route "${key}" already registered;`);
+    public route(...routes: readonly Route[]): this {
+        this.#assertNotReady('route');
+        for (const route of routes) {
+            this.#registerRoute(route);
         }
-        this.#routes.set(key, init);
         return this;
     }
 
-    public launch<W = undefined>(options: Bun.Serve.Options<W>): Bun.Server<W> {
-        return Bun.serve(options);
+    #registerRoute(route: Route): void {
+        const key = `${route.method.toUpperCase()} ${route.path}`;
+        if (this.#routes.has(key)) {
+            throw new Error(`Route "${key}" already registered;`);
+        }
+        this.#routes.set(key, route);
+    }
+
+    public ready(): void {
+        this.#isReady = true;
     }
 }
