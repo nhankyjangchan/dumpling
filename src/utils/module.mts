@@ -1,5 +1,19 @@
 import type { WithProperty } from './types.mts';
 
+/**
+ * I don't consider these utilities to be particularly high-quality code.
+ * For instance, `utils.hasExactKeys` has a complexity of O(n²).
+ * This could be optimized by using `Set.prototype.isSubsetOf()`,
+ * but these functions are used in only two or three places and
+ * run just once—when the server starts.
+ *
+ * I don't think it's worth going through the codebase to swap arrays for sets or
+ * messing with the typing (I can't stand type casting via `as`),
+ * so I'm leaving it as is.
+ *
+ * @author Timur Schuchkin "Nhankyjangchan"
+ * @internal
+ */
 export const utils = Object.freeze({
     isFunction(target: unknown): target is (...args: unknown[]) => unknown {
         return typeof target === 'function';
@@ -10,9 +24,6 @@ export const utils = Object.freeze({
     isObject(target: unknown): target is object {
         return target !== null && typeof target === 'object';
     },
-    isBoolean(target: unknown): target is boolean {
-        return typeof target === 'boolean';
-    },
     hasOnlyStrings<Target extends object>(
         target: Target
     ): target is Target & WithProperty<keyof Target, string> {
@@ -21,20 +32,15 @@ export const utils = Object.freeze({
     isString(target: unknown): target is string {
         return typeof target === 'string';
     },
-    hasOwn<Target extends object, const Key extends PropertyKey>(
+    hasExactKeys<Target extends object, const Keys extends readonly string[]>(
         target: Target,
-        key: Key
-    ): target is Target & WithProperty<Key> {
-        return Object.hasOwn(target, key);
-    },
-    hasExactKeys<const Keys extends readonly string[]>(
-        target: object,
         keys: Keys
-    ): target is Record<Keys[number], unknown> {
+    ): target is Target & WithProperty<Keys[number], string> {
         const actualKeys: string[] = Object.keys(target);
+        const exactKeys = new Set(keys);
         return (
             actualKeys.length === keys.length
-            && actualKeys.every((key: string): boolean => keys.includes(key))
+            && actualKeys.every((key: string): boolean => exactKeys.has(key))
         );
     }
 } as const);

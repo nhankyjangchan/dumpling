@@ -2,15 +2,15 @@ import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
 
 export namespace $Plugin {
-    export type ManifestKeys = Readonly<(keyof Manifest)[]>;
+    export type DescriptorKeys = Readonly<(keyof Descriptor)[]>;
 
-    export interface Manifest {
+    export interface Descriptor {
         readonly name: Name;
-        readonly injectable: boolean;
-        readonly plugins: Name[];
+        readonly scope: Scope;
     }
 
     export type Name = `${string}@plugin`;
+    export type Scope = 'self' | 'global';
 }
 
 export interface Route {

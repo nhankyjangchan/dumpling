@@ -30,7 +30,7 @@ export class Middleware {
 
     public static isInit(target: unknown): target is $Middleware.Init {
         return (
-            utils.isObject(target)
+            utils.isPlainObject(target)
             && utils.hasExactKeys(target, Middleware.#INIT_KEYS)
             && utils.isFunction(target.handler)
             && Middleware.isManifest(target.manifest)
@@ -39,7 +39,7 @@ export class Middleware {
 
     public static isManifest(target: unknown): target is $Middleware.Manifest {
         return (
-            utils.isObject(target)
+            utils.isPlainObject(target)
             && utils.hasExactKeys(target, Middleware.#MANIFEST_KEYS)
             && utils.hasOnlyStrings(target)
             && target.name.endsWith('@middleware')

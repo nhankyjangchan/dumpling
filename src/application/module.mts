@@ -4,21 +4,24 @@ import { PluginError } from './errors.mts';
 import type { $Plugin, Route } from './types.mts';
 
 export class Dumpling extends EventTarget {
-    static readonly #MANIFEST_KEYS: $Plugin.ManifestKeys = ['name', 'injectable', 'plugins'];
+    static readonly #DESCRIPTOR_KEYS: $Plugin.DescriptorKeys = ['name', 'scope'];
 
-    readonly #manifest: $Plugin.Manifest;
+    static readonly #SCOPE_RE: RegExp = /^(?:self|global)$/u;
+
+    readonly #descriptor: $Plugin.Descriptor;
     readonly #middlewares: Map<$Middleware.Name, Middleware>;
     readonly #plugins: Map<$Plugin.Name, Dumpling>;
     readonly #routes: Map<string, Route>;
+
     #isReady: boolean;
     #decorates: Record<PropertyKey, unknown>;
 
-    public constructor(manifest: $Plugin.Manifest) {
-        if (!Dumpling.isManifest(manifest)) {
-            throw new PluginError('Invalid plugin manifest;');
+    public constructor(descriptor: $Plugin.Descriptor) {
+        if (!Dumpling.isDescriptor(descriptor)) {
+            throw new PluginError('Invalid plugin descriptor;');
         }
         super();
-        this.#manifest = Object.freeze({ ...manifest });
+        this.#descriptor = Object.freeze({ ...descriptor });
         this.#middlewares = new Map();
         this.#plugins = new Map();
         this.#routes = new Map();
@@ -26,8 +29,8 @@ export class Dumpling extends EventTarget {
         this.#decorates = {};
     }
 
-    public get manifest(): $Plugin.Manifest {
-        return this.#manifest;
+    public get descriptor(): $Plugin.Descriptor {
+        return this.#descriptor;
     }
 
     public get middlewares(): MapIterator<Middleware> {
@@ -38,14 +41,21 @@ export class Dumpling extends EventTarget {
         return this.#plugins.values();
     }
 
-    public static isManifest(target: unknown): target is $Plugin.Manifest {
+    public get routes(): MapIterator<Route> {
+        return this.#routes.values();
+    }
+
+    public get isReady(): boolean {
+        return this.#isReady;
+    }
+
+    public static isDescriptor(target: unknown): target is $Plugin.Descriptor {
         return (
-            utils.isObject(target)
-            && utils.hasExactKeys(target, Dumpling.#MANIFEST_KEYS)
-            && utils.isString(target.name)
-            && utils.isBoolean(target.injectable)
-            && target.name.endsWith('@pluginmiddleware')
-            && Array.isArray(target.plugins)
+            utils.isPlainObject(target)
+            && utils.hasExactKeys(target, Dumpling.#DESCRIPTOR_KEYS)
+            && utils.hasOnlyStrings(target)
+            && target.name.endsWith('@plugin')
+            && Dumpling.#SCOPE_RE.test(target.scope)
         );
     }
 
@@ -71,7 +81,7 @@ export class Dumpling extends EventTarget {
 
     #registerMiddleware(middleware: Middleware): void {
         if (!(middleware instanceof Middleware)) {
-            throw new MiddlewareError(`"${this.#manifest.name}.use()" expected middleware;`);
+            throw new MiddlewareError(`"${this.#descriptor.name}.use()" expected middleware;`);
         }
         const name: $Middleware.Name = middleware.manifest.name;
         if (this.#middlewares.has(name)) {
@@ -90,9 +100,12 @@ export class Dumpling extends EventTarget {
 
     #registerPlugin(plugin: Dumpling): void {
         if (!(plugin instanceof Dumpling)) {
-            throw new PluginError(`"${this.#manifest.name}.mount()" expected plugin;`);
+            throw new PluginError(`"${this.#descriptor.name}.mount()" expected plugin;`);
         }
-        const name: $Plugin.Name = plugin.manifest.name;
+        const name: $Plugin.Name = plugin.descriptor.name;
+        if (!plugin.isReady) {
+            throw new PluginError(`"${name}" not ready, call ${name}.ready() before mount;`);
+        }
         if (this.#plugins.has(name)) {
             throw new PluginError(`"${name}" already registered;`);
         }

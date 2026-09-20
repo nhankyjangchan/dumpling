@@ -362,13 +362,13 @@ describe('Middleware', (): void => {
     });
 
     describe('documented edge cases', (): void => {
-        test('Accepts an empty array with the 4 properties attached', (): void => {
+        test('Rejects an empty array with the 4 properties attached', (): void => {
             const fake: unknown[] & Record<string, unknown> = [] as never;
             fake['name'] = 'x@middleware';
             fake['hook'] = 'onRequest';
             fake['type'] = 'async#check';
 
-            expect(Middleware.isManifest(fake)).toBe(true);
+            expect(Middleware.isManifest(fake)).toBe(false);
         });
 
         test('Rejects a non-empty array even with the 4 properties attached', (): void => {
@@ -379,21 +379,21 @@ describe('Middleware', (): void => {
             expect(Middleware.isManifest(fake)).toBe(false);
         });
 
-        test('Accepts an object created with Object.create(null)', (): void => {
+        test('Rejects an object created with Object.create(null)', (): void => {
             const manifest = Object.create(null) as Record<string, unknown>;
             manifest['name'] = 'x@middleware';
             manifest['hook'] = 'onRequest';
             manifest['type'] = 'sync#skip';
-            expect(Middleware.isManifest(manifest)).toBe(true);
+            expect(Middleware.isManifest(manifest)).toBe(false);
         });
 
-        test('Accepts a class instance with the 4 own fields', (): void => {
+        test('Rejects a class instance with the 4 own fields', (): void => {
             class FakeManifest {
                 readonly name = 'x@middleware';
                 readonly hook = 'onRequest';
                 readonly type = 'async#check';
             }
-            expect(Middleware.isManifest(new FakeManifest())).toBe(true);
+            expect(Middleware.isManifest(new FakeManifest())).toBe(false);
         });
 
         test('Rejects a class instance with an extra prototype method', (): void => {
@@ -406,7 +406,7 @@ describe('Middleware', (): void => {
                     return 'fake';
                 }
             }
-            expect(Middleware.isManifest(new FakeManifest())).toBe(true);
+            expect(Middleware.isManifest(new FakeManifest())).toBe(false);
         });
 
         test('Accepts a Proxy wrapping a valid manifest', (): void => {
