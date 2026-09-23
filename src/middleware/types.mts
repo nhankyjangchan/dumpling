@@ -1,9 +1,7 @@
 import type { RequestContext } from '@http';
 
 export namespace $Middleware {
-    export type Handler = (
-        rc: RequestContext
-    ) => undefined | Response | Promise<Response | undefined>;
+    export type Handler = (rc: RequestContext) => Response | void | Promise<Response | void>;
 
     export type InitKeys = Readonly<(keyof Init)[]>;
 

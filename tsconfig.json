@@ -34,6 +34,7 @@
             "@http/context": ["./src/http/request-context/_index.mts"],
             "@http/response": ["./src/http/outgoing-response/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
+            "@router": ["./src/router/_index.mts"],
             "@utils": ["./src/utils/_index.mts"]
         },
         "resolveJsonModule": true,

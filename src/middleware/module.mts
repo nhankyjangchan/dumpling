@@ -5,7 +5,6 @@ import type { $Middleware } from './types.mts';
 export class Middleware {
     static readonly #INIT_KEYS: $Middleware.InitKeys = ['handler', 'manifest'];
     static readonly #MANIFEST_KEYS: $Middleware.ManifestKeys = ['name', 'hook', 'type'];
-
     static readonly #HOOK_RE: RegExp = /^on(?:Request|Response|Error)$/u;
     static readonly #TYPE_RE: RegExp = /^(?:sync#(?:skip|check)|async#(?:skip|check))$/u;
 

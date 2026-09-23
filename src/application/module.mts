@@ -1,20 +1,19 @@
-import { Middleware, MiddlewareError, type $Middleware } from '@middleware';
+import { Middleware, type $Middleware } from '@middleware';
+import { Router, type $Router } from '@router';
 import { utils } from '@utils';
 import { PluginError } from './errors.mts';
-import type { $Plugin, Route } from './types.mts';
+import type { $Plugin } from './types.mts';
 
 export class Dumpling extends EventTarget {
     static readonly #DESCRIPTOR_KEYS: $Plugin.DescriptorKeys = ['name', 'scope'];
-
     static readonly #SCOPE_RE: RegExp = /^(?:self|global)$/u;
 
     readonly #descriptor: $Plugin.Descriptor;
     readonly #middlewares: Map<$Middleware.Name, Middleware>;
     readonly #plugins: Map<$Plugin.Name, Dumpling>;
-    readonly #routes: Map<string, Route>;
+    readonly #router: Router;
 
     #isReady: boolean;
-    #decorates: Record<PropertyKey, unknown>;
 
     public constructor(descriptor: $Plugin.Descriptor) {
         if (!Dumpling.isDescriptor(descriptor)) {
@@ -24,9 +23,8 @@ export class Dumpling extends EventTarget {
         this.#descriptor = Object.freeze({ ...descriptor });
         this.#middlewares = new Map();
         this.#plugins = new Map();
-        this.#routes = new Map();
+        this.#router = new Router();
         this.#isReady = false;
-        this.#decorates = {};
     }
 
     public get descriptor(): $Plugin.Descriptor {
@@ -34,15 +32,18 @@ export class Dumpling extends EventTarget {
     }
 
     public get middlewares(): MapIterator<Middleware> {
+        this.#assertReady('middlewares');
         return this.#middlewares.values();
     }
 
     public get plugins(): MapIterator<Dumpling> {
+        this.#assertReady('plugins');
         return this.#plugins.values();
     }
 
-    public get routes(): MapIterator<Route> {
-        return this.#routes.values();
+    public get routes(): MapIterator<$Router.Route> {
+        this.#assertReady('routes');
+        return this.#router.routes;
     }
 
     public get isReady(): boolean {
@@ -59,15 +60,17 @@ export class Dumpling extends EventTarget {
         );
     }
 
-    public decorate(key: PropertyKey, value: unknown): this {
-        this.#assertNotReady('decorate');
-        this.#decorates[key] = value;
-        return this;
+    #assertReady(getter: 'middlewares' | 'plugins' | 'routes'): void {
+        if (!this.#isReady) {
+            const name: $Plugin.Name = this.#descriptor.name;
+            throw new PluginError(`Cannot read "${name}.${getter}" before "${name}.ready()";`);
+        }
     }
 
-    #assertNotReady(method: 'use' | 'mount' | 'route' | 'decorate'): void {
+    #assertNotReady(method: 'use' | 'mount' | 'route'): void {
         if (this.#isReady) {
-            throw new Error(`Cannot call "${method}()" after ready();`);
+            const name: $Plugin.Name = this.descriptor.name;
+            throw new PluginError(`Cannot call "${name}.${method}()" after "${name}.ready()";`);
         }
     }
 
@@ -81,11 +84,11 @@ export class Dumpling extends EventTarget {
 
     #registerMiddleware(middleware: Middleware): void {
         if (!(middleware instanceof Middleware)) {
-            throw new MiddlewareError(`"${this.#descriptor.name}.use()" expected middleware;`);
+            throw new PluginError(`"${this.#descriptor.name}.use()" expected middleware;`);
         }
         const name: $Middleware.Name = middleware.manifest.name;
         if (this.#middlewares.has(name)) {
-            throw new MiddlewareError(`"${name}" already registered;`);
+            throw new PluginError(`"${name}" already registered;`);
         }
         this.#middlewares.set(name, middleware);
     }
@@ -104,7 +107,7 @@ export class Dumpling extends EventTarget {
         }
         const name: $Plugin.Name = plugin.descriptor.name;
         if (!plugin.isReady) {
-            throw new PluginError(`"${name}" not ready, call ${name}.ready() before mount;`);
+            throw new PluginError(`"${name}" not ready, call "${name}.ready()" before mount;`);
         }
         if (this.#plugins.has(name)) {
             throw new PluginError(`"${name}" already registered;`);
@@ -112,23 +115,24 @@ export class Dumpling extends EventTarget {
         this.#plugins.set(name, plugin);
     }
 
-    public route(...routes: readonly Route[]): this {
+    public route(...routes: readonly $Router.Route[]): this {
         this.#assertNotReady('route');
         for (const route of routes) {
-            this.#registerRoute(route);
+            this.#router.register(route);
         }
         return this;
     }
 
-    #registerRoute(route: Route): void {
-        const key = `${route.method.toUpperCase()} ${route.path}`;
-        if (this.#routes.has(key)) {
-            throw new Error(`Route "${key}" already registered;`);
-        }
-        this.#routes.set(key, route);
-    }
-
     public ready(): void {
+        if (this.#plugins.size > 0) {
+            for (const plugin of this.#plugins.values()) {
+                if (plugin.descriptor.scope === 'self') {
+                    continue;
+                }
+                this.use(...plugin.middlewares);
+                this.route(...plugin.routes);
+            }
+        }
         this.#isReady = true;
     }
 }

@@ -1,24 +1,10 @@
 import type { WithProperty } from './types.mts';
 
-/**
- * I don't consider these utilities to be particularly high-quality code.
- * For instance, `utils.hasExactKeys` has a complexity of O(n²).
- * This could be optimized by using `Set.prototype.isSubsetOf()`,
- * but these functions are used in only two or three places and
- * run just once—when the server starts.
- *
- * I don't think it's worth going through the codebase to swap arrays for sets or
- * messing with the typing (I can't stand type casting via `as`),
- * so I'm leaving it as is.
- *
- * @author Timur Schuchkin "Nhankyjangchan"
- * @internal
- */
 export const utils = Object.freeze({
     isFunction(target: unknown): target is (...args: unknown[]) => unknown {
         return typeof target === 'function';
     },
-    isPlainObject(target: unknown): target is Record<PropertyKey, unknown> {
+    isPlainObject(target: unknown): target is object {
         return utils.isObject(target) && Object.getPrototypeOf(target) === Object.prototype;
     },
     isObject(target: unknown): target is object {
@@ -35,7 +21,7 @@ export const utils = Object.freeze({
     hasExactKeys<Target extends object, const Keys extends readonly string[]>(
         target: Target,
         keys: Keys
-    ): target is Target & WithProperty<Keys[number], string> {
+    ): target is Target & WithProperty<Keys[number], unknown> {
         const actualKeys: string[] = Object.keys(target);
         const exactKeys = new Set(keys);
         return (
