@@ -1,5 +1,5 @@
 name: 💡 Feature request
-description: Propose a new feature or enhancement for this plugin.
+description: Propose a new feature or enhancement for this package.
 title: '[FEATURE] '
 labels: ['enhancement']
 assignees: ['nhankyjangchan']
@@ -7,7 +7,7 @@ body:
     - type: markdown
       id: feature_request-header
       attributes:
-          value: ⚠️ **Before filling this form**, please ensure you've read the [documentation](https://github.com/nhankyjangchan/koa-cors) and searched for [existing issues](https://github.com/nhankyjangchan/koa-cors/issues).
+          value: ⚠️ **Before filling this form**, please ensure you've read the [documentation](https://github.com/nhankyjangchan/dumpling) and searched for [existing issues](https://github.com/nhankyjangchan/dumpling/issues).
 
     - type: textarea
       id: problem_description
@@ -23,7 +23,7 @@ body:
       attributes:
           label: Describe the solution you'd like
           description: A clear and concise description of what you want to happen.
-          placeholder: It would be great if the plugin could [...]
+          placeholder: It would be great if the package could [...]
       validations:
           required: true
 
@@ -48,4 +48,4 @@ body:
     - type: markdown
       id: feature_request-footer
       attributes:
-          value: 💙 Thanks for helping improve this plugin!
+          value: 💙 Thanks for helping improve this package!

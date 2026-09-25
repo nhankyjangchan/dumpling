@@ -1,14 +1,14 @@
 import type { RequestContext } from '@http';
 
 export namespace $Middleware {
-    export type Handler = (rc: RequestContext) => Response | void | Promise<Response | void>;
-
     export type InitKeys = Readonly<(keyof Init)[]>;
 
     export interface Init {
         readonly handler: Handler;
         readonly manifest: Manifest;
     }
+
+    export type Handler = (rc: RequestContext) => Response | void | Promise<Response | void>;
 
     export type ManifestKeys = Readonly<(keyof Manifest)[]>;
 

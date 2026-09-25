@@ -1,4 +1,4 @@
-import type { WithProperty } from './types.mts';
+import type { $Utils } from './types.mts';
 
 export const utils = Object.freeze({
     isFunction(target: unknown): target is (...args: unknown[]) => unknown {
@@ -12,7 +12,7 @@ export const utils = Object.freeze({
     },
     hasOnlyStrings<Target extends object>(
         target: Target
-    ): target is Target & WithProperty<keyof Target, string> {
+    ): target is Target & $Utils.WithProperty<keyof Target, string> {
         return Object.values(target).every(utils.isString);
     },
     isString(target: unknown): target is string {
@@ -21,7 +21,7 @@ export const utils = Object.freeze({
     hasExactKeys<Target extends object, const Keys extends readonly string[]>(
         target: Target,
         keys: Keys
-    ): target is Target & WithProperty<Keys[number], unknown> {
+    ): target is Target & $Utils.WithProperty<Keys[number], unknown> {
         const actualKeys: string[] = Object.keys(target);
         const exactKeys = new Set(keys);
         return (

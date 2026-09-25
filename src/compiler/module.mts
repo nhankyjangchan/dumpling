@@ -3,6 +3,7 @@ import type { Middleware } from '@middleware';
 
 export class JITCompiler {
     readonly #plugin: Dumpling;
+
     #onRequest: Middleware[];
     #onResponse: Middleware[];
     #onError: Middleware[];
@@ -12,17 +13,22 @@ export class JITCompiler {
         this.#onRequest = [];
         this.#onResponse = [];
         this.#onError = [];
+        this.#filterMiddlewares();
     }
 
     #filterMiddlewares(): void {
-        this.#plugin.middlewares.forEach((mw: Middleware): void => {
-            if (mw.manifest.hook === 'onRequest') {
-                this.#onRequest.push(mw);
-            } else if (mw.manifest.hook === 'onResponse') {
-                this.#onResponse.push(mw);
-            } else if (mw.manifest.hook === 'onError') {
-                this.#onError.push(mw);
+        for (const middleware of this.#plugin.middlewares) {
+            switch (middleware.manifest.hook) {
+                case 'onRequest':
+                    this.#onRequest.push(middleware);
+                    break;
+                case 'onResponse':
+                    this.#onResponse.push(middleware);
+                    break;
+                case 'onError':
+                    this.#onError.push(middleware);
+                    break;
             }
-        });
+        }
     }
 }

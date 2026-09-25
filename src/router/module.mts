@@ -4,7 +4,14 @@ import { RouterError } from './errors.mts';
 import type { $Router } from './types.mts';
 
 export class Router {
-    static readonly #ROUTE_KEYS: $Router.RouteKeys = ['method', 'path', 'use', 'handler'];
+    static readonly #ROUTE_KEYS: $Router.RouteKeys = [
+        'method',
+        'path',
+        'type',
+        'use',
+        'handler'
+    ];
+    static readonly #TYPE_RE: RegExp = /^(?:sync|async)$/u;
 
     readonly #routes: Map<$Router.RouteId, $Router.Route>;
 
@@ -37,7 +44,9 @@ export class Router {
             && utils.hasExactKeys(target, Router.#ROUTE_KEYS)
             && utils.isString(target.method)
             && utils.isString(target.path)
+            && utils.isString(target.type)
             && utils.isFunction(target.handler)
+            && Router.#TYPE_RE.test(target.type)
             && Array.isArray(target.use)
         );
     }

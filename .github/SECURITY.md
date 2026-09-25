@@ -1,22 +1,14 @@
 # Security Policy
 
-Maintaining the security of **[@nhankyjangchan/koa-cors](https://www.npmjs.com/package/@nhankyjangchan/koa-cors)** is essential to protecting its users and the continued development of this package. If you discover a vulnerability, your responsible disclosure is appreciated and will be addressed promptly.
-
-> **ℹ️ Note:** Starting with v1.4.0, this package has been migrated to a new name: **[@nhankyjangchan/koa-cors](https://www.npmjs.com/package/@nhankyjangchan/koa-cors)**. If you're still using legacy **[@nhankyjangchan/koajs-cors](https://www.npmjs.com/package/@nhankyjangchan/koajs-cors)**, please migrate to new package — [it](https://www.npmjs.com/package/@nhankyjangchan/koajs-cors) is now deprecated and receives security fixes only. Migration is seamless, just install the **[new package](https://www.npmjs.com/package/@nhankyjangchan/koa-cors)** and swap the package name in your `package.json` and import statements. The API remains unchanged.
+Maintaining the security of **@nhankyjangchan/dumpling** is essential to protecting its users and the continued development of this package. If you discover a vulnerability, your responsible disclosure is appreciated and will be addressed promptly.
 
 ## 📦 Supported Versions
 
 The latest minor version receives active maintenance. The previous minor version receives security fixes only. Older versions are no longer supported.
 
-| Version | Supported          | Notes               |
-| ------- | ------------------ | ------------------- |
-| 2.1.x   | :white_check_mark: | Active maintenance  |
-| 2.0.x   | :x:                | No longer supported |
-| 1.4.x   | :white_check_mark: | Security fixes only |
-| 1.3.x   | :x:                | No longer supported |
-| 1.2.x   | :x:                | No longer supported |
-| 1.1.x   | :x:                | No longer supported |
-| 1.0.x   | :x:                | No longer supported |
+| Version | Supported          | Notes              |
+| ------- | ------------------ | ------------------ |
+| 0.1.x   | :white_check_mark: | Active maintenance |
 
 ## 🔒 Reporting a Vulnerability
 
@@ -59,4 +51,4 @@ _Will be updated as contributions are received._
 
 ---
 
-<sub>💙 Thanks for helping improve this plugin!</sub>
+<sub>💙 Thanks for helping improve this package!</sub>

@@ -7,10 +7,12 @@ export namespace $Router {
     export interface Route {
         readonly method: string;
         readonly path: `/${string}`;
+        readonly type: Type;
         readonly use: readonly Middleware[];
         readonly handler: Handler;
     }
 
     export type RouteId = `${string} /${string}`;
     export type Handler = (rc: RequestContext) => void | Promise<void>;
+    export type Type = 'sync' | 'async';
 }
