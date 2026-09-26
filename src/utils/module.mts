@@ -10,13 +10,22 @@ export const utils = Object.freeze({
     isObject(target: unknown): target is object {
         return target !== null && typeof target === 'object';
     },
-    hasOnlyStrings<Target extends object>(
+    hasOnlyStringValues<Target extends object>(
         target: Target
     ): target is Target & $Utils.WithProperty<keyof Target, string> {
         return Object.values(target).every(utils.isString);
     },
     isString(target: unknown): target is string {
         return typeof target === 'string';
+    },
+    matches(target: unknown, pattern: RegExp): target is string {
+        return utils.isString(target) && pattern.test(target);
+    },
+    hasKeys<Target extends object, const Keys extends readonly PropertyKey[]>(
+        target: Target,
+        keys: Keys
+    ): target is Target & $Utils.WithProperty<Keys[number], unknown> {
+        return keys.every((key: PropertyKey): boolean => Object.hasOwn(target, key));
     },
     hasExactKeys<Target extends object, const Keys extends readonly string[]>(
         target: Target,

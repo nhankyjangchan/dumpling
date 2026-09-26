@@ -1,5 +1,5 @@
 import { Middleware, type $Middleware } from '@middleware';
-import { Router, type $Router } from '@router';
+import { Route, type $Route } from '@router';
 import { utils } from '@utils';
 import { PluginError } from './errors.mts';
 import type { $Plugin } from './types.mts';
@@ -11,7 +11,7 @@ export class Dumpling extends EventTarget {
     readonly #descriptor: $Plugin.Descriptor;
     readonly #middlewares: Map<$Middleware.Name, Middleware>;
     readonly #plugins: Map<$Plugin.Name, Dumpling>;
-    readonly #router: Router;
+    readonly #routes: Map<$Route.Name, Route>;
 
     #isReady: boolean;
 
@@ -23,7 +23,7 @@ export class Dumpling extends EventTarget {
         this.#descriptor = Object.freeze({ ...descriptor });
         this.#middlewares = new Map();
         this.#plugins = new Map();
-        this.#router = new Router();
+        this.#routes = new Map();
         this.#isReady = false;
     }
 
@@ -41,9 +41,9 @@ export class Dumpling extends EventTarget {
         return this.#plugins.values();
     }
 
-    public get routes(): MapIterator<$Router.Route> {
+    public get routes(): MapIterator<Route> {
         this.#assertReady('routes');
-        return this.#router.routes;
+        return this.#routes.values();
     }
 
     public get isReady(): boolean {
@@ -54,7 +54,7 @@ export class Dumpling extends EventTarget {
         return (
             utils.isPlainObject(target)
             && utils.hasExactKeys(target, Dumpling.#DESCRIPTOR_KEYS)
-            && utils.hasOnlyStrings(target)
+            && utils.hasOnlyStringValues(target)
             && target.name.endsWith('@plugin')
             && Dumpling.#SCOPE_RE.test(target.scope)
         );
@@ -115,12 +115,23 @@ export class Dumpling extends EventTarget {
         this.#plugins.set(name, plugin);
     }
 
-    public route(...routes: readonly $Router.Route[]): this {
+    public route(...routes: readonly Route[]): this {
         this.#assertNotReady('route');
         for (const route of routes) {
-            this.#router.register(route);
+            this.#registerRoute(route);
         }
         return this;
+    }
+
+    #registerRoute(route: Route): void {
+        if (!(route instanceof Route)) {
+            throw new PluginError(`"${this.#descriptor.name}.route()" expected route;`);
+        }
+        const name: $Route.Name = route.name;
+        if (this.#routes.has(name)) {
+            throw new PluginError(`"${name}" already registered;`);
+        }
+        this.#routes.set(name, route);
     }
 
     public ready(): void {

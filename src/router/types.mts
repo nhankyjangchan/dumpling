@@ -1,18 +1,17 @@
 import type { RequestContext } from '@http';
 import type { Middleware } from '@middleware';
 
-export namespace $Router {
-    export type RouteKeys = Readonly<(keyof Route)[]>;
+export namespace $Route {
+    export type InitKeys = Readonly<(keyof Init)[]>;
 
-    export interface Route {
-        readonly method: string;
-        readonly path: `/${string}`;
+    export interface Init {
+        readonly name: Name;
         readonly type: Type;
-        readonly use: readonly Middleware[];
         readonly handler: Handler;
+        readonly use: readonly Middleware[];
     }
 
-    export type RouteId = `${string} /${string}`;
-    export type Handler = (rc: RequestContext) => void | Promise<void>;
+    export type Name = `${string} /${string}`;
     export type Type = 'sync' | 'async';
+    export type Handler = (rc: RequestContext) => void | Promise<void>;
 }

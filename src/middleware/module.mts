@@ -40,7 +40,7 @@ export class Middleware {
         return (
             utils.isPlainObject(target)
             && utils.hasExactKeys(target, Middleware.#MANIFEST_KEYS)
-            && utils.hasOnlyStrings(target)
+            && utils.hasOnlyStringValues(target)
             && target.name.endsWith('@middleware')
             && Middleware.#HOOK_RE.test(target.hook)
             && Middleware.#TYPE_RE.test(target.type)

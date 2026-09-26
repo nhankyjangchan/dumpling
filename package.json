@@ -1,26 +1,15 @@
 {
     "name": "@nhankyjangchan/taiyang",
     "version": "0.0.1",
-    "license": "MIT",
     "private": false,
     "description": "",
     "keywords": [],
     "homepage": "https://github.com/nhankyjangchan/***",
-    "type": "module",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.mts",
-            "import": "./dist/index.mjs"
-        },
-        "./package.json": "./package.json"
+    "bugs": {
+        "url": "https://github.com/nhankyjangchan/***/issues",
+        "email": "dev.schuchkin.timur@gmail.com"
     },
-    "files": [
-        "dist",
-        "CHANGELOG.md",
-        "LICENSE",
-        "README.md",
-        "package.json"
-    ],
+    "license": "MIT",
     "author": {
         "name": "Timur Schuchkin \"Nhankyjangchan\"",
         "email": "dev.schuchkin.timur@gmail.com",
@@ -30,18 +19,31 @@
         "type": "git",
         "url": "git+https://github.com/nhankyjangchan/***.git"
     },
-    "bugs": {
-        "url": "https://github.com/nhankyjangchan/***/issues",
-        "email": "dev.schuchkin.timur@gmail.com"
+    "files": [
+        "dist",
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "package.json"
+    ],
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        },
+        "./package.json": "./package.json"
     },
     "scripts": {
+        "fmt": "pnpm exec oxfmt",
+        "fmt:check": "pnpm exec oxfmt --check",
         "lint": "pnpm exec oxlint",
         "lint:fix": "pnpm exec oxlint --fix"
     },
     "devDependencies": {
         "@types/bun": "^1.4.2",
+        "oxfmt": "^0.70.0",
         "oxlint": "^1.83.0",
-        "oxlint-tsgolint": "^7.0.2001",
-        "prettier": "^3.9.6"
+        "oxlint-tsgolint": "^7.0.2001"
     }
 }

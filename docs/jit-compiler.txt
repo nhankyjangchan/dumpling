@@ -1,0 +1,57 @@
+!26-09-05
+---------
+Итого я имею (ещё нет) фреймворк с компонентным подходом - приложение должно быть набором пельменей, лол. У каждого пельменя будет либо локальный, либо глобальный скоуп. Глобальный скоуп означает, что пельмень при монтировании будет вываливать всю свою внутрянку в родителя. Тут всё понятно. А вот self-пельмень, наверное, должен компилироваться и в конце концов отдавать готовый объект bun.serve.routes, который просто вмежрится в root-овый объект маршрутов.
+Пока ещё хз как это реализовать. Я брезгую использовать нейронку даже в том, чтобы она подсказала мне идею. Пока что единственное место, где я использовал нейронку - написал заглушку для тестов мидлвара. Как только у меня будет время напишу нормальные тесты.
+По-сути, я хочу откомпилировать это всё в вот такую хероту:
+<code>
+Bun.serve({
+    routes: {
+        GET: async (req, ser) => {
+            try {
+                const rc = new RequestContext(app, req, ser);
+                req_m1(rc);
+                await req_m2(rc);
+                const req_m3r = req_m3(rc);
+                if (req_m3r instanceof Response) {
+                    retruen req_m3r;
+                }
+                const req_m4r = await req_m4(rc);
+                if (req_m4r instanceof Response) {
+                    return req_m4r;
+                }
+                await handler(rc);
+                res_m1(rc);
+                await res_m2(rc);
+                const res_m3r = res_m3(rc);
+                if (res_m3r instanceof Response) {
+                    return res_m3r;
+                }
+                const res_m4r = await res_m4(rc);
+                if (res_m4r instanceof Response) {
+                    return res_m4r;
+                }
+                return rc.response.toResponse();
+            } catch (e) {
+                if (!(e instanceof HttpError)) {
+                    e = HttpError.fromUnknown(e);
+                }
+                err_m1(rc);
+                await err_m2(rc);
+                const err_m3r = err_m3(rc);
+                if (err_m3r instanceof Response) {
+                    return err_m3r;
+                }
+                const err_m4r = await err_m4(rc);
+                if (err_m4r instanceof Response) {
+                    return err_m4r;
+                }
+                return new Response(null, {
+                    status: 500,
+                    headers: { 'X-routine-Error': 'true' }
+                });
+            }
+        }
+    }
+})
+</code>
+Именно поэтому у меня в мидлварах, роутах и самих пельменях такая жопоразрывательная валидация. Юзер должен указать ровно n полей с ровно k значениями. Фреймворк будет бить по рукам за какое-либо отклонение - fail-first, как я люблю.
