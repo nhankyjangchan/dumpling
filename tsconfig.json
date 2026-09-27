@@ -77,6 +77,6 @@
         "pretty": true,
         "skipLibCheck": false
     },
-    "include": ["./src/**/*.mts", "./scripts/*.mts", "./tests"],
+    "include": ["./src/**/*.mts", "./tests"],
     "exclude": ["./node_modules", "./build"]
 }

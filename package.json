@@ -1,12 +1,13 @@
 {
-    "name": "@nhankyjangchan/taiyang",
+    "$schema": "https://www.schemastore.org/package",
+    "name": "@nhankyjangchan/dumpling",
     "version": "0.0.1",
     "private": false,
     "description": "",
     "keywords": [],
-    "homepage": "https://github.com/nhankyjangchan/***",
+    "homepage": "https://github.com/nhankyjangchan/dumpling",
     "bugs": {
-        "url": "https://github.com/nhankyjangchan/***/issues",
+        "url": "https://github.com/nhankyjangchan/dumpling/issues",
         "email": "dev.schuchkin.timur@gmail.com"
     },
     "license": "MIT",
@@ -17,11 +18,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/nhankyjangchan/***.git"
+        "url": "git+https://github.com/nhankyjangchan/dumpling.git"
     },
     "files": [
-        "dist",
-        "CHANGELOG.md",
+        "build",
         "LICENSE",
         "README.md",
         "package.json"
@@ -44,8 +44,8 @@
     "devDependencies": {
         "@types/bun": "^1.4.2",
         "oxfmt": "^0.70.0",
-        "oxlint": "^1.83.0",
-        "oxlint-tsgolint": "^7.0.2001",
+        "oxlint": "^1.85.0",
+        "oxlint-tsgolint": "^7.0.2003",
         "tsdown": "^0.23.0",
         "typescript": "^7.0.2"
     }

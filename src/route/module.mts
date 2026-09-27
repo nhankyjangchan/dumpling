@@ -46,14 +46,16 @@ export class Route {
             && utils.matches(target.name, Route.#NAME_RE)
             && utils.matches(target.type, Route.#TYPE_RE)
             && utils.isFunction(target.handler)
-            && Array.isArray(target.use)
-            && Route.#checkMiddlewares(target.use)
+            && Route.#isMiddlewareArray(target.use)
         );
     }
 
-    static #checkMiddlewares(middlewares: readonly Middleware[]): boolean {
-        for (const middleware of middlewares) {
-            if (middleware instanceof Middleware) {
+    static #isMiddlewareArray(targets: unknown): boolean {
+        if (!Array.isArray(targets)) {
+            return false;
+        }
+        for (const target of targets) {
+            if (target instanceof Middleware) {
                 continue;
             }
             return false;
