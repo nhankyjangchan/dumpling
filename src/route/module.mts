@@ -56,7 +56,7 @@ export class Route {
             if (middleware instanceof Middleware) {
                 continue;
             }
-            throw new RouteError('"Route.use" must be an array of middlewares;');
+            return false;
         }
         return true;
     }

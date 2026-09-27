@@ -1,5 +1,5 @@
 import { Middleware, type $Middleware } from '@middleware';
-import { Route, type $Route } from '@router';
+import { Route, type $Route } from '@route';
 import { utils } from '@utils';
 import { PluginError } from './errors.mts';
 import type { $Plugin } from './types.mts';

@@ -29,8 +29,8 @@
     "type": "module",
     "exports": {
         ".": {
-            "types": "./dist/index.d.mts",
-            "import": "./dist/index.mjs"
+            "types": "./build/main.d.mts",
+            "import": "./build/main.mjs"
         },
         "./package.json": "./package.json"
     },
@@ -38,12 +38,15 @@
         "fmt": "pnpm exec oxfmt",
         "fmt:check": "pnpm exec oxfmt --check",
         "lint": "pnpm exec oxlint",
-        "lint:fix": "pnpm exec oxlint --fix"
+        "lint:fix": "pnpm exec oxlint --fix",
+        "build": "pnpm exec tsdown"
     },
     "devDependencies": {
         "@types/bun": "^1.4.2",
         "oxfmt": "^0.70.0",
         "oxlint": "^1.83.0",
-        "oxlint-tsgolint": "^7.0.2001"
+        "oxlint-tsgolint": "^7.0.2001",
+        "tsdown": "^0.23.0",
+        "typescript": "^7.0.2"
     }
 }
