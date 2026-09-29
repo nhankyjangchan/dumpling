@@ -1,12 +1,12 @@
-import type { OutgoingResponseImpl, OutgoingResponseInit } from './types.mts';
+import type { $OutgoingResponse } from './types.mts';
 
-export class OutgoingResponse implements OutgoingResponseImpl {
+export class OutgoingResponse {
     #status: number;
     #message: string;
     #headers: Headers;
     #body: BodyInit | null;
 
-    public constructor(init?: OutgoingResponseInit) {
+    public constructor(init?: $OutgoingResponse.Init) {
         this.#status = init?.status ?? 200;
         this.#message = init?.message ?? 'Ok';
         this.#headers = init?.headers ?? new Headers();
@@ -45,7 +45,7 @@ export class OutgoingResponse implements OutgoingResponseImpl {
         this.#body = body;
     }
 
-    public toResponse(): Response {
+    public build(): Response {
         return new Response(this.#body, {
             status: this.#status,
             statusText: this.#message,

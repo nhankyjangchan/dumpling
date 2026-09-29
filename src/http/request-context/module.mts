@@ -1,20 +1,20 @@
+import { OutgoingResponse } from '@http/response';
 import { HttpError } from './errors.mts';
 import type { Dumpling } from '@application';
-import type { OutgoingResponse } from '@http/response';
-import type { RequestContextImpl, RequestContextInit } from './types.mts';
+import type { $RequestContext } from './types.mts';
 
-export class RequestContext implements RequestContextImpl {
+export class RequestContext {
     readonly #app: Dumpling;
     readonly #server: Bun.Server<undefined>;
     readonly #request: Request;
     readonly #response: OutgoingResponse;
     public state: Record<PropertyKey, unknown>;
 
-    public constructor(init: RequestContextInit) {
+    public constructor(init: $RequestContext.Init) {
         this.#app = init.app;
         this.#server = init.server;
         this.#request = init.request;
-        this.#response = init.response;
+        this.#response = new OutgoingResponse();
         this.state = {};
     }
 
@@ -36,9 +36,5 @@ export class RequestContext implements RequestContextImpl {
 
     public raise(init?: OutgoingResponse): never {
         throw new HttpError(init);
-    }
-
-    public build(): Response {
-        return this.#response.toResponse();
     }
 }

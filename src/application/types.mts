@@ -1,5 +1,5 @@
 export namespace $Plugin {
-    export interface Descriptor {
+    export interface Init {
         readonly name: Name;
         readonly scope: Scope;
     }
