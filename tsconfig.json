@@ -29,13 +29,12 @@
         "noResolve": false,
         "noUncheckedSideEffectImports": true,
         "paths": {
-            "@application": ["./src/application/_index.mts"],
             "@http": ["./src/http/_index.mts"],
             "@http/context": ["./src/http/request-context/_index.mts"],
             "@http/response": ["./src/http/outgoing-response/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
-            "@route": ["./src/route/_index.mts"],
-            "@utils": ["./src/utils/_index.mts"]
+            "@plugin": ["./src/plugin/_index.mts"],
+            "@route": ["./src/route/_index.mts"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,

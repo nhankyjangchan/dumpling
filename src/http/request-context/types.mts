@@ -1,8 +1,8 @@
-import type { Dumpling } from '@application';
+import type { Plugin } from '@plugin';
 
 export namespace $RequestContext {
     export interface Init {
-        readonly app: Dumpling;
+        readonly app: Plugin;
         readonly server: Bun.Server<WebSocketData>;
         readonly request: Bun.BunRequest<string>;
     }

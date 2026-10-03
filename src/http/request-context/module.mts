@@ -1,10 +1,10 @@
 import { OutgoingResponse, type $OutgoingResponse } from '@http/response';
 import { HttpError } from './errors.mts';
-import type { Dumpling } from '@application';
+import type { Plugin } from '@plugin';
 import type { $RequestContext } from './types.mts';
 
 export class RequestContext {
-    readonly #app: Dumpling;
+    readonly #app: Plugin;
     readonly #server: Bun.Server<$RequestContext.WebSocketData>;
     readonly #request: Bun.BunRequest<string>;
     readonly #response: OutgoingResponse;
@@ -19,7 +19,7 @@ export class RequestContext {
         this.#response = new OutgoingResponse();
     }
 
-    public get app(): Dumpling {
+    public get app(): Plugin {
         return this.#app;
     }
 

@@ -3,12 +3,12 @@ import { Route, RouteError, type $Route } from '@route';
 import { PluginError } from './errors.mts';
 import type { $Plugin } from './types.mts';
 
-export class Dumpling extends EventTarget {
+export class Plugin extends EventTarget {
     readonly #name: $Plugin.Name;
     readonly #scope: $Plugin.Scope;
 
     readonly #middlewares: Map<$Middleware.Name, Middleware>;
-    readonly #plugins: Map<$Plugin.Name, Dumpling>;
+    readonly #plugins: Map<$Plugin.Name, Plugin>;
     readonly #routes: Map<$Route.Name, Route>;
 
     #status: $Plugin.Status = 'pending';
@@ -39,7 +39,7 @@ export class Dumpling extends EventTarget {
         return this.#middlewares.values();
     }
 
-    public get plugins(): IterableIterator<Dumpling> {
+    public get plugins(): IterableIterator<Plugin> {
         this.#assertReady('plugins');
         return this.#plugins.values();
     }
@@ -65,7 +65,7 @@ export class Dumpling extends EventTarget {
         this.#middlewares.set(name, middleware);
     }
 
-    public mount(...plugins: readonly Dumpling[]): this {
+    public mount(...plugins: readonly Plugin[]): this {
         this.#assertPending('mount');
         for (const plugin of plugins) {
             this.#registerPlugin(plugin);
@@ -73,7 +73,7 @@ export class Dumpling extends EventTarget {
         return this;
     }
 
-    #registerPlugin(plugin: Dumpling): void {
+    #registerPlugin(plugin: Plugin): void {
         const name: $Plugin.Name = plugin.name;
         if (plugin.status === 'pending') {
             throw new PluginError(`Cannot mount "${name}": call "${name}.ready()" first;`);
