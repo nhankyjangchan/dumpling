@@ -1,20 +1,20 @@
 import type { $OutgoingResponse } from './types.mts';
 
 export class OutgoingResponse {
-    #status: number;
-    #message: string;
-    #headers: Headers;
-    #body: BodyInit | null;
+    #status: number | undefined;
+    #message: string | undefined;
+    #headers: Headers | undefined;
+    #body: BodyInit | null | undefined;
 
     public constructor(init?: $OutgoingResponse.Init) {
-        this.#status = init?.status ?? 200;
-        this.#message = init?.message ?? 'Ok';
-        this.#headers = init?.headers ?? new Headers();
-        this.#body = init?.body ?? null;
+        this.#status = init?.status;
+        this.#message = init?.message;
+        this.#headers = init?.headers;
+        this.#body = init?.body;
     }
 
     public get status(): number {
-        return this.#status;
+        return (this.#status ??= 200);
     }
 
     public set status(status: number) {
@@ -22,7 +22,7 @@ export class OutgoingResponse {
     }
 
     public get message(): string {
-        return this.#message;
+        return (this.#message ??= 'Ok');
     }
 
     public set message(message: string) {
@@ -30,7 +30,7 @@ export class OutgoingResponse {
     }
 
     public get headers(): Headers {
-        return this.#headers;
+        return (this.#headers ??= new Headers());
     }
 
     public set headers(headers: Headers) {
@@ -38,7 +38,7 @@ export class OutgoingResponse {
     }
 
     public get body(): BodyInit | null {
-        return this.#body;
+        return (this.#body ??= null);
     }
 
     public set body(body: BodyInit | null) {
@@ -46,10 +46,10 @@ export class OutgoingResponse {
     }
 
     public build(): Response {
-        return new Response(this.#body, {
-            status: this.#status,
-            statusText: this.#message,
-            headers: this.#headers
+        return new Response(this.body, {
+            status: this.status,
+            statusText: this.message,
+            headers: this.headers
         });
     }
 }

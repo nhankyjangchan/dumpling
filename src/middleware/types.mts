@@ -5,12 +5,14 @@ export namespace $Middleware {
         readonly name: Name;
         readonly hook: Hook;
         readonly type: Type;
-        readonly check: boolean;
+        readonly halt: boolean;
         readonly handler: Handler;
     }
 
     export type Name = `${string}@middleware`;
     export type Hook = 'onRequest' | 'onResponse' | 'onError';
     export type Type = 'sync' | 'async';
-    export type Handler = (rc: RequestContext) => Response | void | Promise<Response | void>;
+    export type Handler = (rc: RequestContext) => MaybeResponse | Promise<MaybeResponse>;
+
+    export type MaybeResponse = Response | undefined;
 }

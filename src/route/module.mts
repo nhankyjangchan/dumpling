@@ -1,17 +1,17 @@
-import type { Middleware } from '@middleware';
+import { Middleware } from '@middleware';
 import type { $Route } from './types.mts';
 
 export class Route {
     readonly #name: $Route.Name;
     readonly #path: $Route.Path;
-    readonly #method: string;
-    readonly #handlers: readonly Middleware[];
+    readonly #method: $Route.Method;
+    readonly #middlewares: readonly Middleware[];
 
     public constructor(init: $Route.Init) {
         this.#name = init.name;
         this.#path = init.path;
         this.#method = init.method;
-        this.#handlers = init.handlers;
+        this.#middlewares = init.middlewares;
     }
 
     public get name(): $Route.Name {
@@ -22,11 +22,11 @@ export class Route {
         return this.#path;
     }
 
-    public get method(): string {
+    public get method(): $Route.Method {
         return this.#method;
     }
 
-    public get handlers(): readonly Middleware[] {
-        return this.#handlers;
+    public get middlewares(): readonly Middleware[] {
+        return this.#middlewares;
     }
 }

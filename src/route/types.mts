@@ -4,10 +4,20 @@ export namespace $Route {
     export interface Init {
         readonly name: Name;
         readonly path: Path;
-        readonly method: string;
-        readonly handlers: readonly Middleware[];
+        readonly method: Method;
+        readonly middlewares: readonly Middleware[];
     }
 
     export type Name = `${string}@route`;
     export type Path = `/${string}`;
+    export type Method =
+        | 'GET'
+        | 'QUERY'
+        | 'POST'
+        | 'PUT'
+        | 'PATCH'
+        | 'DELETE'
+        | 'HEAD'
+        | 'OPTIONS'
+        | (string & {});
 }

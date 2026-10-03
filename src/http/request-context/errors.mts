@@ -4,11 +4,11 @@ export class HttpError extends Error {
     readonly #response: OutgoingResponse;
 
     public constructor(init: $OutgoingResponse.Init = {}) {
-        init.status ??= 500;
-        init.message ??= 'Internal Server Error';
-        super(init.message);
+        super(init.message ?? 'Internal Server Error');
         this.name = 'HttpError';
         this.#response = new OutgoingResponse(init);
+        this.#response.status = init.status ?? 500;
+        this.#response.message = this.message;
     }
 
     public get response(): OutgoingResponse {
