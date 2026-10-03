@@ -11,7 +11,7 @@ export class Dumpling extends EventTarget {
     readonly #plugins: Map<$Plugin.Name, Dumpling>;
     readonly #routes: Map<$Route.Name, Route>;
 
-    #isReady: boolean = false;
+    #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
         super();
@@ -30,8 +30,8 @@ export class Dumpling extends EventTarget {
         return this.#scope;
     }
 
-    public get isReady(): boolean {
-        return this.#isReady;
+    public get status(): $Plugin.Status {
+        return this.#status;
     }
 
     public get middlewares(): IterableIterator<Middleware> {
@@ -49,22 +49,8 @@ export class Dumpling extends EventTarget {
         return this.#routes.values();
     }
 
-    #assertReady(getter: 'middlewares' | 'plugins' | 'routes'): void {
-        if (!this.#isReady) {
-            const name: $Plugin.Name = this.#name;
-            throw new PluginError(`Cannot read "${name}.${getter}" before "${name}.ready()";`);
-        }
-    }
-
-    #assertNotReady(method: 'use' | 'mount' | 'route'): void {
-        if (this.#isReady) {
-            const name: $Plugin.Name = this.#name;
-            throw new PluginError(`Cannot call "${name}.${method}()" after "${name}.ready()";`);
-        }
-    }
-
     public use(...middlewares: readonly Middleware[]): this {
-        this.#assertNotReady('use');
+        this.#assertPending('use');
         for (const middleware of middlewares) {
             this.#registerMiddleware(middleware);
         }
@@ -74,13 +60,13 @@ export class Dumpling extends EventTarget {
     #registerMiddleware(middleware: Middleware): void {
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
-            throw new MiddlewareError(`"${name}" already registered;`);
+            this.#fail(new MiddlewareError(`"${name}" already registered;`));
         }
         this.#middlewares.set(name, middleware);
     }
 
     public mount(...plugins: readonly Dumpling[]): this {
-        this.#assertNotReady('mount');
+        this.#assertPending('mount');
         for (const plugin of plugins) {
             this.#registerPlugin(plugin);
         }
@@ -89,17 +75,20 @@ export class Dumpling extends EventTarget {
 
     #registerPlugin(plugin: Dumpling): void {
         const name: $Plugin.Name = plugin.name;
-        if (!plugin.isReady) {
-            throw new PluginError(`"${name}" not ready, call "${name}.ready()" before mount;`);
+        if (plugin.status === 'pending') {
+            throw new PluginError(`Cannot mount "${name}": call "${name}.ready()" first;`);
+        }
+        if (plugin.status === 'failed') {
+            throw new PluginError(`Cannot mount "${name}": plugin is failed;`);
         }
         if (this.#plugins.has(name)) {
-            throw new PluginError(`"${name}" already registered;`);
+            this.#fail(new PluginError(`"${name}" already registered;`));
         }
         this.#plugins.set(name, plugin);
     }
 
     public route(...routes: readonly Route[]): this {
-        this.#assertNotReady('route');
+        this.#assertPending('route');
         for (const route of routes) {
             this.#registerRoute(route);
         }
@@ -109,15 +98,46 @@ export class Dumpling extends EventTarget {
     #registerRoute(route: Route): void {
         const name: $Route.Name = route.name;
         if (this.#routes.has(name)) {
-            throw new RouteError(`"${name}" already registered;`);
+            this.#fail(new RouteError(`"${name}" already registered;`));
         }
         this.#routes.set(name, route);
     }
 
-    public ready(): void {
-        if (this.#isReady) {
+    #assertPending(method: 'use' | 'mount' | 'route' | 'ready'): void {
+        if (this.#status === 'pending') {
             return;
         }
+        const name: $Plugin.Name = this.#name;
+        if (this.#status === 'failed') {
+            throw new PluginError(`Cannot call "${name}.${method}()" on failed plugin;`);
+        }
+        throw new PluginError(`Cannot call "${name}.${method}()" after "${name}.ready()";`);
+    }
+
+    #assertReady(getter: 'middlewares' | 'plugins' | 'routes'): void {
+        if (this.#status === 'ready') {
+            return;
+        }
+        const name: $Plugin.Name = this.#name;
+        if (this.#status === 'failed') {
+            throw new PluginError(`Cannot read "${name}.${getter}" from failed plugin;`);
+        }
+        throw new PluginError(`Cannot read "${name}.${getter}" before "${name}.ready()";`);
+    }
+
+    #fail<E extends Error>(error: E): never {
+        this.#status = 'failed';
+        this.#middlewares.clear();
+        this.#plugins.clear();
+        this.#routes.clear();
+        throw error;
+    }
+
+    public ready(): void {
+        if (this.#status === 'ready') {
+            throw new PluginError(`Cannot call "${this.#name}.ready()" twice;`);
+        }
+        this.#assertPending('ready');
         for (const plugin of this.#plugins.values()) {
             if (plugin.scope === 'self') {
                 continue;
@@ -125,6 +145,6 @@ export class Dumpling extends EventTarget {
             this.use(...plugin.middlewares);
             this.route(...plugin.routes);
         }
-        this.#isReady = true;
+        this.#status = 'ready';
     }
 }

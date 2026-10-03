@@ -1,4 +1,4 @@
-import { Middleware } from '@middleware';
+import type { Middleware } from '@middleware';
 import type { $Route } from './types.mts';
 
 export class Route {

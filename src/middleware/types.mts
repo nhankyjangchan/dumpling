@@ -4,15 +4,16 @@ export namespace $Middleware {
     export interface Init {
         readonly name: Name;
         readonly hook: Hook;
-        readonly type: Type;
-        readonly halt: boolean;
+        readonly mode: Mode;
+        readonly flow: Flow;
         readonly handler: Handler;
     }
 
     export type Name = `${string}@middleware`;
     export type Hook = 'onRequest' | 'onResponse' | 'onError';
-    export type Type = 'sync' | 'async';
+    export type Mode = 'async' | 'sync';
+    export type Flow = 'halt' | 'pass';
     export type Handler = (rc: RequestContext) => MaybeResponse | Promise<MaybeResponse>;
 
-    export type MaybeResponse = Response | undefined;
+    export type MaybeResponse = Response | void;
 }

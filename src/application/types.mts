@@ -6,4 +6,6 @@ export namespace $Plugin {
 
     export type Name = `${string}@plugin`;
     export type Scope = 'self' | 'global';
+
+    export type Status = 'pending' | 'ready' | 'failed';
 }

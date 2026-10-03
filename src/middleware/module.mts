@@ -3,15 +3,15 @@ import type { $Middleware } from './types.mts';
 export class Middleware {
     readonly #name: $Middleware.Name;
     readonly #hook: $Middleware.Hook;
-    readonly #type: $Middleware.Type;
-    readonly #halt: boolean;
+    readonly #mode: $Middleware.Mode;
+    readonly #flow: $Middleware.Flow;
     readonly #handler: $Middleware.Handler;
 
     public constructor(init: $Middleware.Init) {
         this.#name = init.name;
         this.#hook = init.hook;
-        this.#type = init.type;
-        this.#halt = init.halt;
+        this.#mode = init.mode;
+        this.#flow = init.flow;
         this.#handler = init.handler;
     }
 
@@ -23,12 +23,12 @@ export class Middleware {
         return this.#hook;
     }
 
-    public get type(): $Middleware.Type {
-        return this.#type;
+    public get mode(): $Middleware.Mode {
+        return this.#mode;
     }
 
-    public get halt(): boolean {
-        return this.#halt;
+    public get flow(): $Middleware.Flow {
+        return this.#flow;
     }
 
     public get handler(): $Middleware.Handler {
