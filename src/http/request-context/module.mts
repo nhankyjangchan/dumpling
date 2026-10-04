@@ -51,13 +51,13 @@ export class RequestContext {
         this.#error = error;
     }
 
-    public is(type: string): boolean {
+    public is(type: Lowercase<string>): boolean {
         const contentType: string | null = this.#request.headers.get('content-type');
-        return contentType?.includes(type) ?? false;
+        return contentType?.toLowerCase().includes(type) ?? false;
     }
 
     public raise(init?: $OutgoingResponse.Init): never {
-        this.#error ??= new HttpError(init);
+        this.#error = new HttpError(init);
         throw this.#error;
     }
 }

@@ -10,7 +10,7 @@ export default defineConfig({
     insertFinalNewline: true,
     jsdoc: true,
     objectWrap: 'preserve',
-    printWidth: 96,
+    printWidth: 100,
     proseWrap: 'preserve',
     quoteProps: 'as-needed',
     semi: true,

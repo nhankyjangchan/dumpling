@@ -227,9 +227,7 @@ describe('Middleware', (): void => {
 
             for (const hook of hooks) {
                 for (const type of types) {
-                    expect(Middleware.isManifest({ name: 'x@middleware', hook, type })).toBe(
-                        true
-                    );
+                    expect(Middleware.isManifest({ name: 'x@middleware', hook, type })).toBe(true);
                 }
             }
         });
@@ -271,21 +269,15 @@ describe('Middleware', (): void => {
         });
 
         test('Returns false on unknown hook', (): void => {
-            expect(Middleware.isManifest({ ...createManifest(), hook: 'onWhatever' })).toBe(
-                false
-            );
+            expect(Middleware.isManifest({ ...createManifest(), hook: 'onWhatever' })).toBe(false);
         });
 
         test('Returns false on case-mismatched hook', (): void => {
-            expect(Middleware.isManifest({ ...createManifest(), hook: 'ONREQUEST' })).toBe(
-                false
-            );
+            expect(Middleware.isManifest({ ...createManifest(), hook: 'ONREQUEST' })).toBe(false);
         });
 
         test('Returns false on unknown type', (): void => {
-            expect(Middleware.isManifest({ ...createManifest(), type: 'parallel' })).toBe(
-                false
-            );
+            expect(Middleware.isManifest({ ...createManifest(), type: 'parallel' })).toBe(false);
         });
 
         test('Returns false on case-mismatched type', (): void => {

@@ -35,109 +35,46 @@ export class Plugin extends EventTarget {
     }
 
     public get middlewares(): IterableIterator<Middleware> {
-        this.#assertReady('middlewares');
+        this.#assertStatus('ready', 'middlewares');
         return this.#middlewares.values();
     }
 
     public get plugins(): IterableIterator<Plugin> {
-        this.#assertReady('plugins');
+        this.#assertStatus('ready', 'plugins');
         return this.#plugins.values();
     }
 
     public get routes(): IterableIterator<Route> {
-        this.#assertReady('routes');
+        this.#assertStatus('ready', 'routes');
         return this.#routes.values();
     }
 
     public use(...middlewares: readonly Middleware[]): this {
-        this.#assertPending('use');
+        this.#assertStatus('pending', 'use()');
         for (const middleware of middlewares) {
             this.#registerMiddleware(middleware);
         }
         return this;
     }
 
-    #registerMiddleware(middleware: Middleware): void {
-        const name: $Middleware.Name = middleware.name;
-        if (this.#middlewares.has(name)) {
-            this.#fail(new MiddlewareError(`"${name}" already registered;`));
-        }
-        this.#middlewares.set(name, middleware);
-    }
-
     public mount(...plugins: readonly Plugin[]): this {
-        this.#assertPending('mount');
+        this.#assertStatus('pending', 'mount()');
         for (const plugin of plugins) {
             this.#registerPlugin(plugin);
         }
         return this;
     }
 
-    #registerPlugin(plugin: Plugin): void {
-        const name: $Plugin.Name = plugin.name;
-        if (plugin.status === 'pending') {
-            throw new PluginError(`Cannot mount "${name}": call "${name}.ready()" first;`);
-        }
-        if (plugin.status === 'failed') {
-            throw new PluginError(`Cannot mount "${name}": plugin is failed;`);
-        }
-        if (this.#plugins.has(name)) {
-            this.#fail(new PluginError(`"${name}" already registered;`));
-        }
-        this.#plugins.set(name, plugin);
-    }
-
     public route(...routes: readonly Route[]): this {
-        this.#assertPending('route');
+        this.#assertStatus('pending', 'route()');
         for (const route of routes) {
             this.#registerRoute(route);
         }
         return this;
     }
 
-    #registerRoute(route: Route): void {
-        const name: $Route.Name = route.name;
-        if (this.#routes.has(name)) {
-            this.#fail(new RouteError(`"${name}" already registered;`));
-        }
-        this.#routes.set(name, route);
-    }
-
-    #assertPending(method: 'use' | 'mount' | 'route' | 'ready'): void {
-        if (this.#status === 'pending') {
-            return;
-        }
-        const name: $Plugin.Name = this.#name;
-        if (this.#status === 'failed') {
-            throw new PluginError(`Cannot call "${name}.${method}()" on failed plugin;`);
-        }
-        throw new PluginError(`Cannot call "${name}.${method}()" after "${name}.ready()";`);
-    }
-
-    #assertReady(getter: 'middlewares' | 'plugins' | 'routes'): void {
-        if (this.#status === 'ready') {
-            return;
-        }
-        const name: $Plugin.Name = this.#name;
-        if (this.#status === 'failed') {
-            throw new PluginError(`Cannot read "${name}.${getter}" from failed plugin;`);
-        }
-        throw new PluginError(`Cannot read "${name}.${getter}" before "${name}.ready()";`);
-    }
-
-    #fail<E extends Error>(error: E): never {
-        this.#status = 'failed';
-        this.#middlewares.clear();
-        this.#plugins.clear();
-        this.#routes.clear();
-        throw error;
-    }
-
     public ready(): void {
-        if (this.#status === 'ready') {
-            throw new PluginError(`Cannot call "${this.#name}.ready()" twice;`);
-        }
-        this.#assertPending('ready');
+        this.#assertStatus('pending', 'ready()');
         for (const plugin of this.#plugins.values()) {
             if (plugin.scope === 'self') {
                 continue;
@@ -146,5 +83,53 @@ export class Plugin extends EventTarget {
             this.route(...plugin.routes);
         }
         this.#status = 'ready';
+    }
+
+    #registerMiddleware(middleware: Middleware): void {
+        const name: $Middleware.Name = middleware.name;
+        if (this.#middlewares.has(name)) {
+            const error = new MiddlewareError(`"${name}" already registered;`);
+            this.#failWith(error);
+        }
+        this.#middlewares.set(name, middleware);
+    }
+
+    #registerPlugin(plugin: Plugin): void {
+        const name: $Plugin.Name = plugin.name;
+        if (plugin.status !== 'ready') {
+            const error = new PluginError(`Cannot mount "${name}": status is "${plugin.status}";`);
+            this.#failWith(error);
+        }
+        if (this.#plugins.has(name)) {
+            const error = new PluginError(`"${name}" already registered;`);
+            this.#failWith(error);
+        }
+        this.#plugins.set(name, plugin);
+    }
+
+    #registerRoute(route: Route): void {
+        const name: $Route.Name = route.name;
+        if (this.#routes.has(name)) {
+            const error = new RouteError(`"${name}" already registered;`);
+            this.#failWith(error);
+        }
+        this.#routes.set(name, route);
+    }
+
+    #assertStatus(required: $Plugin.Status, access: string): void {
+        const status: $Plugin.Status = this.#status;
+        if (status === required) {
+            return;
+        }
+        const message = `"${this.#name}.${access}" requires status "${required}", got "${status}";`;
+        throw new PluginError(message);
+    }
+
+    #failWith(error: Error): never {
+        this.#status = 'failed';
+        this.#middlewares.clear();
+        this.#plugins.clear();
+        this.#routes.clear();
+        throw error;
     }
 }

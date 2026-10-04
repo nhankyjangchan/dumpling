@@ -22,7 +22,7 @@ export class OutgoingResponse {
     }
 
     public get message(): string {
-        return (this.#message ??= 'Ok');
+        return (this.#message ??= 'OK');
     }
 
     public set message(message: string) {
@@ -44,6 +44,14 @@ export class OutgoingResponse {
     public set body(body: BodyInit | null) {
         this.#body = body;
     }
+
+    // public set(init: $OutgoingResponse.Init): void {
+    //     const { status, message, headers, body } = init;
+    //     this.#status = status;
+    //     this.#message = message;
+    //     this.#headers = headers;
+    //     this.#body = body;
+    // }
 
     public build(): Response {
         return new Response(this.body, {

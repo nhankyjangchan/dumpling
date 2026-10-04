@@ -123,9 +123,7 @@ describe('Route', (): void => {
         });
 
         test('Throws on invalid name (no method)', (): void => {
-            expect(
-                (): Route => new Route({ ...createInit(), name: '/users' } as never)
-            ).toThrow();
+            expect((): Route => new Route({ ...createInit(), name: '/users' } as never)).toThrow();
         });
 
         test('Throws on invalid name (no slash)', (): void => {
@@ -320,9 +318,7 @@ describe('Route', (): void => {
         });
 
         test('Preserves the message', (): void => {
-            expect(new RouteError('very specific message').message).toBe(
-                'very specific message'
-            );
+            expect(new RouteError('very specific message').message).toBe('very specific message');
         });
     });
 
