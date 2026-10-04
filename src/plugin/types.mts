@@ -8,4 +8,13 @@ export namespace $Plugin {
     export type Scope = 'self' | 'global';
 
     export type Status = 'pending' | 'ready' | 'failed';
+
+    export type Access =
+        | 'middlewares'
+        | 'plugins'
+        | 'routes'
+        | 'use()'
+        | 'mount()'
+        | 'route()'
+        | 'ready()';
 }

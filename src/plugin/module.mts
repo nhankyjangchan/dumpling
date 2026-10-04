@@ -1,5 +1,5 @@
-import { Middleware, MiddlewareError, type $Middleware } from '@middleware';
-import { Route, RouteError, type $Route } from '@route';
+import { MiddlewareError, type Middleware, type $Middleware } from '@middleware';
+import { RouteError, type Route, type $Route } from '@route';
 import { PluginError } from './errors.mts';
 import type { $Plugin } from './types.mts';
 
@@ -116,12 +116,12 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
-    #assertStatus(required: $Plugin.Status, access: string): void {
-        const status: $Plugin.Status = this.#status;
-        if (status === required) {
+    #assertStatus(expected: $Plugin.Status, access: $Plugin.Access): void {
+        const actual: $Plugin.Status = this.#status;
+        if (actual === expected) {
             return;
         }
-        const message = `"${this.#name}.${access}" requires status "${required}", got "${status}";`;
+        const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
         throw new PluginError(message);
     }
 

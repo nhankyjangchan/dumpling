@@ -10,7 +10,7 @@ export class RequestContext {
     readonly #response: OutgoingResponse;
 
     #state?: Partial<$RequestContext.State>;
-    #error?: HttpError;
+    #error?: HttpError | undefined;
 
     public constructor(init: $RequestContext.Init) {
         this.#app = init.app;

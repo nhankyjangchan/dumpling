@@ -1,36 +1,36 @@
 import type { $OutgoingResponse } from './types.mts';
 
 export class OutgoingResponse {
-    #status: number | undefined;
-    #message: string | undefined;
-    #headers: Headers | undefined;
-    #body: BodyInit | null | undefined;
+    #status: number;
+    #statusText: string;
+    #headers: Headers;
+    #body: BodyInit | null;
 
     public constructor(init?: $OutgoingResponse.Init) {
-        this.#status = init?.status;
-        this.#message = init?.message;
-        this.#headers = init?.headers;
-        this.#body = init?.body;
+        this.#status = init?.status ?? 200;
+        this.#statusText = init?.statusText ?? 'OK';
+        this.#headers = init?.headers ?? new Headers();
+        this.#body = init?.body ?? null;
     }
 
     public get status(): number {
-        return (this.#status ??= 200);
+        return this.#status;
     }
 
     public set status(status: number) {
         this.#status = status;
     }
 
-    public get message(): string {
-        return (this.#message ??= 'OK');
+    public get statusText(): string {
+        return this.#statusText;
     }
 
-    public set message(message: string) {
-        this.#message = message;
+    public set statusText(statusText: string) {
+        this.#statusText = statusText;
     }
 
     public get headers(): Headers {
-        return (this.#headers ??= new Headers());
+        return this.#headers;
     }
 
     public set headers(headers: Headers) {
@@ -38,26 +38,26 @@ export class OutgoingResponse {
     }
 
     public get body(): BodyInit | null {
-        return (this.#body ??= null);
+        return this.#body;
     }
 
     public set body(body: BodyInit | null) {
         this.#body = body;
     }
 
-    // public set(init: $OutgoingResponse.Init): void {
-    //     const { status, message, headers, body } = init;
-    //     this.#status = status;
-    //     this.#message = message;
-    //     this.#headers = headers;
-    //     this.#body = body;
-    // }
+    public set(init: $OutgoingResponse.Init): void {
+        const { status, statusText, headers, body } = init;
+        status !== undefined && (this.#status = status);
+        statusText !== undefined && (this.#statusText = statusText);
+        headers !== undefined && (this.#headers = headers);
+        body !== undefined && (this.#body = body);
+    }
 
     public build(): Response {
-        return new Response(this.body, {
-            status: this.status,
-            statusText: this.message,
-            headers: this.headers
+        return new Response(this.#body, {
+            status: this.#status,
+            statusText: this.#statusText,
+            headers: this.#headers
         });
     }
 }

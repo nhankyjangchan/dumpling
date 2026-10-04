@@ -1,18 +1,23 @@
-import type { Dumpling } from '@application';
+import type { Plugin } from '@plugin';
 import type { Middleware } from '@middleware';
 import type { Route } from '@route';
-import { RequestContext, HttpError } from '@http';
+import { RequestContext, HttpError, type $RequestContext } from '@http';
 
-const ROUTINE_ERROR_HEADER: string = 'X-routine-Error';
+const ROUTINE_ERROR_HEADER = 'X-routine-Error';
 
-type ServeHandler = Bun.Serve.Handler<any, any, any>;
-type ServeRoutes = Bun.Serve.Routes<unknown, string>;
+type ServeHandler = Bun.Serve.Handler<
+    Bun.BunRequest,
+    Bun.Server<$RequestContext.WebSocketData>,
+    Response | undefined
+>;
+type ServeRoutes = Bun.Serve.Routes<$RequestContext.WebSocketData, string>;
 
 export class JITCompiler {
-    readonly #plugin: Dumpling;
+    readonly #plugin: Plugin;
+
     #compiled?: ServeRoutes;
 
-    public constructor(plugin: Dumpling) {
+    public constructor(plugin: Plugin) {
         this.#plugin = plugin;
     }
 
@@ -32,12 +37,12 @@ export class JITCompiler {
     }
 
     #compileRoute(route: Route): ServeHandler {
-        const all: readonly Middleware[] = [...this.#plugin.middlewares, ...route.use];
+        const all: readonly Middleware[] = [...this.#plugin.middlewares, ...route.middlewares];
         const onRequest: Middleware[] = [];
         const onResponse: Middleware[] = [];
         const onError: Middleware[] = [];
         for (const middleware of all) {
-            switch (middleware.manifest.hook) {
+            switch (middleware.hook) {
                 case 'onRequest':
                     onRequest.push(middleware);
                     break;
@@ -47,33 +52,34 @@ export class JITCompiler {
                 case 'onError':
                     onError.push(middleware);
                     break;
+                default:
+                    throw new TypeError('aaaaaaaaaaaa');
             }
         }
-        const isAsync: boolean = route.type === 'async';
+        const isAsync: boolean = all.some((mv) => mv.mode === 'async');
         const argNames: string[] = [
             'RC',
             'HttpError',
             'app',
             'handler',
-            ...onRequest.map((_, i) => `req_${i}`),
-            ...onResponse.map((_, i) => `res_${i}`),
-            ...onError.map((_, i) => `err_${i}`)
+            ...onRequest.map((_mw, index) => `req_${index}`),
+            ...onResponse.map((_mw, index) => `res_${index}`),
+            ...onError.map((_mw, index) => `err_${index}`)
         ];
         const argValues: unknown[] = [
             RequestContext,
             HttpError,
             this.#plugin,
-            route.handler,
-            ...onRequest.map((m) => m.handler),
-            ...onResponse.map((m) => m.handler),
-            ...onError.map((m) => m.handler)
+            ...onRequest.map((mw) => mw.handler),
+            ...onResponse.map((mw) => mw.handler),
+            ...onError.map((mw) => mw.handler)
         ];
         const body: string = this.#generateBody(onRequest, onResponse, onError);
         const code: string =
             `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`
             + `//# sourceURL=dumpling://${route.name}`;
         const factory = new Function(...argNames, code);
-        return factory(...argValues) as ServeHandler;
+        return factory(...argValues);
     }
 
     #generateBody(
@@ -106,10 +112,10 @@ export class JITCompiler {
             .join('\n');
     }
 
-    #generateMiddlewareCall(varName: string, mw: Middleware): string {
-        const { type } = mw.manifest;
-        const isAsync: boolean = type.startsWith('async');
-        const isCheck: boolean = type.endsWith('check');
+    #generateMiddlewareCall(varName: string, middleware: Middleware): string {
+        const { mode } = middleware;
+        const isAsync: boolean = mode.startsWith('async');
+        const isCheck: boolean = mode.endsWith('check');
         const awaitKw: '' | 'await ' = isAsync ? 'await ' : '';
         if (!isCheck) {
             return `${awaitKw}${varName}(rc);`;
