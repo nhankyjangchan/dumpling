@@ -1,4 +1,4 @@
-import { RequestContext, HttpError } from '@http';
+import { RequestContext } from '@http';
 import type { Middleware, $Middleware } from '@middleware';
 import type { Plugin } from '@plugin';
 import type { Route } from '@route';
@@ -11,104 +11,86 @@ export class Compiler {
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
             // @ts-ignore
-            (routes[route.method] ??= {})[route.path] = Compiler.#compileRoute(plugin, route);
+            (routes[route.path] ??= {})[route.method] = Compiler.#compileRoute(plugin, route);
         }
         return routes;
     }
 
     static #compileRoute(plugin: Plugin, route: Route): $Compiler.ServeHandler {
         const middlewares: Middleware[] = [...plugin.middlewares, ...route.middlewares];
-        const onRequest: Middleware[] = [];
-        const onResponse: Middleware[] = [];
-        const onError: Middleware[] = [];
+        const composer: $Compiler.MiddlewareComposer = Compiler.#createMiddlewareComposer();
         for (const middleware of middlewares) {
             if (middleware.hook === 'onRequest') {
-                onRequest.push(middleware);
+                composer.onRequest.push(middleware);
             } else if (middleware.hook === 'onResponse') {
-                onResponse.push(middleware);
+                composer.onResponse.push(middleware);
             } else {
-                onError.push(middleware);
+                composer.onError.push(middleware);
             }
         }
-        const isAsync: boolean = middlewares.some(
-            (mdw: Middleware): boolean => mdw.mode === 'async'
-        );
-        const argNames: string[] = Compiler.#createArgNames(onRequest, onResponse, onError);
-        const argValues: unknown[] = Compiler.#createArgValues(
-            plugin,
-            onRequest,
-            onResponse,
-            onError
-        );
-        const body: string = Compiler.#generateBody(onRequest, onResponse, onError);
-        const code: string =
-            `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`
-            + `//# sourceURL=dumpling://${route.name}`;
+        const argNames: string[] = Compiler.#createArgNames(composer);
+        const argValues: unknown[] = Compiler.#createArgValues(composer);
+        const isAsync: boolean = Compiler.#isSomeMiddlewareAsync(middlewares);
+        const body: string = Compiler.#generateBody(composer);
+        const code = `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
         const factory = new Function(...argNames, code);
-        return factory(...argValues);
+        return factory(RequestContext, plugin, ...argValues);
     }
 
-    static #createArgNames(
-        onRequest: Middleware[],
-        onResponse: Middleware[],
-        onError: Middleware[]
-    ): string[] {
+    static #createMiddlewareComposer(): $Compiler.MiddlewareComposer {
+        return {
+            onRequest: [],
+            onResponse: [],
+            onError: []
+        };
+    }
+
+    static #isSomeMiddlewareAsync(middlewares: readonly Middleware[]): boolean {
+        return middlewares.some((mdw: Middleware): boolean => mdw.mode === 'async');
+    }
+
+    static #createArgNames(composer: $Compiler.MiddlewareComposer): string[] {
         return [
             'RC',
-            'HttpError',
             'app',
-            'handler',
-            ...onRequest.map((_mdw: Middleware, index: number): string => `req_${index}`),
-            ...onResponse.map((_mdw: Middleware, index: number): string => `res_${index}`),
-            ...onError.map((_mdw: Middleware, index: number): string => `err_${index}`)
+            ...composer.onRequest.map((_mdw: Middleware, index: number): string => `req_${index}`),
+            ...composer.onResponse.map((_mdw: Middleware, index: number): string => `res_${index}`),
+            ...composer.onError.map((_mdw: Middleware, index: number): string => `err_${index}`)
         ];
     }
 
-    static #createArgValues(
-        plugin: Plugin,
-        onRequest: Middleware[],
-        onResponse: Middleware[],
-        onError: Middleware[]
-    ): unknown[] {
+    static #createArgValues(composer: $Compiler.MiddlewareComposer): unknown[] {
         return [
-            RequestContext,
-            HttpError,
-            plugin,
-            ...onRequest.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
-            ...onResponse.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
-            ...onError.map((mdw: Middleware): $Middleware.Handler => mdw.handler)
+            ...composer.onRequest.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
+            ...composer.onResponse.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
+            ...composer.onError.map((mdw: Middleware): $Middleware.Handler => mdw.handler)
         ];
     }
 
-    static #generateBody(
-        onRequest: readonly Middleware[],
-        onResponse: readonly Middleware[],
-        onError: readonly Middleware[]
-    ): string {
+    static #generateBody(composer: $Compiler.MiddlewareComposer): string {
         const lines: string[] = [
             'const rc = new RC(app, req, ser);',
             'try {',
-            Compiler.#generateHook('req', onRequest),
-            Compiler.#generateHook('res', onResponse),
+            Compiler.#generateСalls('req', composer.onRequest),
+            Compiler.#generateСalls('res', composer.onResponse),
             'return rc.response.build();',
             '} catch (e) {',
             'rc.error = e;',
-            Compiler.#generateHook('err', onError),
+            Compiler.#generateСalls('err', composer.onError),
             `return rc.error.response.build();`,
             '}'
         ];
         return lines.filter(Boolean).join('\n');
     }
 
-    static #generateHook(prefix: string, middlewares: readonly Middleware[]): string {
-        return middlewares
-            .map((mdw: Middleware, index: number): string =>
-                Compiler.#generateMiddlewareCall(`${prefix}_${index}`, mdw)
-            )
-            .join('\n');
+    static #generateСalls(prefix: string, middlewares: readonly Middleware[]): string {
+        const calls: string[] = middlewares.map((mdw: Middleware, index: number): string => {
+            return Compiler.#generateCall(`${prefix}_${index}`, mdw);
+        });
+        return calls.join('\n');
     }
 
-    static #generateMiddlewareCall(name: string, middleware: Middleware): string {
+    static #generateCall(name: string, middleware: Middleware): string {
         const { mode, flow } = middleware;
         const executionType: '' | 'await ' = mode === 'async' ? 'await ' : '';
         if (flow === 'pass') {

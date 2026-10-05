@@ -10,17 +10,5 @@ export namespace $Route {
 
     export type Name = `${string}@route`;
     export type Path = `/${string}`;
-
-    export type Method =
-        | 'GET'
-        | 'HEAD'
-        | 'OPTIONS'
-        | 'TRACE'
-        | 'QUERY'
-        | 'PUT'
-        | 'DELETE'
-        | 'POST'
-        | 'PATCH'
-        | 'CONNECT'
-        | (string & {});
+    export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS';
 }

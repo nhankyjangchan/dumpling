@@ -21,7 +21,7 @@ export namespace $Middleware {
     type HandlerReturn<TMode extends Mode, TFlow extends Flow> = TMode extends 'async'
         ? TFlow extends 'halt'
             ? Promise<MaybeResponse>
-            : Promise<void>
+            : Promise<undefined>
         : TFlow extends 'halt'
           ? MaybeResponse
           : undefined;
@@ -33,5 +33,5 @@ export namespace $Middleware {
     export type Handler = InitHandler<MaybeResponse | Promise<MaybeResponse>>;
 
     type InitHandler<Out> = (rc: RequestContext) => Out;
-    type MaybeResponse = Response | void;
+    type MaybeResponse = Response | undefined;
 }
