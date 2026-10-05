@@ -45,14 +45,6 @@ export class OutgoingResponse {
         this.#body = body;
     }
 
-    public set(init: $OutgoingResponse.Init): void {
-        const { status, statusText, headers, body } = init;
-        status !== undefined && (this.#status = status);
-        statusText !== undefined && (this.#statusText = statusText);
-        headers !== undefined && (this.#headers = headers);
-        body !== undefined && (this.#body = body);
-    }
-
     public build(): Response {
         return new Response(this.#body, {
             status: this.#status,

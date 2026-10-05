@@ -9,8 +9,8 @@ export class RequestContext {
     readonly #request: Bun.BunRequest<string>;
     readonly #response: OutgoingResponse;
 
-    #state?: Partial<$RequestContext.State>;
-    #error?: HttpError | undefined;
+    #state?: $RequestContext.State;
+    #error?: unknown;
 
     public constructor(init: $RequestContext.Init) {
         this.#app = init.app;
@@ -35,19 +35,19 @@ export class RequestContext {
         return this.#response;
     }
 
-    public get state(): Partial<$RequestContext.State> {
+    public get state(): $RequestContext.State {
         return (this.#state ??= {});
     }
 
-    public set state(state: Partial<$RequestContext.State>) {
+    public set state(state: $RequestContext.State) {
         this.#state = state;
     }
 
-    public get error(): HttpError | undefined {
+    public get error(): unknown {
         return this.#error;
     }
 
-    public set error(error: HttpError) {
+    public set error(error: unknown) {
         this.#error = error;
     }
 
@@ -57,7 +57,7 @@ export class RequestContext {
     }
 
     public raise(init?: $OutgoingResponse.Init): never {
-        this.#error = new HttpError(init);
+        this.#error ??= new HttpError(init);
         throw this.#error;
     }
 }
