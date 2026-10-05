@@ -1,6 +1,6 @@
 import type { $RequestContext } from '@http';
 import type { $Route } from '@route';
-import type { Middleware } from '@middleware';
+import type { Middleware, $Middleware } from '@middleware';
 
 export namespace $Compiler {
     export type ServeRoutes = Bun.Serve.Routes<$RequestContext.WebSocketData, $Route.Path>;
@@ -15,5 +15,10 @@ export namespace $Compiler {
         onRequest: Middleware[];
         onResponse: Middleware[];
         onError: Middleware[];
+    }
+
+    export interface Segments {
+        names: string[];
+        values: $Middleware.Handler[];
     }
 }

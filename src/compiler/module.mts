@@ -1,7 +1,7 @@
 import { RequestContext } from '@http';
-import type { Middleware, $Middleware } from '@middleware';
 import type { Plugin } from '@plugin';
 import type { Route } from '@route';
+import type { Middleware, $Middleware } from '@middleware';
 import type { $Compiler } from './types.mts';
 
 export class Compiler {
@@ -28,13 +28,11 @@ export class Compiler {
                 composer.onError.push(middleware);
             }
         }
-        const argNames: string[] = Compiler.#createArgNames(composer);
-        const argValues: unknown[] = Compiler.#createArgValues(composer);
+        const { names, values } = Compiler.#createSegments(composer);
         const isAsync: boolean = Compiler.#isSomeMiddlewareAsync(middlewares);
-        const body: string = Compiler.#generateBody(composer);
-        const code = `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
-        const factory = new Function(...argNames, code);
-        return factory(RequestContext, plugin, ...argValues);
+        const code: string = Compiler.#generateCode(isAsync, composer);
+        const factory = new Function(...names, code);
+        return factory(RequestContext, plugin, ...values);
     }
 
     static #createMiddlewareComposer(): $Compiler.MiddlewareComposer {
@@ -45,29 +43,32 @@ export class Compiler {
         };
     }
 
+    static #createSegments(composer: $Compiler.MiddlewareComposer): $Compiler.Segments {
+        const { onRequest, onResponse, onError } = composer;
+        const segments: [string[], $Middleware.Handler[]] = [[], []];
+        onRequest.forEach((mdw: Middleware, index: number): void => {
+            segments[0].push(`req_${index}`);
+            segments[1].push(mdw.handler);
+        });
+        onResponse.forEach((mdw: Middleware, index: number): void => {
+            segments[0].push(`res_${index}`);
+            segments[1].push(mdw.handler);
+        });
+        onError.forEach((mdw: Middleware, index: number): void => {
+            segments[0].push(`err_${index}`);
+            segments[1].push(mdw.handler);
+        });
+        return {
+            names: ['RC', 'app', ...segments[0]],
+            values: segments[1]
+        };
+    }
+
     static #isSomeMiddlewareAsync(middlewares: readonly Middleware[]): boolean {
         return middlewares.some((mdw: Middleware): boolean => mdw.mode === 'async');
     }
 
-    static #createArgNames(composer: $Compiler.MiddlewareComposer): string[] {
-        return [
-            'RC',
-            'app',
-            ...composer.onRequest.map((_mdw: Middleware, index: number): string => `req_${index}`),
-            ...composer.onResponse.map((_mdw: Middleware, index: number): string => `res_${index}`),
-            ...composer.onError.map((_mdw: Middleware, index: number): string => `err_${index}`)
-        ];
-    }
-
-    static #createArgValues(composer: $Compiler.MiddlewareComposer): unknown[] {
-        return [
-            ...composer.onRequest.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
-            ...composer.onResponse.map((mdw: Middleware): $Middleware.Handler => mdw.handler),
-            ...composer.onError.map((mdw: Middleware): $Middleware.Handler => mdw.handler)
-        ];
-    }
-
-    static #generateBody(composer: $Compiler.MiddlewareComposer): string {
+    static #generateCode(isAsync: boolean, composer: $Compiler.MiddlewareComposer): string {
         const lines: string[] = [
             'const rc = new RC(app, req, ser);',
             'try {',
@@ -80,13 +81,14 @@ export class Compiler {
             `return rc.error.response.build();`,
             '}'
         ];
-        return lines.filter(Boolean).join('\n');
+        const body: string = lines.filter(Boolean).join('\n');
+        return `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
     }
 
     static #generateСalls(prefix: string, middlewares: readonly Middleware[]): string {
-        const calls: string[] = middlewares.map((mdw: Middleware, index: number): string => {
-            return Compiler.#generateCall(`${prefix}_${index}`, mdw);
-        });
+        const calls: string[] = middlewares.map((mdw: Middleware, index: number): string =>
+            Compiler.#generateCall(`${prefix}_${index}`, mdw)
+        );
         return calls.join('\n');
     }
 
