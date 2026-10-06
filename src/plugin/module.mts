@@ -116,7 +116,7 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
-    #assertStatus(expected: $Plugin.Status, access: $Plugin.Access): void {
+    #assertStatus(expected: $Plugin.Status, access: $Plugin.Access<Plugin>): void {
         const actual: $Plugin.Status = this.#status;
         if (actual === expected) {
             return;
