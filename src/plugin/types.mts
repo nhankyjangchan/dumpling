@@ -8,10 +8,4 @@ export namespace $Plugin {
     export type Scope = 'self' | 'global';
 
     export type Status = 'pending' | 'ready' | 'failed';
-
-    export type Access<Target> = {
-        [Member in keyof Target & string]: Target[Member] extends CallableFunction
-            ? `${Member}()`
-            : Member;
-    }[keyof Target & string];
 }
