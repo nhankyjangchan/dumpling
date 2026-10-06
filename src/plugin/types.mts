@@ -10,6 +10,8 @@ export namespace $Plugin {
     export type Status = 'pending' | 'ready' | 'failed';
 
     export type Access<Target> = {
-        [K in keyof Target & string]: Target[K] extends Function ? K | `${K}()` : K;
+        [Member in keyof Target & string]: Target[Member] extends CallableFunction
+            ? `${Member}()`
+            : Member;
     }[keyof Target & string];
 }

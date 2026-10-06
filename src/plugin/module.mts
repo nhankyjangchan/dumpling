@@ -50,7 +50,7 @@ export class Plugin extends EventTarget {
     }
 
     public use(...middlewares: readonly Middleware[]): this {
-        this.#assertStatus('pending', 'use()');
+        this.#assertStatus('pending', 'use');
         for (const middleware of middlewares) {
             this.#registerMiddleware(middleware);
         }
@@ -58,7 +58,7 @@ export class Plugin extends EventTarget {
     }
 
     public mount(...plugins: readonly Plugin[]): this {
-        this.#assertStatus('pending', 'mount()');
+        this.#assertStatus('pending', 'mount');
         for (const plugin of plugins) {
             this.#registerPlugin(plugin);
         }
@@ -66,7 +66,7 @@ export class Plugin extends EventTarget {
     }
 
     public route(...routes: readonly Route[]): this {
-        this.#assertStatus('pending', 'route()');
+        this.#assertStatus('pending', 'route');
         for (const route of routes) {
             this.#registerRoute(route);
         }
@@ -74,7 +74,7 @@ export class Plugin extends EventTarget {
     }
 
     public ready(): void {
-        this.#assertStatus('pending', 'ready()');
+        this.#assertStatus('pending', 'ready');
         for (const plugin of this.#plugins.values()) {
             if (plugin.scope === 'self') {
                 continue;
@@ -116,7 +116,7 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
-    #assertStatus(expected: $Plugin.Status, access: $Plugin.Access<Plugin>): void {
+    #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
         const actual: $Plugin.Status = this.#status;
         if (actual === expected) {
             return;
