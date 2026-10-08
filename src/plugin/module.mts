@@ -85,6 +85,15 @@ export class Plugin extends EventTarget {
         this.#status = 'ready';
     }
 
+    #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
+        const actual: $Plugin.Status = this.#status;
+        if (actual === expected) {
+            return;
+        }
+        const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
+        throw new PluginError(message);
+    }
+
     #registerMiddleware(middleware: Middleware): void {
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
@@ -114,15 +123,6 @@ export class Plugin extends EventTarget {
             this.#failWith(error);
         }
         this.#routes.set(name, route);
-    }
-
-    #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
-        const actual: $Plugin.Status = this.#status;
-        if (actual === expected) {
-            return;
-        }
-        const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
-        throw new PluginError(message);
     }
 
     #failWith(error: Error): never {

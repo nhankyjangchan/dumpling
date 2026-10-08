@@ -2,13 +2,13 @@ import { defineConfig } from 'oxlint';
 
 export default defineConfig({
     categories: {
-        correctness: 'deny',
-        nursery: 'deny',
-        pedantic: 'deny',
-        perf: 'deny',
-        restriction: 'deny',
-        style: 'deny',
-        suspicious: 'deny'
+        correctness: 'error',
+        nursery: 'error',
+        pedantic: 'error',
+        perf: 'error',
+        restriction: 'error',
+        style: 'error',
+        suspicious: 'error'
     },
     env: {
         builtin: true,
@@ -18,14 +18,15 @@ export default defineConfig({
     globals: {
         Bun: 'readonly'
     },
-    ignorePatterns: ['node_modules/**', 'build/**', 'tests/**', 'coverage/**'],
+    ignorePatterns: ['node_modules/**', 'tests/**', 'build/**'],
     options: {
         denyWarnings: true,
-        reportUnusedDisableDirectives: 'deny',
-        respectEslintDisableDirectives: true,
+        reportUnusedDisableDirectives: 'error',
+        respectEslintDisableDirectives: false,
         typeAware: true,
         typeCheck: true
     },
+    plugins: ['eslint', 'unicorn', 'typescript', 'oxc', 'import', 'promise', 'node'],
     rules: {
         'no-magic-numbers': ['error', { ignore: [0, 1, 200, 500] }],
         'one-var': 'off',
@@ -35,6 +36,11 @@ export default defineConfig({
         'no-ternary': 'off',
         'no-new-func': 'off',
         'no-empty-function': ['error', { allow: ['constructors'] }],
+        'import/no-named-export': 'off',
+        'import/prefer-default-export': 'off',
+        'import/group-exports': 'off',
+        'import/consistent-type-specifier-style': 'off',
+        'import/no-default-export': 'off',
         'typescript/no-namespace': 'off',
         'typescript/prefer-readonly-parameter-types': 'off',
         'typescript/method-signature-style': 'off',

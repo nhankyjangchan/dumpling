@@ -1,2 +1,2 @@
-export * from './module.mts';
-export type * from './types.mts';
+export { Compiler } from './module.mts';
+export type { $Compiler } from './types.mts';

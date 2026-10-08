@@ -21,6 +21,7 @@ export class Compiler {
         const composer: $Compiler.Composer = Compiler.#composeMiddlewares(middlewares);
         const code: string = Compiler.#generateCode(composer);
         const { params, args } = Compiler.#createSegments(composer);
+        // oxlint-disable-next-line typescript/no-unsafe-return typescript/no-unsafe-call
         return new Function(...params, code)(RequestContext, plugin, ...args);
     }
 
@@ -36,19 +37,6 @@ export class Compiler {
             }
         }
         return composer;
-    }
-
-    static #createSegments({
-        onRequest,
-        onResponse,
-        onError
-    }: $Compiler.Composer): $Compiler.Segments {
-        const segments: [string[], $Middleware.Handler[]] = [[], []];
-        for (const [id, mdw] of Object.entries([...onRequest, ...onResponse, ...onError])) {
-            segments[0].push(`middleware${id}`);
-            segments[1].push(mdw.handler);
-        }
-        return { params: ['RC', 'app', ...segments[0]], args: segments[1] };
     }
 
     static #generateCode(composer: $Compiler.Composer): string {
@@ -67,24 +55,26 @@ export class Compiler {
     }
 
     static #generateBody({ onRequest, onResponse, onError }: $Compiler.Composer): string {
+        const onResponseOffset: number = onRequest.length;
+        const onErrorOffset: number = onResponseOffset + onResponse.length;
         const lines: string[] = [
             'const rc = new RC(app, req, ser);',
             'try {',
-            Compiler.#generateСalls(onRequest),
-            Compiler.#generateСalls(onResponse),
+            Compiler.#generateСalls(onRequest, 0),
+            Compiler.#generateСalls(onResponse, onResponseOffset),
             'return rc.response.build();',
             '} catch (e) {',
             'rc.catched = e;',
-            Compiler.#generateСalls(onError),
+            Compiler.#generateСalls(onError, onErrorOffset),
             `return rc.error.response.build();`,
             '}'
         ];
         return lines.filter(Boolean).join('\n');
     }
 
-    static #generateСalls(middlewares: readonly Middleware[]): string {
+    static #generateСalls(middlewares: readonly Middleware[], offset: number): string {
         const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
-            Compiler.#generateCall(id, mdw)
+            Compiler.#generateCall(offset + id, mdw)
         );
         return calls.join('\n');
     }
@@ -100,5 +90,18 @@ export class Compiler {
             `const ${name}_r = ${callType}${name}(rc);\n`
             + `if (${name}_r instanceof Response) return ${name}_r;`
         );
+    }
+
+    static #createSegments({
+        onRequest,
+        onResponse,
+        onError
+    }: $Compiler.Composer): $Compiler.Segments {
+        const segments: [string[], $Middleware.Handler[]] = [[], []];
+        for (const [id, mdw] of Object.entries([...onRequest, ...onResponse, ...onError])) {
+            segments[0].push(`middleware${id}`);
+            segments[1].push(mdw.handler);
+        }
+        return { params: ['RC', 'app', ...segments[0]], args: segments[1] };
     }
 }
