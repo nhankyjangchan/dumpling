@@ -11,14 +11,14 @@ export namespace $Compiler {
         Response | undefined
     >;
 
-    export interface MiddlewareComposer {
+    export interface Composer {
         onRequest: Middleware[];
         onResponse: Middleware[];
         onError: Middleware[];
     }
 
     export interface Segments {
-        names: string[];
-        values: $Middleware.Handler[];
+        params: string[];
+        args: $Middleware.Handler[];
     }
 }

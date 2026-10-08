@@ -57,3 +57,52 @@ Bun.serve({
 !26-09-30
 ---------
 Думаю, я наконец-то определился с концептом. Я убрал всю рантайм-валидацию, ибо типы и так не дадут юзеру стрельнуть себе в ногу. А если он использует JS или отключает провеку типов, чтобы в string засунуть new Date(), то это уже не проблемы фреймворка. Route & Middleware будут тупыми хранилками данных, а Dumpling будет выполнять лишь "контрактную валидацию" - проверка контракта фреймворка, например, невозможность дважды смонтировать плагин с одним и тем же именем (в нормальной ситуации - один и тот же плагин).Компонент src/http я, всё же, разбивать на src/context & src/response не буду. Пусть это будет единственная структура такого типа, ничего страшного.А JIT-Compiler я сделаю классом, со статическими методами merge & compile. Юзер должен сам за них дёрнуть, когда нужно, так что он будет экспортируемый.
+
+!26-10-06
+---------
+Я внёс некоторые изменения в код компилятора. Не стану описывать, лучше просто покажу то, как я ожидаю эта штука должна копилироваться:
+<code>
+Bun.serve({
+    routes: {
+        GET: async (req, ser) => {
+            const rc = new RequestContext(app, req, ser);
+            try {
+                req1(rc);
+                await req2(rc);
+                const req3_r = req3(rc);
+                if (req3_r instanceof Response) {
+                    retruen req3_r;
+                }
+                const req4_r = await req4(rc);
+                if (req4_r instanceof Response) {
+                    return req4_r;
+                }
+                res1(rc);
+                await res2(rc);
+                const res3_r = res3(rc);
+                if (res3_r instanceof Response) {
+                    return res3_r;
+                }
+                const res4_r = await res4(rc);
+                if (res4_r instanceof Response) {
+                    return res4_r;
+                }
+                return rc.response.build();
+            } catch (e) {
+                rc.catched = e;
+                err1(rc);
+                await err2(rc);
+                const err3_r = err3(rc);
+                if (err3_r instanceof Response) {
+                    return err3_r;
+                }
+                const err4_r = await err4(rc);
+                if (err4_r instanceof Response) {
+                    return err4_r;
+                }
+                return rc.error.response.build();
+            }
+        }
+    }
+})
+</code>

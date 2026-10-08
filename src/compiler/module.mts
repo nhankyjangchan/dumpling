@@ -10,7 +10,7 @@ export class Compiler {
     public static compile(plugin: Plugin): $Compiler.ServeRoutes {
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
-            // @ts-ignore
+            // @ts-expect-error Minor issues with type narrowing
             (routes[route.path] ??= {})[route.method] = Compiler.#compileRoute(plugin, route);
         }
         return routes;
@@ -18,7 +18,14 @@ export class Compiler {
 
     static #compileRoute(plugin: Plugin, route: Route): $Compiler.ServeHandler {
         const middlewares: Middleware[] = [...plugin.middlewares, ...route.middlewares];
-        const composer: $Compiler.MiddlewareComposer = Compiler.#createMiddlewareComposer();
+        const composer: $Compiler.Composer = Compiler.#composeMiddlewares(middlewares);
+        const code: string = Compiler.#generateCode(composer);
+        const { params, args } = Compiler.#createSegments(composer);
+        return new Function(...params, code)(RequestContext, plugin, ...args);
+    }
+
+    static #composeMiddlewares(middlewares: readonly Middleware[]): $Compiler.Composer {
+        const composer: $Compiler.Composer = { onRequest: [], onResponse: [], onError: [] };
         for (const middleware of middlewares) {
             if (middleware.hook === 'onRequest') {
                 composer.onRequest.push(middleware);
@@ -28,78 +35,69 @@ export class Compiler {
                 composer.onError.push(middleware);
             }
         }
-        const { names, values } = Compiler.#createSegments(composer);
-        const isAsync: boolean = Compiler.#isSomeMiddlewareAsync(middlewares);
-        const code: string = Compiler.#generateCode(isAsync, composer);
-        const factory = new Function(...names, code);
-        return factory(RequestContext, plugin, ...values);
+        return composer;
     }
 
-    static #createMiddlewareComposer(): $Compiler.MiddlewareComposer {
-        return {
-            onRequest: [],
-            onResponse: [],
-            onError: []
-        };
-    }
-
-    static #createSegments(composer: $Compiler.MiddlewareComposer): $Compiler.Segments {
-        const { onRequest, onResponse, onError } = composer;
+    static #createSegments({
+        onRequest,
+        onResponse,
+        onError
+    }: $Compiler.Composer): $Compiler.Segments {
         const segments: [string[], $Middleware.Handler[]] = [[], []];
-        onRequest.forEach((mdw: Middleware, index: number): void => {
-            segments[0].push(`req_${index}`);
+        for (const [id, mdw] of Object.entries([...onRequest, ...onResponse, ...onError])) {
+            segments[0].push(`middleware${id}`);
             segments[1].push(mdw.handler);
-        });
-        onResponse.forEach((mdw: Middleware, index: number): void => {
-            segments[0].push(`res_${index}`);
-            segments[1].push(mdw.handler);
-        });
-        onError.forEach((mdw: Middleware, index: number): void => {
-            segments[0].push(`err_${index}`);
-            segments[1].push(mdw.handler);
-        });
-        return {
-            names: ['RC', 'app', ...segments[0]],
-            values: segments[1]
-        };
+        }
+        return { params: ['RC', 'app', ...segments[0]], args: segments[1] };
     }
 
-    static #isSomeMiddlewareAsync(middlewares: readonly Middleware[]): boolean {
-        return middlewares.some((mdw: Middleware): boolean => mdw.mode === 'async');
-    }
-
-    static #generateCode(isAsync: boolean, composer: $Compiler.MiddlewareComposer): string {
-        const lines: string[] = [
-            'const rc = new RC(app, req, ser);',
-            'try {',
-            Compiler.#generateСalls('req', composer.onRequest),
-            Compiler.#generateСalls('res', composer.onResponse),
-            'return rc.response.build();',
-            '} catch (e) {',
-            'rc.error = e;',
-            Compiler.#generateСalls('err', composer.onError),
-            `return rc.error.response.build();`,
-            '}'
-        ];
-        const body: string = lines.filter(Boolean).join('\n');
+    static #generateCode(composer: $Compiler.Composer): string {
+        const isAsync: boolean = Compiler.#isSomeMiddlewareAsync(composer);
+        const body: string = Compiler.#generateBody(composer);
         return `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
     }
 
-    static #generateСalls(prefix: string, middlewares: readonly Middleware[]): string {
-        const calls: string[] = middlewares.map((mdw: Middleware, index: number): string =>
-            Compiler.#generateCall(`${prefix}_${index}`, mdw)
+    static #isSomeMiddlewareAsync({ onRequest, onResponse, onError }: $Compiler.Composer): boolean {
+        for (const middleware of [...onRequest, ...onResponse, ...onError]) {
+            if (middleware.mode === 'async') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static #generateBody({ onRequest, onResponse, onError }: $Compiler.Composer): string {
+        const lines: string[] = [
+            'const rc = new RC(app, req, ser);',
+            'try {',
+            Compiler.#generateСalls(onRequest),
+            Compiler.#generateСalls(onResponse),
+            'return rc.response.build();',
+            '} catch (e) {',
+            'rc.catched = e;',
+            Compiler.#generateСalls(onError),
+            `return rc.error.response.build();`,
+            '}'
+        ];
+        return lines.filter(Boolean).join('\n');
+    }
+
+    static #generateСalls(middlewares: readonly Middleware[]): string {
+        const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
+            Compiler.#generateCall(id, mdw)
         );
         return calls.join('\n');
     }
 
-    static #generateCall(name: string, middleware: Middleware): string {
+    static #generateCall(id: number, middleware: Middleware): string {
         const { mode, flow } = middleware;
-        const executionType: '' | 'await ' = mode === 'async' ? 'await ' : '';
+        const callType: '' | 'await ' = mode === 'async' ? 'await ' : '';
+        const name = `middleware${id}`;
         if (flow === 'pass') {
-            return `${executionType}${name}(rc);`;
+            return `${callType}${name}(rc);`;
         }
         return (
-            `const ${name}_r = ${executionType}${name}(rc);\n`
+            `const ${name}_r = ${callType}${name}(rc);\n`
             + `if (${name}_r instanceof Response) return ${name}_r;`
         );
     }
