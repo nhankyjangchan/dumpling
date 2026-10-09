@@ -9,7 +9,7 @@ export default defineConfig({
     target: 'esnext',
     platform: 'neutral',
     treeshake: true,
-    sourcemap: true,
+    sourcemap: false,
     minify: false,
     shims: false,
     exports: false,

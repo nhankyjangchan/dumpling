@@ -10,7 +10,10 @@ export class RequestContext {
     readonly #response: OutgoingResponse;
 
     #state?: $RequestContext.State;
-    #error?: unknown;
+    #error?: HttpError;
+
+    public shouldBuild: boolean = true;
+    public catched?: unknown;
 
     public constructor(init: $RequestContext.Init) {
         this.#app = init.app;
@@ -43,11 +46,11 @@ export class RequestContext {
         this.#state = state;
     }
 
-    public get error(): unknown {
-        return this.#error;
+    public get error(): HttpError {
+        return (this.#error ??= new HttpError());
     }
 
-    public set error(error: unknown) {
+    public set error(error: HttpError) {
         this.#error = error;
     }
 
@@ -59,5 +62,12 @@ export class RequestContext {
     public raise(init?: $OutgoingResponse.Init): never {
         this.#error ??= new HttpError(init);
         throw this.#error;
+    }
+
+    public build(): Response | undefined {
+        if (!this.shouldBuild) {
+            return;
+        }
+        return this.#response.build();
     }
 }

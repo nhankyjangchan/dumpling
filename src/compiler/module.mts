@@ -7,6 +7,20 @@ import type { $Compiler } from './types.mts';
 export class Compiler {
     private constructor() {}
 
+    public static merge(...routes: $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
+        const merged: $Compiler.ServeRoutes = {};
+        for (const route of routes) {
+            for (const [path, methods] of Object.entries(route)) {
+                if (Object.hasOwn(merged, path)) {
+                    throw new Error(`"${path}" already registered;`);
+                }
+                // @ts-expect-error Minor issues with type narrowing
+                merged[path] = methods;
+            }
+        }
+        return merged;
+    }
+
     public static compile(plugin: Plugin): $Compiler.ServeRoutes {
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
@@ -62,7 +76,7 @@ export class Compiler {
             'try {',
             Compiler.#generateСalls(onRequest, 0),
             Compiler.#generateСalls(onResponse, onResponseOffset),
-            'return rc.response.build();',
+            'return rc.build();',
             '} catch (e) {',
             'rc.catched = e;',
             Compiler.#generateСalls(onError, onErrorOffset),
