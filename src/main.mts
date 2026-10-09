@@ -1,4 +1,4 @@
-export { Compiler } from '@compiler';
+export { Compiler, CompilerError } from '@compiler';
 export { RequestContext, OutgoingResponse, HttpError } from '@http';
 export { Middleware, MiddlewareError } from '@middleware';
 export { Plugin, PluginError } from '@plugin';

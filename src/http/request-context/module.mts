@@ -66,7 +66,7 @@ export class RequestContext {
 
     public build(): Response | undefined {
         if (!this.shouldBuild) {
-            return;
+            return undefined;
         }
         return this.#response.build();
     }
