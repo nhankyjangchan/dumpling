@@ -1,6 +1,6 @@
-import { describe, test, expect } from 'bun:test';
 import { Middleware, type $Middleware } from '@middleware';
 import { Route, RouteError, type $Route } from '@route';
+import { describe, test, expect } from 'bun:test';
 
 function createMiddleware(init: Partial<$Middleware.Init> = {}): Middleware {
     return new Middleware({

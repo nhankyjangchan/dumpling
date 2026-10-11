@@ -1,19 +1,11 @@
 import { RequestContext } from '@http';
+import { Middleware, type $Middleware } from '@middleware';
+import { Route } from '@route';
 import { CompilerError } from './errors.mts';
 import type { Plugin } from '@plugin';
-import type { Route } from '@route';
-import type { Middleware, $Middleware } from '@middleware';
 import type { $Compiler } from './types.mts';
 
 export class Compiler {
-    static readonly #R_NAME_RE = /^[a-z0-9_-]@route$/i;
-    static readonly #R_METHOD_RE = /^(?:'GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS')$/;
-
-    static readonly #M_NAME_RE = /^[a-z0-9_-]@middleware$/i;
-    static readonly #M_HOOK_RE = /^on(?:Request|Response|Error)$/;
-    static readonly #M_MODE_RE = /^(?:async|sync)$/;
-    static readonly #M_FLOW_RE = /^(?:halt|pass)$/;
-
     private constructor() {
         throw new CompilerError('The compiler does not support the `new` instruction;');
     }
@@ -33,50 +25,13 @@ export class Compiler {
     }
 
     public static compile(plugin: Plugin): $Compiler.ServeRoutes {
-        Compiler.check(plugin);
+        //Compiler.check(plugin);
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
             // @ts-expect-error Minor issues with type narrowing
             (routes[route.path] ??= {})[route.method] = Compiler.#compileRoute(plugin, route);
         }
         return routes;
-    }
-
-    public static check(plugin: Plugin): void {
-        let errors: string = '';
-        errors += Compiler.#checkRoutes([...plugin.routes]);
-        errors += Compiler.#checkMiddlewares([...plugin.middlewares]);
-        if (errors.length > 1) {
-            const message: string = errors.split(';').join('\n');
-            throw new CompilerError(message);
-        }
-    }
-
-    static #checkRoutes(routes: readonly Route[]): string {
-        let errors: string = '';
-        for (const route of routes) {
-            const { name, path, method, middlewares } = route;
-            Compiler.#R_NAME_RE.test(name) || (errors += `R_ERR: Invalid name: ${name};`);
-            Compiler.#R_METHOD_RE.test(method)
-                || (errors += `R_ERR: Invalid method type: ${method};`);
-            path.startsWith('/') || (errors += `R_ERR: Invalid path: ${path};`);
-            errors += Compiler.#checkMiddlewares(middlewares);
-        }
-        return errors;
-    }
-
-    static #checkMiddlewares(middlewares: readonly Middleware[]): string {
-        let errors: string = '';
-        for (const mdw of middlewares) {
-            const { name, hook, mode, flow, handler } = mdw;
-            Compiler.#M_NAME_RE.test(name) || (errors += `M_ERR: Invalid name: ${name};`);
-            Compiler.#M_HOOK_RE.test(hook) || (errors += `M_ERR: Invalid hook: ${hook};`);
-            Compiler.#M_MODE_RE.test(mode) || (errors += `M_ERR: Invalid mode: ${mode};`);
-            Compiler.#M_FLOW_RE.test(flow) || (errors += `M_ERR: Invalid flow: ${flow};`);
-            typeof handler === 'function'
-                || (errors += `M_ERR: Invalid handler type: ${typeof handler};`);
-        }
-        return errors;
     }
 
     static #compileRoute(plugin: Plugin, route: Route): $Compiler.ServeHandler {
@@ -144,13 +99,13 @@ export class Compiler {
 
     static #generateCall(id: number, middleware: Middleware): string {
         const { mode, flow } = middleware;
-        const callType: '' | 'await ' = mode === 'async' ? 'await ' : '';
+        const awaitPrefix: '' | 'await ' = mode === 'async' ? 'await ' : '';
         const name = `middleware${id}`;
         if (flow === 'pass') {
-            return `${callType}${name}(rc);`;
+            return `${awaitPrefix}${name}(rc);`;
         }
         return (
-            `const ${name}_r = ${callType}${name}(rc);\n`
+            `const ${name}_r = ${awaitPrefix}${name}(rc);\n`
             + `if (${name}_r instanceof Response) return ${name}_r;`
         );
     }

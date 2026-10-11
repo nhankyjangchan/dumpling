@@ -35,7 +35,8 @@
             "@http/response": ["./src/http/outgoing-response/_index.mts"],
             "@middleware": ["./src/middleware/_index.mts"],
             "@plugin": ["./src/plugin/_index.mts"],
-            "@route": ["./src/route/_index.mts"]
+            "@route": ["./src/route/_index.mts"],
+            "@verifier": ["./src/verifier/_index.mts"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,

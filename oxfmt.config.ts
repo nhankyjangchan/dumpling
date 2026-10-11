@@ -15,7 +15,16 @@ export default defineConfig({
     quoteProps: 'as-needed',
     semi: true,
     singleQuote: true,
-    sortImports: false,
+    sortImports: {
+        groups: ['value-internal', 'value-sibling', 'type-internal', 'type-sibling', 'unknown'],
+        ignoreCase: false,
+        internalPattern: ['@'],
+        newlinesBetween: false,
+        order: 'asc',
+        partitionByComment: false,
+        partitionByNewline: false,
+        sortSideEffects: false
+    },
     sortPackageJson: true,
     tabWidth: 4,
     trailingComma: 'none',
