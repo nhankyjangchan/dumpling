@@ -1,37 +1,30 @@
 import { Middleware } from '@middleware';
 import { Plugin } from '@plugin';
 import { Route } from '@route';
+import { verifierCodes } from './codes.mts';
 import type { $Verifier } from './types.mts';
 
-const codes = {
-    INVALID_INSTANCE(className: Function): string {
-        return `Invalid instance received: "${className.name}" instance was expected;`;
-    },
-    INVALID_MEMBER(member: string, className: Function): string {
-        return `Invalid value was received for member "${member}" of instance "${className.name}";`;
-    },
-    REQUIRED_ENTITY(member: string, className: Function): string {
-        return `"${className.name}.${member}" must contain at least one instance;`;
-    }
-} as const;
-
 export class Verifier {
+    private constructor() {
+        throw new Error('The verifier does not support the `new` instruction;');
+    }
+
     static readonly #MIDDLEWARE_RULES: $Verifier.MiddlewareRules = [
-        ['name', /^[a-z0-9_-]+@middleware$/i],
-        ['hook', /^on(?:Request|Response|Error)$/],
-        ['mode', /^(?:async|sync)$/],
-        ['flow', /^(?:halt|pass)$/]
+        [Middleware.name, 'name', /^[a-z0-9_-]+@middleware$/i],
+        [Middleware.name, 'hook', /^on(?:Request|Response|Error)$/],
+        [Middleware.name, 'mode', /^(?:async|sync)$/],
+        [Middleware.name, 'flow', /^(?:halt|pass)$/]
     ];
 
     static readonly #ROUTE_RULES: $Verifier.RouteRules = [
-        ['name', /^[a-z0-9_-]+@route$/i],
-        ['path', /^\//],
-        ['method', /^(?:'GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS')$/]
+        [Route.name, 'name', /^[a-z0-9_-]+@route$/i],
+        [Route.name, 'path', /^\//],
+        [Route.name, 'method', /^(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)$/]
     ];
 
     static readonly #PLUGIN_RULES: $Verifier.PluginRules = [
-        ['name', /^[a-z0-9_-]+@plugin$/i],
-        ['scope', /^(?:self|global)$/]
+        [Plugin.name, 'name', /^[a-z0-9_-]+@plugin$/i],
+        [Plugin.name, 'scope', /^(?:self|global)$/]
     ];
 
     public static verifyPlugins(...targets: unknown[]): string {
@@ -45,28 +38,57 @@ export class Verifier {
     static #verifyPlugin(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Plugin)) {
-            return (messages += codes.INVALID_INSTANCE(Plugin));
+            return verifierCodes.invalidInstance(Plugin.name);
         }
-        for (const [member, pattern] of Verifier.#PLUGIN_RULES) {
-            if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += codes.INVALID_MEMBER(member, Plugin);
-            }
+        if (target.status !== 'ready') {
+            return verifierCodes.invalidMember('status', Plugin.name);
         }
-        const [routes, middlewares] = [[...target.routes], [...target.middlewares]] as const;
-        messages += Verifier.verifyRoutes(...routes);
-        messages += Verifier.verifyMiddlewares(...middlewares);
-        let routeHasMiddlewares: boolean = false;
+        const [routes, middlewares] = [[...target.routes], [...target.middlewares]];
+        messages += Verifier.#verifyPluginMembers(target, routes, middlewares);
+        if (routes.length === 0) {
+            messages += verifierCodes.requiredEntity('routes', Route.name);
+        }
+        const hasMiddleware: boolean = Verifier.#hasPluginMiddlewares(routes, middlewares);
+        if (!hasMiddleware) {
+            messages += '"Plugin|Route.middlewares" must contain at least one instance;';
+        }
+        return messages;
+    }
+
+    /**
+     * Each method call creates a new iterator, which then has to be converted into an array in
+     * order to be traversed. While the overhead is minor, it still bothers me; that is why this
+     * method receives pre-constructed arrays of routes and middleware, rather than the plugin
+     * instance itself.
+     */
+    static #verifyPluginMembers(
+        plugin: Plugin,
+        routes: readonly Route[],
+        middlewares: readonly Middleware[]
+    ): string {
+        return (
+            Verifier.#verifyRules(plugin, Verifier.#PLUGIN_RULES)
+            + Verifier.verifyRoutes(...routes)
+            + Verifier.verifyMiddlewares(...middlewares)
+        );
+    }
+
+    /**
+     * Each method call creates a new iterator, which then has to be converted into an array in
+     * order to be traversed. While the overhead is minor, it still bothers me; that is why this
+     * method receives pre-constructed arrays of routes and middleware, rather than the plugin
+     * instance itself.
+     */
+    static #hasPluginMiddlewares(
+        routes: readonly Route[],
+        middlewares: readonly Middleware[]
+    ): boolean {
         for (const route of routes) {
             if (route.middlewares.length > 0) {
-                routeHasMiddlewares = true;
-                break;
+                return true;
             }
         }
-        return routes.length < 1
-            ? messages + codes.REQUIRED_ENTITY('routes', Route)
-            : routeHasMiddlewares || messages.length > 1
-              ? messages
-              : 'Plugin|Route.middlewares must contain at least one instance;';
+        return middlewares.length > 0;
     }
 
     public static verifyRoutes(...targets: unknown[]): string {
@@ -80,15 +102,11 @@ export class Verifier {
     static #verifyRoute(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Route)) {
-            return codes.INVALID_INSTANCE(Route);
+            return verifierCodes.invalidInstance(Route.name);
         }
-        for (const [member, pattern] of Verifier.#ROUTE_RULES) {
-            if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += codes.INVALID_MEMBER(member, Route);
-            }
-        }
+        messages += Verifier.#verifyRules(target, Verifier.#ROUTE_RULES);
         if (!Array.isArray(target.middlewares)) {
-            return messages + codes.INVALID_MEMBER('middlewares', Route);
+            return messages + verifierCodes.invalidMember('middlewares', Route.name);
         }
         return messages + Verifier.verifyMiddlewares(...target.middlewares);
     }
@@ -104,15 +122,24 @@ export class Verifier {
     static #verifyMiddleware(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Middleware)) {
-            return codes.INVALID_INSTANCE(Middleware);
+            return verifierCodes.invalidInstance(Middleware.name);
         }
-        for (const [member, pattern] of Verifier.#MIDDLEWARE_RULES) {
-            if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += codes.INVALID_MEMBER(member, Middleware);
-            }
-        }
+        messages += Verifier.#verifyRules(target, Verifier.#MIDDLEWARE_RULES);
         if (typeof target.handler !== 'function') {
-            messages += codes.INVALID_MEMBER('handler', Middleware);
+            messages += verifierCodes.invalidMember('handler', Middleware.name);
+        }
+        return messages;
+    }
+
+    static #verifyRules<Target extends object>(
+        target: Target,
+        rules: readonly $Verifier.Rule<Target>[]
+    ): string {
+        let messages: string = '';
+        for (const [className, member, pattern] of rules) {
+            if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
+                messages += verifierCodes.invalidMember(member, className);
+            }
         }
         return messages;
     }

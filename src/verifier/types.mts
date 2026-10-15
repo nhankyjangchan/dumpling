@@ -3,7 +3,9 @@ import type { Plugin } from '@plugin';
 import type { Route } from '@route';
 
 export namespace $Verifier {
-    export type PluginRules = readonly [keyof Plugin, RegExp][];
-    export type RouteRules = readonly [keyof Route, RegExp][];
-    export type MiddlewareRules = readonly [keyof Middleware, RegExp][];
+    export type PluginRules = readonly Rule<Plugin>[];
+    export type RouteRules = readonly Rule<Route>[];
+    export type MiddlewareRules = readonly Rule<Middleware>[];
+
+    export type Rule<Target extends object> = readonly [string, keyof Target & string, RegExp];
 }

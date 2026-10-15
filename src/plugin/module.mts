@@ -1,3 +1,4 @@
+// import { Compiler, type $Compiler } from '@compiler';
 import { MiddlewareError, type Middleware, type $Middleware } from '@middleware';
 import { RouteError, type Route, type $Route } from '@route';
 import { PluginError } from './errors.mts';
@@ -12,6 +13,7 @@ export class Plugin extends EventTarget {
     readonly #routes: Map<$Route.Name, Route>;
 
     #status: $Plugin.Status = 'pending';
+    // #compiled?: $Compiler.ServeRoutes;
 
     public constructor(init: $Plugin.Init) {
         super();
@@ -48,6 +50,11 @@ export class Plugin extends EventTarget {
         this.#assertStatus('ready', 'routes');
         return this.#routes.values();
     }
+
+    // public get compiled(): $Compiler.ServeRoutes {
+    //     this.#assertStatus('ready', 'compiled');
+    //     return (this.#compiled ??= this.#compilePlugin());
+    // }
 
     public use(...middlewares: readonly Middleware[]): this {
         this.#assertStatus('pending', 'use');
@@ -124,6 +131,17 @@ export class Plugin extends EventTarget {
         }
         this.#routes.set(name, route);
     }
+
+    // #compilePlugin(): $Compiler.ServeRoutes {
+    //     const routes: $Compiler.ServeRoutes[] = [];
+    //     for (const plugin of this.#plugins.values()) {
+    //         if (plugin.scope === 'self') {
+    //             routes.push(Compiler.compile(plugin));
+    //         }
+    //     }
+    //     routes.push(Compiler.compile(this));
+    //     return Compiler.merge(...routes);
+    // }
 
     #failWith(error: Error): never {
         this.#status = 'failed';

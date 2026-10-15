@@ -1,8 +1,9 @@
 import { RequestContext } from '@http';
-import { Middleware, type $Middleware } from '@middleware';
-import { Route } from '@route';
+import { Verifier } from '@verifier';
 import { CompilerError } from './errors.mts';
+import type { Middleware, $Middleware } from '@middleware';
 import type { Plugin } from '@plugin';
+import type { Route } from '@route';
 import type { $Compiler } from './types.mts';
 
 export class Compiler {
@@ -25,7 +26,11 @@ export class Compiler {
     }
 
     public static compile(plugin: Plugin): $Compiler.ServeRoutes {
-        //Compiler.check(plugin);
+        const errors: string = Verifier.verifyPlugins(plugin);
+        if (errors.length > 0) {
+            const message: string = errors.split(';').join('\n');
+            throw new CompilerError(message);
+        }
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
             // @ts-expect-error Minor issues with type narrowing

@@ -33,6 +33,7 @@ export default defineConfig({
         'sort-imports': 'off',
         'sort-keys': 'off',
         'require-unicode-regexp': 'off',
+        'capitalized-comments': 'off',
         'no-continue': 'off',
         'no-ternary': 'off',
         'no-new-func': 'off',
