@@ -1,2 +1,2 @@
-export { verifierCodes } from './codes.mts';
-export { verifierRules } from './rules.mts';
+export { verifierCodes } from './codes';
+export { verifierRules } from './rules';

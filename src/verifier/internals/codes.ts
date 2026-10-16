@@ -1,4 +1,4 @@
-import type { $Verifier } from '@verifier/types.mts';
+import type { $Verifier } from '@verifier/types';
 
 export const verifierCodes = {
     invalidInstance(className: $Verifier.AnyConstructor): string {

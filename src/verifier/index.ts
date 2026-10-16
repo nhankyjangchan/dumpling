@@ -1,2 +1,2 @@
-export { Verifier } from './module.mts';
-export type { $Verifier } from './types.mts';
+export { Verifier } from './module';
+export type { $Verifier } from './types';
