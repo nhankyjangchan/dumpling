@@ -1,32 +1,10 @@
-import { Middleware } from '@middleware';
-import { Plugin } from '@plugin';
-import { Route } from '@route';
-import { verifierCodes } from './codes.mts';
+import { Middleware } from '@middleware/index';
+import { Plugin } from '@plugin/index';
+import { Route } from '@route/index';
+import { verifierCodes, verifierRules } from './internals';
 import type { $Verifier } from './types.mts';
 
 export class Verifier {
-    private constructor() {
-        throw new Error('The verifier does not support the `new` instruction;');
-    }
-
-    static readonly #MIDDLEWARE_RULES: $Verifier.MiddlewareRules = [
-        [Middleware.name, 'name', /^[a-z0-9_-]+@middleware$/i],
-        [Middleware.name, 'hook', /^on(?:Request|Response|Error)$/],
-        [Middleware.name, 'mode', /^(?:async|sync)$/],
-        [Middleware.name, 'flow', /^(?:halt|pass)$/]
-    ];
-
-    static readonly #ROUTE_RULES: $Verifier.RouteRules = [
-        [Route.name, 'name', /^[a-z0-9_-]+@route$/i],
-        [Route.name, 'path', /^\//],
-        [Route.name, 'method', /^(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)$/]
-    ];
-
-    static readonly #PLUGIN_RULES: $Verifier.PluginRules = [
-        [Plugin.name, 'name', /^[a-z0-9_-]+@plugin$/i],
-        [Plugin.name, 'scope', /^(?:self|global)$/]
-    ];
-
     public static verifyPlugins(...targets: unknown[]): string {
         let messages: string = '';
         for (const target of targets) {
@@ -38,15 +16,15 @@ export class Verifier {
     static #verifyPlugin(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Plugin)) {
-            return verifierCodes.invalidInstance(Plugin.name);
+            return verifierCodes.invalidInstance(Plugin);
         }
         if (target.status !== 'ready') {
-            return verifierCodes.invalidMember('status', Plugin.name);
+            return verifierCodes.invalidMember('status', Plugin);
         }
         const [routes, middlewares] = [[...target.routes], [...target.middlewares]];
         messages += Verifier.#verifyPluginMembers(target, routes, middlewares);
         if (routes.length === 0) {
-            messages += verifierCodes.requiredEntity('routes', Route.name);
+            messages += verifierCodes.requiredEntity('routes', Plugin);
         }
         const hasMiddleware: boolean = Verifier.#hasPluginMiddlewares(routes, middlewares);
         if (!hasMiddleware) {
@@ -67,7 +45,7 @@ export class Verifier {
         middlewares: readonly Middleware[]
     ): string {
         return (
-            Verifier.#verifyRules(plugin, Verifier.#PLUGIN_RULES)
+            Verifier.#verifyRules(plugin, verifierRules.forPlugin)
             + Verifier.verifyRoutes(...routes)
             + Verifier.verifyMiddlewares(...middlewares)
         );
@@ -102,11 +80,11 @@ export class Verifier {
     static #verifyRoute(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Route)) {
-            return verifierCodes.invalidInstance(Route.name);
+            return verifierCodes.invalidInstance(Route);
         }
-        messages += Verifier.#verifyRules(target, Verifier.#ROUTE_RULES);
+        messages += Verifier.#verifyRules(target, verifierRules.forRoute);
         if (!Array.isArray(target.middlewares)) {
-            return messages + verifierCodes.invalidMember('middlewares', Route.name);
+            return messages + verifierCodes.invalidMember('middlewares', Route);
         }
         return messages + Verifier.verifyMiddlewares(...target.middlewares);
     }
@@ -122,11 +100,11 @@ export class Verifier {
     static #verifyMiddleware(target: unknown): string {
         let messages: string = '';
         if (!(target instanceof Middleware)) {
-            return verifierCodes.invalidInstance(Middleware.name);
+            return verifierCodes.invalidInstance(Middleware);
         }
-        messages += Verifier.#verifyRules(target, Verifier.#MIDDLEWARE_RULES);
+        messages += Verifier.#verifyRules(target, verifierRules.forMiddleware);
         if (typeof target.handler !== 'function') {
-            messages += verifierCodes.invalidMember('handler', Middleware.name);
+            messages += verifierCodes.invalidMember('handler', Middleware);
         }
         return messages;
     }

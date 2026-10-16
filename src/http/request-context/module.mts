@@ -1,6 +1,6 @@
-import { OutgoingResponse, type $OutgoingResponse } from '@http/response';
+import { OutgoingResponse, type $OutgoingResponse } from '@http/outgoing-response';
 import { HttpError } from './errors.mts';
-import type { Plugin } from '@plugin';
+import type { Plugin } from '@plugin/index';
 import type { $RequestContext } from './types.mts';
 
 export class RequestContext {

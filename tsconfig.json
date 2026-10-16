@@ -29,14 +29,12 @@
         "noResolve": false,
         "noUncheckedSideEffectImports": true,
         "paths": {
-            "@compiler": ["./src/compiler/_index.mts"],
-            "@http": ["./src/http/_index.mts"],
-            "@http/context": ["./src/http/request-context/_index.mts"],
-            "@http/response": ["./src/http/outgoing-response/_index.mts"],
-            "@middleware": ["./src/middleware/_index.mts"],
-            "@plugin": ["./src/plugin/_index.mts"],
-            "@route": ["./src/route/_index.mts"],
-            "@verifier": ["./src/verifier/_index.mts"]
+            "@compiler/*": ["./src/compiler/*"],
+            "@http/*": ["./src/http/*"],
+            "@middleware/*": ["./src/middleware/*"],
+            "@plugin/*": ["./src/plugin/*"],
+            "@route/*": ["./src/route/*"],
+            "@verifier/*": ["./src/verifier/*"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,

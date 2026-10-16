@@ -1,9 +1,9 @@
-import { RequestContext } from '@http';
-import { Verifier } from '@verifier';
+import { RequestContext } from '@http/index';
+import { Verifier } from '@verifier/index';
 import { CompilerError } from './errors.mts';
-import type { Middleware, $Middleware } from '@middleware';
-import type { Plugin } from '@plugin';
-import type { Route } from '@route';
+import type { Middleware, $Middleware } from '@middleware/index';
+import type { Plugin } from '@plugin/index';
+import type { Route } from '@route/index';
 import type { $Compiler } from './types.mts';
 
 export class Compiler {

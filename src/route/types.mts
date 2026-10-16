@@ -1,4 +1,4 @@
-import type { Middleware } from '@middleware';
+import type { Middleware } from '@middleware/index';
 
 export namespace $Route {
     export interface Init {

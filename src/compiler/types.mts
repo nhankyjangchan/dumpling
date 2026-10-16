@@ -1,6 +1,6 @@
-import type { $RequestContext } from '@http';
-import type { Middleware, $Middleware } from '@middleware';
-import type { $Route } from '@route';
+import type { $RequestContext } from '@http/index';
+import type { Middleware, $Middleware } from '@middleware/index';
+import type { $Route } from '@route/index';
 
 export namespace $Compiler {
     export type ServeRoutes = Bun.Serve.Routes<$RequestContext.WebSocketData, $Route.Path>;

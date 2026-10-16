@@ -1,13 +1,13 @@
-export { Compiler, CompilerError } from '@compiler';
-export { RequestContext, OutgoingResponse, HttpError } from '@http';
-export { Middleware, MiddlewareError } from '@middleware';
-export { Plugin, PluginError } from '@plugin';
-export { Route, RouteError } from '@route';
-export { Verifier } from '@verifier';
+export { Compiler, CompilerError } from '@compiler/index';
+export { RequestContext, OutgoingResponse, HttpError } from '@http/index';
+export { Middleware, MiddlewareError } from '@middleware/index';
+export { Plugin, PluginError } from '@plugin/index';
+export { Route, RouteError } from '@route/index';
+export { Verifier } from '@verifier/index';
 
-export type { $Compiler } from '@compiler';
-export type { $RequestContext, $OutgoingResponse } from '@http';
-export type { $Middleware } from '@middleware';
-export type { $Plugin } from '@plugin';
-export type { $Route } from '@route';
-export type { $Verifier } from '@verifier';
+export type { $Compiler } from '@compiler/index';
+export type { $RequestContext, $OutgoingResponse } from '@http/index';
+export type { $Middleware } from '@middleware/index';
+export type { $Plugin } from '@plugin/index';
+export type { $Route } from '@route/index';
+export type { $Verifier } from '@verifier/index';

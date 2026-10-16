@@ -1,4 +1,4 @@
-import type { RequestContext } from '@http';
+import type { RequestContext } from '@http/request-context';
 
 export namespace $Middleware {
     export type Init =
