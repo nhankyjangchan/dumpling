@@ -1,3 +1,3 @@
-export { RouteError } from './errors.mts';
-export { Route } from './module.mts';
-export type { $Route } from './types.mts';
+export { RouteError } from './errors';
+export { Route } from './module';
+export type { $Route } from './types';

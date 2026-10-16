@@ -1,3 +1,3 @@
-export { HttpError } from './errors.mts';
-export { RequestContext } from './module.mts';
-export type { $RequestContext } from './types.mts';
+export { HttpError } from './errors';
+export { RequestContext } from './module';
+export type { $RequestContext } from './types';

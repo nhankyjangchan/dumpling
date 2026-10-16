@@ -1,2 +1,2 @@
-export { OutgoingResponse } from './module.mts';
-export type { $OutgoingResponse } from './types.mts';
+export { OutgoingResponse } from './module';
+export type { $OutgoingResponse } from './types';

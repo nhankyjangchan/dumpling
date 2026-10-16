@@ -1,5 +1,5 @@
-import type { Middleware } from '@middleware/index';
-import type { $Route } from './types.mts';
+import type { Middleware } from '@middleware/module';
+import type { $Route } from './types';
 
 export class Route {
     readonly #name: $Route.Name;

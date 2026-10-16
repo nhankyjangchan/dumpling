@@ -1,4 +1,4 @@
-import type { Plugin } from '@plugin/index';
+import type { Plugin } from '@plugin/module';
 
 export namespace $RequestContext {
     export interface Init {

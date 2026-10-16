@@ -1,4 +1,4 @@
-import type { $OutgoingResponse } from './types.mts';
+import type { $OutgoingResponse } from './types';
 
 export class OutgoingResponse {
     #status: number;

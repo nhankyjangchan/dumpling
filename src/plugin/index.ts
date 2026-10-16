@@ -1,3 +1,3 @@
-export { PluginError } from './errors.mts';
-export { Plugin } from './module.mts';
-export type { $Plugin } from './types.mts';
+export { PluginError } from './errors';
+export { Plugin } from './module';
+export type { $Plugin } from './types';

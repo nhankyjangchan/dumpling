@@ -1,4 +1,4 @@
-import type { $Middleware } from './types.mts';
+import type { $Middleware } from './types';
 
 export class Middleware {
     readonly #name: $Middleware.Name;

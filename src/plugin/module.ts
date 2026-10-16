@@ -1,7 +1,7 @@
 import { MiddlewareError, type Middleware, type $Middleware } from '@middleware/index';
 import { RouteError, type Route, type $Route } from '@route/index';
-import { PluginError } from './errors.mts';
-import type { $Plugin } from './types.mts';
+import { PluginError } from './errors';
+import type { $Plugin } from './types';
 
 export class Plugin extends EventTarget {
     readonly #name: $Plugin.Name;
