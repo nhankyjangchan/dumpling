@@ -17,8 +17,12 @@ First-order entities possess the following fixed set of files and subdirectories
 
 Second-level entities are designed to group first-level entities (an example being `src/http`). They contain the same set of files and directories, with the exception that `module.ts` is now optional.
 
-The names of ALL private modules in directory `internals/`, with the exception of the entry point, must begin with the character "_"; see example `internals/_rules.ts`.
+The names of ALL private modules in directory `internals/`, with the exception of the entry point, must begin with the character "_" - example `internals/_rules.ts`.
 
 ### Exports
 
 Every entity module must have a single named export. Default exports are permitted only in tool configuration files (such as those for `tsdown.config.ts`). In entity files, only a single named export is allowed. To group and subsequently export multiple named sets of code, you can use classes, namespaces, or simple objects.
+
+### Imports
+
+Each module must use only named imports, without renaming any elements (for example, the construct `import {foo as newName} from './mod'` is prohibited). Default imports and namespace imports (e.g., `import * as newName from './mod'`) are also not permitted. It is recommended to import no more than four entities at a time. Only relative imports from the current directory (e.g., `import { foo } from './mod'`) or imports configured via `tsconfig.paths` (e.g., `import { foo } from '@foo/module'`) are allowed. Imports that reference parent directories (e.g., `import {foo as newName} from '../mod'`) are forbidden, as they indicate a poor architectural design.
