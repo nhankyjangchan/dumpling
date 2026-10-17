@@ -3,6 +3,6 @@ export namespace $OutgoingResponse {
         readonly status?: number;
         readonly statusText?: string;
         readonly headers?: Headers;
-        readonly body?: BodyInit | null;
+        readonly body?: Bun.BodyInit | null;
     }
 }

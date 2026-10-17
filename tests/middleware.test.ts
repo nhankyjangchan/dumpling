@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareError, type $Middleware } from '@middleware';
+import { Middleware, MiddlewareError, type $Middleware } from '@middleware/index';
 import { describe, test, expect } from 'bun:test';
 
 function createInit(init: Partial<$Middleware.Init> = {}): $Middleware.Init {

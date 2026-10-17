@@ -1,5 +1,5 @@
+import { HttpError } from '@http/errors';
 import { OutgoingResponse, type $OutgoingResponse } from '@http/outgoing-response';
-import { HttpError } from './errors';
 import type { Plugin } from '@plugin/module';
 import type { $RequestContext } from './types';
 
@@ -9,8 +9,8 @@ export class RequestContext {
     readonly #request: Bun.BunRequest<string>;
     readonly #response: OutgoingResponse;
 
-    #state?: $RequestContext.State;
     #error?: HttpError;
+    #state?: $RequestContext.State;
 
     public shouldBuild: boolean = true;
     public catched?: unknown;
@@ -38,20 +38,16 @@ export class RequestContext {
         return this.#response;
     }
 
+    public get error(): HttpError {
+        return (this.#error ??= new HttpError());
+    }
+
     public get state(): $RequestContext.State {
         return (this.#state ??= {});
     }
 
     public set state(state: $RequestContext.State) {
         this.#state = state;
-    }
-
-    public get error(): HttpError {
-        return (this.#error ??= new HttpError());
-    }
-
-    public set error(error: HttpError) {
-        this.#error = error;
     }
 
     public is(type: Lowercase<string>): boolean {

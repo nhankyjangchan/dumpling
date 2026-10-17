@@ -7,10 +7,10 @@ export namespace $Middleware {
         | InitVariant<'sync', 'halt'>
         | InitVariant<'sync', 'pass'>;
 
-    interface InitVariant<TMode extends Mode, TFlow extends Flow> extends CommonInit {
-        readonly mode: TMode;
-        readonly flow: TFlow;
-        readonly handler: InitHandler<HandlerReturn<TMode, TFlow>>;
+    interface InitVariant<SelectedMode extends Mode, SelectedFlow extends Flow> extends CommonInit {
+        readonly mode: SelectedMode;
+        readonly flow: SelectedFlow;
+        readonly handler: InitHandler<HandlerReturn<SelectedMode, SelectedFlow>>;
     }
 
     interface CommonInit {
@@ -18,11 +18,14 @@ export namespace $Middleware {
         readonly hook: Hook;
     }
 
-    type HandlerReturn<TMode extends Mode, TFlow extends Flow> = TMode extends 'async'
-        ? TFlow extends 'halt'
+    type HandlerReturn<
+        SelectedMode extends Mode,
+        SelectedFlow extends Flow
+    > = SelectedMode extends 'async'
+        ? SelectedFlow extends 'halt'
             ? Promise<MaybeResponse>
             : Promise<undefined>
-        : TFlow extends 'halt'
+        : SelectedFlow extends 'halt'
           ? MaybeResponse
           : undefined;
 

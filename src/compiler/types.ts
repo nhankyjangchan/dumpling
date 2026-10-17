@@ -1,6 +1,6 @@
-import type { $RequestContext } from '@http/index';
+import type { $RequestContext } from '@http/request-context/types';
 import type { Middleware, $Middleware } from '@middleware/index';
-import type { $Route } from '@route/index';
+import type { $Route } from '@route/types';
 
 export namespace $Compiler {
     export type ServeRoutes = Bun.Serve.Routes<$RequestContext.WebSocketData, $Route.Path>;
@@ -12,13 +12,13 @@ export namespace $Compiler {
     >;
 
     export interface Composer {
-        onRequest: Middleware[];
-        onResponse: Middleware[];
-        onError: Middleware[];
+        readonly onRequest: Middleware[];
+        readonly onResponse: Middleware[];
+        readonly onError: Middleware[];
     }
 
     export interface Segments {
-        params: string[];
-        args: $Middleware.Handler[];
+        readonly params: string[];
+        readonly args: $Middleware.Handler[];
     }
 }

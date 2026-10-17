@@ -1,4 +1,4 @@
-import { OutgoingResponse, type $OutgoingResponse } from '@http/outgoing-response';
+import { OutgoingResponse, type $OutgoingResponse } from './outgoing-response';
 
 export class HttpError extends Error {
     readonly #response: OutgoingResponse;

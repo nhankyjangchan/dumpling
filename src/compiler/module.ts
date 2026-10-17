@@ -7,7 +7,7 @@ import type { Route } from '@route/module';
 import type { $Compiler } from './types';
 
 export namespace Compiler {
-    export function merge(...routes: $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
+    export function merge(...routes: readonly $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
         const merged: $Compiler.ServeRoutes = {};
         for (const route of routes) {
             for (const [path, methods] of Object.entries(route)) {
@@ -83,19 +83,19 @@ export namespace Compiler {
         const lines: string[] = [
             'const rc = new RC(app, req, ser);',
             'try {',
-            _generateСalls(onRequest, 0),
-            _generateСalls(onResponse, onResponseOffset),
+            _generateCalls(onRequest, 0),
+            _generateCalls(onResponse, onResponseOffset),
             'return rc.build();',
             '} catch (e) {',
             'rc.catched = e;',
-            _generateСalls(onError, onErrorOffset),
+            _generateCalls(onError, onErrorOffset),
             `return rc.error.response.build();`,
             '}'
         ];
         return lines.filter(Boolean).join('\n');
     }
 
-    function _generateСalls(middlewares: readonly Middleware[], offset: number): string {
+    function _generateCalls(middlewares: readonly Middleware[], offset: number): string {
         const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
             _generateCall(offset + id, mdw)
         );
