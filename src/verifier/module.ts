@@ -4,6 +4,12 @@ import { Route } from '@route/module';
 import { verifierCodes, verifierRules } from './internals';
 import type { $Verifier } from './types';
 
+/**
+ * I strongly disagree with the notion that namespaces are an anti-pattern or an obsolete feature in
+ * TypeScript. I don’t want to have a massive number of exports per file; I need a way to group code
+ * while still controlling its external accessibility. There are three possible approaches, and
+ * namespaces are the best of them. I might consider using IIFEs in the future, though.
+ */
 export namespace Verifier {
     export function verifyPlugins(...targets: unknown[]): string {
         let messages: string = '';
@@ -21,8 +27,7 @@ export namespace Verifier {
         if (target.status !== 'ready') {
             return verifierCodes.invalidMember('status', Plugin);
         }
-        messages += _verifyPluginMembers(target);
-        return messages;
+        return messages + _verifyPluginMembers(target);
     }
 
     function _verifyPluginMembers(plugin: Plugin): string {

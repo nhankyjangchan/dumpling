@@ -22,7 +22,7 @@
         "strictPropertyInitialization": true,
         "useUnknownInCatchVariables": true,
         "allowArbitraryExtensions": false,
-        "allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": false,
         "allowUmdGlobalAccess": false,
         "module": "esnext",
         "moduleResolution": "bundler",
@@ -49,7 +49,6 @@
         "checkJs": false,
         "maxNodeModuleJsDepth": 4,
         "disableSizeLimit": false,
-        "plugins": [],
         "erasableSyntaxOnly": false,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
@@ -58,7 +57,7 @@
         "verbatimModuleSyntax": true,
         "emitDecoratorMetadata": false,
         "experimentalDecorators": false,
-        "lib": ["ESNext", "DOM"],
+        "lib": ["ESNext"],
         "libReplacement": true,
         "moduleDetection": "force",
         "noLib": false,
@@ -76,6 +75,6 @@
         "pretty": true,
         "skipLibCheck": false
     },
-    "include": ["./src/**/*", "./tests"],
+    "include": ["./src/**/*.ts", "./tests"],
     "exclude": ["./node_modules", "./build"]
 }

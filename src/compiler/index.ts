@@ -1,3 +1,3 @@
-export { CompilerError } from './errors.mts';
-export { Compiler } from './module.mts';
-export type { $Compiler } from './types.mts';
+export { CompilerError } from './errors';
+export { Compiler } from './module';
+export type { $Compiler } from './types';

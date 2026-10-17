@@ -1,17 +1,13 @@
-import { RequestContext } from '@http/index';
-import { Verifier } from '@verifier/index';
-import { CompilerError } from './errors.mts';
+import { RequestContext } from '@http/request-context/module';
+import { Verifier } from '@verifier/module';
+import { CompilerError } from './errors';
 import type { Middleware, $Middleware } from '@middleware/index';
-import type { Plugin } from '@plugin/index';
-import type { Route } from '@route/index';
-import type { $Compiler } from './types.mts';
+import type { Plugin } from '@plugin/module';
+import type { Route } from '@route/module';
+import type { $Compiler } from './types';
 
-export class Compiler {
-    private constructor() {
-        throw new CompilerError('The compiler does not support the `new` instruction;');
-    }
-
-    public static merge(...routes: $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
+export namespace Compiler {
+    export function merge(...routes: $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
         const merged: $Compiler.ServeRoutes = {};
         for (const route of routes) {
             for (const [path, methods] of Object.entries(route)) {
@@ -25,7 +21,7 @@ export class Compiler {
         return merged;
     }
 
-    public static compile(plugin: Plugin): $Compiler.ServeRoutes {
+    export function compile(plugin: Plugin): $Compiler.ServeRoutes {
         const errors: string = Verifier.verifyPlugins(plugin);
         if (errors.length > 0) {
             const message: string = errors.split(';').join('\n');
@@ -34,21 +30,21 @@ export class Compiler {
         const routes: $Compiler.ServeRoutes = {};
         for (const route of plugin.routes) {
             // @ts-expect-error Minor issues with type narrowing
-            (routes[route.path] ??= {})[route.method] = Compiler.#compileRoute(plugin, route);
+            (routes[route.path] ??= {})[route.method] = _compileRoute(plugin, route);
         }
         return routes;
     }
 
-    static #compileRoute(plugin: Plugin, route: Route): $Compiler.ServeHandler {
+    function _compileRoute(plugin: Plugin, route: Route): $Compiler.ServeHandler {
         const middlewares: Middleware[] = [...plugin.middlewares, ...route.middlewares];
-        const composer: $Compiler.Composer = Compiler.#composeMiddlewares(middlewares);
-        const code: string = Compiler.#generateCode(composer);
-        const { params, args } = Compiler.#createSegments(composer);
+        const composer: $Compiler.Composer = _composeMiddlewares(middlewares);
+        const code: string = _generateCode(composer);
+        const { params, args } = _createSegments(composer);
         // oxlint-disable-next-line typescript/no-unsafe-return typescript/no-unsafe-call
         return new Function(...params, code)(RequestContext, plugin, ...args);
     }
 
-    static #composeMiddlewares(middlewares: readonly Middleware[]): $Compiler.Composer {
+    function _composeMiddlewares(middlewares: readonly Middleware[]): $Compiler.Composer {
         const composer: $Compiler.Composer = { onRequest: [], onResponse: [], onError: [] };
         for (const middleware of middlewares) {
             if (middleware.hook === 'onRequest') {
@@ -62,13 +58,17 @@ export class Compiler {
         return composer;
     }
 
-    static #generateCode(composer: $Compiler.Composer): string {
-        const isAsync: boolean = Compiler.#isSomeMiddlewareAsync(composer);
-        const body: string = Compiler.#generateBody(composer);
+    function _generateCode(composer: $Compiler.Composer): string {
+        const isAsync: boolean = _isSomeMiddlewareAsync(composer);
+        const body: string = _generateBody(composer);
         return `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
     }
 
-    static #isSomeMiddlewareAsync({ onRequest, onResponse, onError }: $Compiler.Composer): boolean {
+    function _isSomeMiddlewareAsync({
+        onRequest,
+        onResponse,
+        onError
+    }: $Compiler.Composer): boolean {
         for (const middleware of [...onRequest, ...onResponse, ...onError]) {
             if (middleware.mode === 'async') {
                 return true;
@@ -77,32 +77,32 @@ export class Compiler {
         return false;
     }
 
-    static #generateBody({ onRequest, onResponse, onError }: $Compiler.Composer): string {
+    function _generateBody({ onRequest, onResponse, onError }: $Compiler.Composer): string {
         const onResponseOffset: number = onRequest.length;
         const onErrorOffset: number = onResponseOffset + onResponse.length;
         const lines: string[] = [
             'const rc = new RC(app, req, ser);',
             'try {',
-            Compiler.#generateСalls(onRequest, 0),
-            Compiler.#generateСalls(onResponse, onResponseOffset),
+            _generateСalls(onRequest, 0),
+            _generateСalls(onResponse, onResponseOffset),
             'return rc.build();',
             '} catch (e) {',
             'rc.catched = e;',
-            Compiler.#generateСalls(onError, onErrorOffset),
+            _generateСalls(onError, onErrorOffset),
             `return rc.error.response.build();`,
             '}'
         ];
         return lines.filter(Boolean).join('\n');
     }
 
-    static #generateСalls(middlewares: readonly Middleware[], offset: number): string {
+    function _generateСalls(middlewares: readonly Middleware[], offset: number): string {
         const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
-            Compiler.#generateCall(offset + id, mdw)
+            _generateCall(offset + id, mdw)
         );
         return calls.join('\n');
     }
 
-    static #generateCall(id: number, middleware: Middleware): string {
+    function _generateCall(id: number, middleware: Middleware): string {
         const { mode, flow } = middleware;
         const awaitPrefix: '' | 'await ' = mode === 'async' ? 'await ' : '';
         const name = `middleware${id}`;
@@ -115,7 +115,7 @@ export class Compiler {
         );
     }
 
-    static #createSegments({
+    function _createSegments({
         onRequest,
         onResponse,
         onError
