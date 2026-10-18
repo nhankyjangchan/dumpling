@@ -1,6 +1,7 @@
 import { MiddlewareError, type Middleware, type $Middleware } from '@middleware/index';
 import { RouteError, type Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
+import { PluginEvents } from './public';
 import type { $Plugin } from './types';
 
 export class Plugin extends EventTarget {
@@ -32,6 +33,17 @@ export class Plugin extends EventTarget {
 
     public get status(): $Plugin.Status {
         return this.#status;
+    }
+
+    public get snapshot(): $Plugin.Snapshot {
+        return {
+            name: this.#name,
+            scope: this.#scope,
+            status: this.#status,
+            middlewares: [...this.#middlewares.values()],
+            plugins: [...this.#plugins.values()],
+            routes: [...this.#routes.values()]
+        };
     }
 
     public get middlewares(): IterableIterator<Middleware> {
@@ -83,6 +95,7 @@ export class Plugin extends EventTarget {
             this.route(...plugin.routes);
         }
         this.#status = 'ready';
+        this.dispatchEvent(new PluginEvents.Ready(this));
     }
 
     #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
@@ -125,11 +138,16 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
+    /**
+     * I have decided against implementing a cleanup mechanism for the maps. A memory leak can only
+     * occur due to the framework user's own actions. In a standard scenario, a `throw` statement
+     * will immediately crash the application, forcing the user to fix their code. If they
+     * intentionally catch the exception and then hold onto a "zombie" object, that is their own
+     * problem.
+     */
     #failWith(error: Error): never {
         this.#status = 'failed';
-        this.#middlewares.clear();
-        this.#plugins.clear();
-        this.#routes.clear();
+        this.dispatchEvent(new PluginEvents.Failed(this, error));
         throw error;
     }
 }

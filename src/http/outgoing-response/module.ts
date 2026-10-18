@@ -8,7 +8,7 @@ export class OutgoingResponse {
 
     public constructor(init?: $OutgoingResponse.Init) {
         this.#status = init?.status ?? 200;
-        this.#statusText = init?.statusText ?? 'OK';
+        this.#statusText = init?.statusText ?? '';
         this.#headers = init?.headers ?? new Headers();
         this.#body = init?.body ?? null;
     }

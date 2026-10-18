@@ -1,7 +1,7 @@
 export { Compiler, CompilerError } from '@compiler/index';
 export { RequestContext, OutgoingResponse, HttpError } from '@http/index';
 export { Middleware, MiddlewareError } from '@middleware/index';
-export { Plugin, PluginError } from '@plugin/index';
+export { Plugin, PluginEvents, PluginError } from '@plugin/index';
 export { Route, RouteError } from '@route/index';
 export { Verifier } from '@verifier/index';
 

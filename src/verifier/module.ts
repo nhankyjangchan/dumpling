@@ -1,7 +1,7 @@
 import { Middleware } from '@middleware/module';
 import { Plugin } from '@plugin/module';
 import { Route } from '@route/module';
-import { verifierCodes, verifierRules } from './internals';
+import { verifierCodes, verifierRules } from './private';
 import type { $Verifier } from './types';
 
 /**

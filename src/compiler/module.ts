@@ -61,7 +61,7 @@ export namespace Compiler {
     function _generateCode(composer: $Compiler.Composer): string {
         const isAsync: boolean = _isSomeMiddlewareAsync(composer);
         const body: string = _generateBody(composer);
-        return `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
+        return `return ${isAsync ? 'async ' : ''}(request, server) => {\n${body}\n};\n`;
     }
 
     function _isSomeMiddlewareAsync({
@@ -81,7 +81,7 @@ export namespace Compiler {
         const onResponseOffset: number = onRequest.length;
         const onErrorOffset: number = onResponseOffset + onResponse.length;
         const lines: string[] = [
-            'const rc = new RC(app, req, ser);',
+            'const rc = new RC({ app, request, server });',
             'try {',
             _generateCalls(onRequest, 0),
             _generateCalls(onResponse, onResponseOffset),

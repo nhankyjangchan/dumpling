@@ -34,6 +34,7 @@ export default defineConfig({
         'sort-keys': 'off',
         'func-style': 'off',
         'require-unicode-regexp': 'off',
+        'max-classes-per-file': 'off',
         'no-continue': 'off',
         'no-ternary': 'off',
         'no-new-func': 'off',

@@ -1,4 +1,15 @@
+import type { Middleware } from '@middleware/module';
+import type { Route } from '@route/module';
+import type { Plugin } from './module';
+
 export namespace $Plugin {
+    export interface Snapshot extends Init {
+        readonly status: Status;
+        readonly middlewares: readonly Middleware[];
+        readonly plugins: readonly Plugin[];
+        readonly routes: readonly Route[];
+    }
+
     export interface Init {
         readonly name: Name;
         readonly scope: Scope;
