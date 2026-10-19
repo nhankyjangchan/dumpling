@@ -19,7 +19,7 @@ First-order entities possess the following fixed set of files and subdirectories
 
 Second-level entities are designed to group first-level entities (an example being `src/http`). They contain the same set of files and directories, with the exception that `module.ts` is now optional.
 
-The names of ALL private and public submodules in the `private/` and `public/` directories, with the exception of the entry point, must begin with the prefix "_"; for example, `private/_rules.ts`, `public/_events.ts'. With the exception of the prefix, there are no other restrictions on naming these files.
+The names of ALL private and public submodules in the `private/` and `public/` directories, with the exception of the entry point, must begin with the prefix "_"; for example, `private/_rules.ts`, `public/_events.ts`. With the exception of the prefix, there are no other restrictions on naming these files.
 
 ### Exports
 

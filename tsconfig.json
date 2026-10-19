@@ -29,6 +29,7 @@
         "noResolve": false,
         "noUncheckedSideEffectImports": true,
         "paths": {
+            "@/*": ["./src/*"],
             "@compiler/*": ["./src/compiler/*"],
             "@http/*": ["./src/http/*"],
             "@middleware/*": ["./src/middleware/*"],

@@ -1,16 +1,16 @@
-import type { $Verifier } from '@verifier/types';
+import type { $Shared } from '@/types';
 
 export const verifierCodes = {
-    invalidInstance(className: $Verifier.AnyConstructor): string {
+    invalidInstance(className: $Shared.AnyConstructor): string {
         return `Invalid instance received: "${className.name}" instance was expected;`;
     },
-    invalidMember<ClassName extends $Verifier.AnyConstructor>(
+    invalidMember<ClassName extends $Shared.AnyConstructor>(
         member: keyof InstanceType<ClassName> & string,
         className: ClassName
     ): string {
         return `Invalid value was received for member "${member}" of instance "${className.name}";`;
     },
-    requiredEntity<ClassName extends $Verifier.AnyConstructor>(
+    requiredEntity<ClassName extends $Shared.AnyConstructor>(
         member: keyof InstanceType<ClassName> & string,
         className: ClassName
     ): string {

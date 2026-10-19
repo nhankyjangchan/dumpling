@@ -1,5 +1,9 @@
 import type { Plugin } from '@plugin/module';
 
+/**
+ * The EventTarget API for Plugin is experimental and may be removed in the future. It remains until
+ * sufficient feedback is collected.
+ */
 export namespace PluginEvents {
     export class Ready extends Event {
         readonly #plugin: Plugin;

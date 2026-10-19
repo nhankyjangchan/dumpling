@@ -3,11 +3,11 @@ import type { Route } from '@route/module';
 import type { Plugin } from './module';
 
 export namespace $Plugin {
-    export interface Snapshot extends Init {
+    export interface View extends Init {
         readonly status: Status;
-        readonly middlewares: readonly Middleware[];
-        readonly plugins: readonly Plugin[];
-        readonly routes: readonly Route[];
+        readonly middlewares: IterableIterator<Middleware>;
+        readonly plugins: IterableIterator<Plugin>;
+        readonly routes: IterableIterator<Route>;
     }
 
     export interface Init {
