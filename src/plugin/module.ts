@@ -1,3 +1,4 @@
+import { shared } from '@/module';
 import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
 import { RouteError, Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
@@ -20,6 +21,7 @@ export class Plugin extends EventTarget {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
+        shared.assertInitObject(init, PluginError);
         super();
         this.#name = init.name;
         this.#scope = init.scope;

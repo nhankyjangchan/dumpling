@@ -107,9 +107,9 @@ export namespace Verifier {
         rules: readonly $Verifier.Rule<Target>[]
     ): string {
         let messages: string = '';
-        for (const [className, member, pattern] of rules) {
+        for (const [classRef, member, pattern] of rules) {
             if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += verifierCodes.invalidMember(member, className);
+                messages += verifierCodes.invalidMember(member, classRef);
             }
         }
         return messages;
