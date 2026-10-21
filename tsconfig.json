@@ -31,6 +31,7 @@
         "paths": {
             "@/*": ["./src/*"],
             "@compiler/*": ["./src/compiler/*"],
+            "@factory/*": ["./src/factory/*"],
             "@http/*": ["./src/http/*"],
             "@middleware/*": ["./src/middleware/*"],
             "@plugin/*": ["./src/plugin/*"],
@@ -76,6 +77,6 @@
         "pretty": true,
         "skipLibCheck": false
     },
-    "include": ["./src/**/*.ts", "./tests/**/*.ts"],
+    "include": ["./main.ts", "./src/**/*.ts", "./tests/**/*.ts"],
     "exclude": ["./node_modules", "./build"]
 }

@@ -96,8 +96,8 @@ export namespace Compiler {
     }
 
     function _generateCalls(middlewares: readonly Middleware[], offset: number): string {
-        const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
-            _generateCall(offset + id, mdw)
+        const calls: string[] = middlewares.map((middleware: Middleware, id: number): string =>
+            _generateCall(offset + id, middleware)
         );
         return calls.join('\n');
     }
@@ -121,9 +121,9 @@ export namespace Compiler {
         onError
     }: $Compiler.Composer): $Compiler.Segments {
         const segments: [string[], $Middleware.Handler[]] = [[], []];
-        for (const [id, mdw] of Object.entries([...onRequest, ...onResponse, ...onError])) {
+        for (const [id, middleware] of Object.entries([...onRequest, ...onResponse, ...onError])) {
             segments[0].push(`middleware${id}`);
-            segments[1].push(mdw.handler);
+            segments[1].push(middleware.handler);
         }
         return { params: ['RC', 'app', ...segments[0]], args: segments[1] };
     }

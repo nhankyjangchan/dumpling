@@ -1,19 +1,19 @@
 import type { $Shared } from '@/types';
 
 export const verifierCodes = {
-    invalidInstance(classRef: $Shared.AnyConstructor): string {
-        return `Invalid instance received: "${classRef.name}" instance was expected;`;
+    invalidInstance(ClassRef: $Shared.AnyConstructor): string {
+        return `Invalid instance received: "${ClassRef.name}" instance was expected;`;
     },
-    invalidMember<ClassRef extends $Shared.AnyConstructor>(
-        member: keyof InstanceType<ClassRef> & string,
-        classRef: ClassRef
+    invalidMember<AnyClassRef extends $Shared.AnyConstructor>(
+        member: keyof InstanceType<AnyClassRef> & string,
+        ClassRef: AnyClassRef
     ): string {
-        return `Invalid value was received for member "${member}" of instance "${classRef.name}";`;
+        return `Invalid value was received for member "${member}" of instance "${ClassRef.name}";`;
     },
-    requiredEntity<ClassRef extends $Shared.AnyConstructor>(
-        member: keyof InstanceType<ClassRef> & string,
-        classRef: ClassRef
+    requiredEntity<AnyClassRef extends $Shared.AnyConstructor>(
+        member: keyof InstanceType<AnyClassRef> & string,
+        ClassRef: AnyClassRef
     ): string {
-        return `"${classRef.name}.${member}" must contain at least one instance;`;
+        return `"${ClassRef.name}.${member}" must contain at least one instance;`;
     }
 } as const;

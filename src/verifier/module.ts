@@ -24,7 +24,7 @@ export namespace Verifier {
             return verifierCodes.invalidInstance(Plugin);
         }
         if (target.status !== 'ready') {
-            return verifierCodes.invalidMember('status', Plugin);
+            return `"${target.name}" must be "ready" to be verified;`;
         }
         return _verifyPluginMembers(target);
     }
@@ -107,9 +107,9 @@ export namespace Verifier {
         rules: readonly $Verifier.Rule<Target>[]
     ): string {
         let messages: string = '';
-        for (const [classRef, member, pattern] of rules) {
+        for (const [ClassRef, member, pattern] of rules) {
             if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += verifierCodes.invalidMember(member, classRef);
+                messages += verifierCodes.invalidMember(member, ClassRef);
             }
         }
         return messages;

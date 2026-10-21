@@ -148,11 +148,11 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
-    #assertInstance(actual: unknown, expectedClass: $Shared.AnyConstructor): void {
-        if (actual instanceof expectedClass) {
+    #assertInstance(input: unknown, ExpectedClass: $Shared.AnyConstructor): void {
+        if (input instanceof ExpectedClass) {
             return;
         }
-        const error = new PluginError(`Expected instance of "${expectedClass.name}";`);
+        const error = new PluginError(`Expected instance of "${ExpectedClass.name}";`);
         this.#failWith(error);
     }
 
