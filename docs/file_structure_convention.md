@@ -8,8 +8,10 @@ An entity is a named directory containing a consistent set of files and permitte
 
 First-order entities possess the following fixed set of files and subdirectories:
 
-- `internals/` - The directory containing all PRIVATE entity modules. Optional.
-- `internals/index.ts` - The entry point for all entity internal modules. Required, if `internals/` exists.
+- `private/` - The directory containing all PRIVATE entity submodules. Optional.
+- `private/index.ts` - The entry point for all entity private submodules. Required, if `private/` exists.
+- `public/` - The directory containing all PUBLIC entity submodules. Optional.
+- `public/index.ts` - The entry point for all entity public submodules. Required, if `public/` exists.
 - `errors.ts` - The file containing error classes for an entity. Optional.
 - `index.ts` - The entry point for the entity. Contains re-exports of ALL public modules of the entity. Required.
 - `module.ts` - The file containing the declaration of a class OR a namespace for an entity. Required.
@@ -17,12 +19,12 @@ First-order entities possess the following fixed set of files and subdirectories
 
 Second-level entities are designed to group first-level entities (an example being `src/http`). They contain the same set of files and directories, with the exception that `module.ts` is now optional.
 
-The names of ALL private modules in directory `internals/`, with the exception of the entry point, must begin with the character "_" - example `internals/_rules.ts`.
+The names of ALL private and public submodules in the `private/` and `public/` directories, with the exception of the entry point, must begin with the prefix "_"; for example, `private/_rules.ts`, `public/_events.ts`. With the exception of the prefix, there are no other restrictions on naming these files.
 
 ### Exports
 
-Every entity module must have a single named export. Default exports are permitted only in tool configuration files (such as those for `tsdown.config.ts`). In entity files, only a single named export is allowed. To group and subsequently export multiple named sets of code, you can use classes, namespaces, or simple objects.
+Each core entity module must contain only one NAMED export. Default exports are allowed only in tool configuration files (for example, in `tsdown.config.ts`). Renamed exports are completely prohibited. To group and subsequently export several named code blocks (classes, objects, functions, etc.) from a single module, you can use classes, namespaces, or simple objects. It is forbidden to export private entity modules externally, i.e., to include them in the entity’s entry point. Public modules must be exported by specifying the directory name (public) in the entity’s entry point, for example `export { publicModule } from './public';`.
 
 ### Imports
 
-Each module must use only named imports, without renaming any elements (for example, the construct `import {foo as newName} from './mod'` is prohibited). Default imports and namespace imports (e.g., `import * as newName from './mod'`) are also not permitted. It is recommended to import no more than four entities at a time. Only relative imports from the current directory (e.g., `import { foo } from './mod'`) or imports configured via `tsconfig.paths` (e.g., `import { foo } from '@foo/module'`) are allowed. Imports that reference parent directories (e.g., `import {foo as newName} from '../mod'`) are forbidden, as they indicate a poor architectural design.
+In each module, only named imports without renaming should be used (for example, the `import { foo as newName } from './mod'` construct is prohibited). Default imports and imports using namespaces (for example, `import * as newName from './mod'`) are also not allowed. It is recommended to import no more than four entities at a time. Only relative imports from the current directory are permitted (for example, `import { foo } from './mod'`) OR an import configured using `tsconfig.paths` (for example, `import { foo } from '@foo/module'`). An import specifying parent directories using the `../*` notation (for example, `import { foo } from '../mod'`) is prohibited. In such cases, you should use `tsconfig.paths` to specify the exact path to the required file, rather than to the entry point into the entity, to avoid circular imports (`index` => `module` => `public/sub` => `index`). When importing an entity INTO ANOTHER entity, you should refer to its entry point (index) only if you need to import more than one concept (types, errors, module); that is, if possible, you should use `@foo/module` OR `@foo/types` if you need to import just one thing. Type imports should always be marked as types.

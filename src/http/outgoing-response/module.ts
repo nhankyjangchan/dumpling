@@ -4,11 +4,11 @@ export class OutgoingResponse {
     #status: number;
     #statusText: string;
     #headers: Headers;
-    #body: BodyInit | null;
+    #body: Bun.BodyInit | null;
 
     public constructor(init?: $OutgoingResponse.Init) {
         this.#status = init?.status ?? 200;
-        this.#statusText = init?.statusText ?? 'OK';
+        this.#statusText = init?.statusText ?? '';
         this.#headers = init?.headers ?? new Headers();
         this.#body = init?.body ?? null;
     }
@@ -37,11 +37,11 @@ export class OutgoingResponse {
         this.#headers = headers;
     }
 
-    public get body(): BodyInit | null {
+    public get body(): Bun.BodyInit | null {
         return this.#body;
     }
 
-    public set body(body: BodyInit | null) {
+    public set body(body: Bun.BodyInit | null) {
         this.#body = body;
     }
 

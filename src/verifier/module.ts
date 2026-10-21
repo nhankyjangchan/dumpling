@@ -1,7 +1,7 @@
 import { Middleware } from '@middleware/module';
 import { Plugin } from '@plugin/module';
 import { Route } from '@route/module';
-import { verifierCodes, verifierRules } from './internals';
+import { verifierCodes, verifierRules } from './private';
 import type { $Verifier } from './types';
 
 /**
@@ -11,7 +11,7 @@ import type { $Verifier } from './types';
  * namespaces are the best of them. I might consider using IIFEs in the future, though.
  */
 export namespace Verifier {
-    export function verifyPlugins(...targets: unknown[]): string {
+    export function verifyPlugins(...targets: readonly unknown[]): string {
         let messages: string = '';
         for (const target of targets) {
             messages += _verifyPlugin(target);
@@ -20,14 +20,13 @@ export namespace Verifier {
     }
 
     function _verifyPlugin(target: unknown): string {
-        let messages: string = '';
         if (!(target instanceof Plugin)) {
             return verifierCodes.invalidInstance(Plugin);
         }
         if (target.status !== 'ready') {
-            return verifierCodes.invalidMember('status', Plugin);
+            return `"${target.name}" must be "ready" to be verified;`;
         }
-        return messages + _verifyPluginMembers(target);
+        return _verifyPluginMembers(target);
     }
 
     function _verifyPluginMembers(plugin: Plugin): string {
@@ -38,9 +37,9 @@ export namespace Verifier {
             ? verifyMiddlewares(...middlewares)
             : '"Plugin|Route.middlewares" must contain at least one instance;';
         messages +=
-            routes.length === 0
-                ? verifierCodes.requiredEntity('routes', Plugin)
-                : verifyRoutes(...routes);
+            routes.length > 0
+                ? verifyRoutes(...routes)
+                : verifierCodes.requiredEntity('routes', Plugin);
         return messages;
     }
 
@@ -62,7 +61,7 @@ export namespace Verifier {
         return middlewares.length > 0;
     }
 
-    export function verifyRoutes(...targets: unknown[]): string {
+    export function verifyRoutes(...targets: readonly unknown[]): string {
         let messages: string = '';
         for (const target of targets) {
             messages += _verifyRoute(target);
@@ -83,7 +82,7 @@ export namespace Verifier {
         return messages + verifyMiddlewares(...target.middlewares);
     }
 
-    export function verifyMiddlewares(...targets: unknown[]): string {
+    export function verifyMiddlewares(...targets: readonly unknown[]): string {
         let messages: string = '';
         for (const target of targets) {
             messages += _verifyMiddleware(target);
@@ -108,9 +107,9 @@ export namespace Verifier {
         rules: readonly $Verifier.Rule<Target>[]
     ): string {
         let messages: string = '';
-        for (const [className, member, pattern] of rules) {
+        for (const [ClassRef, member, pattern] of rules) {
             if (typeof target[member] !== 'string' || !pattern.test(target[member])) {
-                messages += verifierCodes.invalidMember(member, className);
+                messages += verifierCodes.invalidMember(member, ClassRef);
             }
         }
         return messages;

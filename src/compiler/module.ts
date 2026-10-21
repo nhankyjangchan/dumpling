@@ -7,7 +7,7 @@ import type { Route } from '@route/module';
 import type { $Compiler } from './types';
 
 export namespace Compiler {
-    export function merge(...routes: $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
+    export function merge(...routes: readonly $Compiler.ServeRoutes[]): $Compiler.ServeRoutes {
         const merged: $Compiler.ServeRoutes = {};
         for (const route of routes) {
             for (const [path, methods] of Object.entries(route)) {
@@ -61,7 +61,7 @@ export namespace Compiler {
     function _generateCode(composer: $Compiler.Composer): string {
         const isAsync: boolean = _isSomeMiddlewareAsync(composer);
         const body: string = _generateBody(composer);
-        return `return ${isAsync ? 'async ' : ''}(req, ser) => {\n${body}\n};\n`;
+        return `return ${isAsync ? 'async ' : ''}(request, server) => {\n${body}\n};\n`;
     }
 
     function _isSomeMiddlewareAsync({
@@ -81,23 +81,23 @@ export namespace Compiler {
         const onResponseOffset: number = onRequest.length;
         const onErrorOffset: number = onResponseOffset + onResponse.length;
         const lines: string[] = [
-            'const rc = new RC(app, req, ser);',
+            'const rc = new RC({ app, request, server });',
             'try {',
-            _generateСalls(onRequest, 0),
-            _generateСalls(onResponse, onResponseOffset),
+            _generateCalls(onRequest, 0),
+            _generateCalls(onResponse, onResponseOffset),
             'return rc.build();',
             '} catch (e) {',
             'rc.catched = e;',
-            _generateСalls(onError, onErrorOffset),
+            _generateCalls(onError, onErrorOffset),
             `return rc.error.response.build();`,
             '}'
         ];
         return lines.filter(Boolean).join('\n');
     }
 
-    function _generateСalls(middlewares: readonly Middleware[], offset: number): string {
-        const calls: string[] = middlewares.map((mdw: Middleware, id: number): string =>
-            _generateCall(offset + id, mdw)
+    function _generateCalls(middlewares: readonly Middleware[], offset: number): string {
+        const calls: string[] = middlewares.map((middleware: Middleware, id: number): string =>
+            _generateCall(offset + id, middleware)
         );
         return calls.join('\n');
     }
@@ -121,9 +121,9 @@ export namespace Compiler {
         onError
     }: $Compiler.Composer): $Compiler.Segments {
         const segments: [string[], $Middleware.Handler[]] = [[], []];
-        for (const [id, mdw] of Object.entries([...onRequest, ...onResponse, ...onError])) {
+        for (const [id, middleware] of Object.entries([...onRequest, ...onResponse, ...onError])) {
             segments[0].push(`middleware${id}`);
-            segments[1].push(mdw.handler);
+            segments[1].push(middleware.handler);
         }
         return { params: ['RC', 'app', ...segments[0]], args: segments[1] };
     }

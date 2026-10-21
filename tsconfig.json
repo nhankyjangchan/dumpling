@@ -29,7 +29,9 @@
         "noResolve": false,
         "noUncheckedSideEffectImports": true,
         "paths": {
+            "@/*": ["./src/*"],
             "@compiler/*": ["./src/compiler/*"],
+            "@factory/*": ["./src/factory/*"],
             "@http/*": ["./src/http/*"],
             "@middleware/*": ["./src/middleware/*"],
             "@plugin/*": ["./src/plugin/*"],
@@ -75,6 +77,6 @@
         "pretty": true,
         "skipLibCheck": false
     },
-    "include": ["./src/**/*.ts", "./tests"],
+    "include": ["./main.ts", "./src/**/*.ts", "./tests/**/*.ts"],
     "exclude": ["./node_modules", "./build"]
 }

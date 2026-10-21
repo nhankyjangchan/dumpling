@@ -1,8 +1,15 @@
-import { MiddlewareError, type Middleware, type $Middleware } from '@middleware/index';
-import { RouteError, type Route, type $Route } from '@route/index';
+import { shared } from '@/module';
+import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
+import { RouteError, Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
+import { PluginEvents } from './public';
+import type { $Shared } from '@/types';
 import type { $Plugin } from './types';
 
+/**
+ * The EventTarget API for Plugin is experimental and may be removed in the future. It remains until
+ * sufficient feedback is collected.
+ */
 export class Plugin extends EventTarget {
     readonly #name: $Plugin.Name;
     readonly #scope: $Plugin.Scope;
@@ -14,6 +21,7 @@ export class Plugin extends EventTarget {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
+        shared.assertInitObject(init, PluginError);
         super();
         this.#name = init.name;
         this.#scope = init.scope;
@@ -32,6 +40,17 @@ export class Plugin extends EventTarget {
 
     public get status(): $Plugin.Status {
         return this.#status;
+    }
+
+    public get view(): $Plugin.View {
+        return {
+            name: this.#name,
+            scope: this.#scope,
+            status: this.#status,
+            middlewares: this.#middlewares.values(),
+            plugins: this.#plugins.values(),
+            routes: this.#routes.values()
+        };
     }
 
     public get middlewares(): IterableIterator<Middleware> {
@@ -83,6 +102,7 @@ export class Plugin extends EventTarget {
             this.route(...plugin.routes);
         }
         this.#status = 'ready';
+        this.dispatchEvent(new PluginEvents.Ready(this));
     }
 
     #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
@@ -95,6 +115,7 @@ export class Plugin extends EventTarget {
     }
 
     #registerMiddleware(middleware: Middleware): void {
+        this.#assertInstance(middleware, Middleware);
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
             const error = new MiddlewareError(`"${name}" already registered;`);
@@ -104,6 +125,7 @@ export class Plugin extends EventTarget {
     }
 
     #registerPlugin(plugin: Plugin): void {
+        this.#assertInstance(plugin, Plugin);
         const name: $Plugin.Name = plugin.name;
         if (plugin.status !== 'ready') {
             const error = new PluginError(`Cannot mount "${name}": status is "${plugin.status}";`);
@@ -117,6 +139,7 @@ export class Plugin extends EventTarget {
     }
 
     #registerRoute(route: Route): void {
+        this.#assertInstance(route, Route);
         const name: $Route.Name = route.name;
         if (this.#routes.has(name)) {
             const error = new RouteError(`"${name}" already registered;`);
@@ -125,11 +148,24 @@ export class Plugin extends EventTarget {
         this.#routes.set(name, route);
     }
 
+    #assertInstance(input: unknown, ExpectedClass: $Shared.AnyConstructor): void {
+        if (input instanceof ExpectedClass) {
+            return;
+        }
+        const error = new PluginError(`Expected instance of "${ExpectedClass.name}";`);
+        this.#failWith(error);
+    }
+
+    /**
+     * I have decided against implementing a cleanup mechanism for the maps. A memory leak can only
+     * occur due to the framework user's own actions. In a standard scenario, a `throw` statement
+     * will immediately crash the application, forcing the user to fix their code. If they
+     * intentionally catch the exception and then hold onto a "zombie" object, that is their own
+     * problem.
+     */
     #failWith(error: Error): never {
         this.#status = 'failed';
-        this.#middlewares.clear();
-        this.#plugins.clear();
-        this.#routes.clear();
+        this.dispatchEvent(new PluginEvents.Failed(this, error));
         throw error;
     }
 }

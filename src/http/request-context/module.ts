@@ -1,5 +1,5 @@
+import { HttpError } from '@http/errors';
 import { OutgoingResponse, type $OutgoingResponse } from '@http/outgoing-response';
-import { HttpError } from './errors';
 import type { Plugin } from '@plugin/module';
 import type { $RequestContext } from './types';
 
@@ -7,10 +7,10 @@ export class RequestContext {
     readonly #app: Plugin;
     readonly #server: Bun.Server<$RequestContext.WebSocketData>;
     readonly #request: Bun.BunRequest<string>;
-    readonly #response: OutgoingResponse;
 
-    #state?: $RequestContext.State;
+    #response?: OutgoingResponse;
     #error?: HttpError;
+    #state?: $RequestContext.State;
 
     public shouldBuild: boolean = true;
     public catched?: unknown;
@@ -19,7 +19,6 @@ export class RequestContext {
         this.#app = init.app;
         this.#server = init.server;
         this.#request = init.request;
-        this.#response = new OutgoingResponse();
     }
 
     public get app(): Plugin {
@@ -35,7 +34,11 @@ export class RequestContext {
     }
 
     public get response(): OutgoingResponse {
-        return this.#response;
+        return (this.#response ??= new OutgoingResponse());
+    }
+
+    public get error(): HttpError {
+        return (this.#error ??= new HttpError());
     }
 
     public get state(): $RequestContext.State {
@@ -44,14 +47,6 @@ export class RequestContext {
 
     public set state(state: $RequestContext.State) {
         this.#state = state;
-    }
-
-    public get error(): HttpError {
-        return (this.#error ??= new HttpError());
-    }
-
-    public set error(error: HttpError) {
-        this.#error = error;
     }
 
     public is(type: Lowercase<string>): boolean {
@@ -68,6 +63,6 @@ export class RequestContext {
         if (!this.shouldBuild) {
             return undefined;
         }
-        return this.#response.build();
+        return this.response.build();
     }
 }

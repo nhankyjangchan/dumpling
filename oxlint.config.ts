@@ -29,11 +29,13 @@ export default defineConfig({
     plugins: ['eslint', 'unicorn', 'typescript', 'oxc', 'import', 'promise', 'node'],
     rules: {
         'no-magic-numbers': ['error', { ignore: [0, 1, 200, 500] }],
+        'no-implicit-coercion': ['error', { boolean: false }],
         'one-var': 'off',
         'sort-imports': 'off',
         'sort-keys': 'off',
         'func-style': 'off',
         'require-unicode-regexp': 'off',
+        'max-classes-per-file': 'off',
         'no-continue': 'off',
         'no-ternary': 'off',
         'no-new-func': 'off',
