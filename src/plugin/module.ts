@@ -2,15 +2,10 @@ import { shared } from '@/module';
 import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
 import { RouteError, Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
-import { PluginEvents } from './public';
 import type { $Shared } from '@/types';
 import type { $Plugin } from './types';
 
-/**
- * The EventTarget API for Plugin is experimental and may be removed in the future. It remains until
- * sufficient feedback is collected.
- */
-export class Plugin extends EventTarget {
+export class Plugin {
     readonly #name: $Plugin.Name;
     readonly #scope: $Plugin.Scope;
 
@@ -22,7 +17,6 @@ export class Plugin extends EventTarget {
 
     public constructor(init: $Plugin.Init) {
         shared.assertInitObject(init, PluginError);
-        super();
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();
@@ -102,7 +96,6 @@ export class Plugin extends EventTarget {
             this.route(...plugin.routes);
         }
         this.#status = 'ready';
-        this.dispatchEvent(new PluginEvents.Ready(this));
     }
 
     #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
@@ -165,7 +158,6 @@ export class Plugin extends EventTarget {
      */
     #failWith(error: Error): never {
         this.#status = 'failed';
-        this.dispatchEvent(new PluginEvents.Failed(this, error));
         throw error;
     }
 }
