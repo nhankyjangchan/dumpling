@@ -1,4 +1,4 @@
-import { shared } from '@/module';
+import { Shared } from '@/module';
 import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
 import { RouteError, Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
@@ -16,7 +16,7 @@ export class Plugin {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
-        shared.assertInitObject(init, PluginError);
+        Shared.assertPlainObject(init, PluginError);
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();

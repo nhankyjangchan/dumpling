@@ -1,4 +1,4 @@
-import { shared } from '@/module';
+import { Shared } from '@/module';
 import { MiddlewareError } from './errors';
 import type { $Middleware } from './types';
 
@@ -10,7 +10,7 @@ export class Middleware {
     readonly #handler: $Middleware.Handler;
 
     public constructor(init: $Middleware.Init) {
-        shared.assertInitObject(init, MiddlewareError);
+        Shared.assertPlainObject(init, MiddlewareError);
         this.#name = init.name;
         this.#hook = init.hook;
         this.#mode = init.mode;

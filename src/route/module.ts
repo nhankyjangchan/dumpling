@@ -1,4 +1,4 @@
-import { shared } from '@/module';
+import { Shared } from '@/module';
 import { RouteError } from './errors';
 import type { Middleware } from '@middleware/module';
 import type { $Route } from './types';
@@ -10,7 +10,7 @@ export class Route {
     readonly #middlewares: readonly Middleware[];
 
     public constructor(init: $Route.Init) {
-        shared.assertInitObject(init, RouteError);
+        Shared.assertPlainObject(init, RouteError);
         this.#name = init.name;
         this.#path = init.path;
         this.#method = init.method;
