@@ -16,7 +16,7 @@ export class Plugin {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
-        Shared.assertPlainObject(init, PluginError);
+        Shared.assertPlainObject(init, '"Plugin" constructor expects a plain object as init;');
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();
@@ -111,7 +111,7 @@ export class Plugin {
         this.#assertInstance(middleware, Middleware);
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
-            const error = new MiddlewareErrors.InvalidInit(`"${name}" already registered;`);
+            const error = new MiddlewareErrors.FailedRegistration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#middlewares.set(name, middleware);

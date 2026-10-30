@@ -1,5 +1,4 @@
 import { Shared } from '@/module';
-import { RouteErrors } from './errors';
 import type { Middleware } from '@middleware/module';
 import type { $Route } from './types';
 
@@ -10,7 +9,7 @@ export class Route {
     readonly #middlewares: readonly Middleware[];
 
     public constructor(init: $Route.Init) {
-        Shared.assertPlainObject(init, RouteErrors.InvalidInit);
+        Shared.assertPlainObject(init, '"Route" constructor expects a plain object as init;');
         this.#name = init.name;
         this.#path = init.path;
         this.#method = init.method;

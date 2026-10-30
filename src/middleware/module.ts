@@ -1,5 +1,4 @@
 import { Shared } from '@/module';
-import { MiddlewareErrors } from './errors';
 import type { $Middleware } from './types';
 
 export class Middleware {
@@ -10,7 +9,7 @@ export class Middleware {
     readonly #handler: $Middleware.Handler;
 
     public constructor(init: $Middleware.Init) {
-        Shared.assertPlainObject(init, MiddlewareErrors.InvalidInit);
+        Shared.assertPlainObject(init, '"Middleware" constructor expects a plain object as init;');
         this.#name = init.name;
         this.#hook = init.hook;
         this.#mode = init.mode;

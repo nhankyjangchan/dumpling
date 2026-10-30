@@ -3,10 +3,6 @@ export namespace RouteErrors {
         public override name = 'RouteError';
     }
 
-    export class InvalidInit extends Default {
-        public override readonly name = 'RouteInitError';
-    }
-
     export class FailedRegistration extends Default {
         public override readonly name = 'RouteRegistrationError';
     }
