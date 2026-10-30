@@ -1,6 +1,6 @@
 import { Shared } from '@/module';
-import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
-import { RouteError, Route, type $Route } from '@route/index';
+import { MiddlewareErrors, Middleware, type $Middleware } from '@middleware/index';
+import { RouteErrors, Route, type $Route } from '@route/index';
 import { PluginError } from './errors';
 import type { $Shared } from '@/types';
 import type { $Plugin } from './types';
@@ -111,7 +111,7 @@ export class Plugin {
         this.#assertInstance(middleware, Middleware);
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
-            const error = new MiddlewareError(`"${name}" already registered;`);
+            const error = new MiddlewareErrors.InvalidInit(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#middlewares.set(name, middleware);
@@ -135,7 +135,7 @@ export class Plugin {
         this.#assertInstance(route, Route);
         const name: $Route.Name = route.name;
         if (this.#routes.has(name)) {
-            const error = new RouteError(`"${name}" already registered;`);
+            const error = new RouteErrors.FailedRegistration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#routes.set(name, route);

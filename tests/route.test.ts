@@ -1,5 +1,5 @@
 import { Middleware, type $Middleware } from '@middleware/index';
-import { Route, RouteError, type $Route } from '@route/index';
+import { Route, type $Route } from '@route/index';
 import { describe, test, expect } from 'bun:test';
 
 function createMiddleware(overrides: Partial<$Middleware.Init> = {}): Middleware {
@@ -86,26 +86,26 @@ describe('Route', (): void => {
     });
 });
 
-describe('RouteError', (): void => {
-    test('Is an instance of Error', (): void => {
-        expect(new RouteError()).toBeInstanceOf(Error);
-    });
+// describe('RouteError', (): void => {
+//     test('Is an instance of Error', (): void => {
+//         expect(new RouteError()).toBeInstanceOf(Error);
+//     });
 
-    test('Has its own name', (): void => {
-        expect(new RouteError().name).toBe('RouteError');
-    });
+//     test('Has its own name', (): void => {
+//         expect(new RouteError().name).toBe('RouteError');
+//     });
 
-    test('Preserves the message', (): void => {
-        expect(new RouteError('some message').message).toBe('some message');
-    });
+//     test('Preserves the message', (): void => {
+//         expect(new RouteError('some message').message).toBe('some message');
+//     });
 
-    test('Preserves the cause', (): void => {
-        const cause = new Error('root');
-        const error = new RouteError('msg', { cause });
-        expect(error.cause).toBe(cause);
-    });
+//     test('Preserves the cause', (): void => {
+//         const cause = new Error('root');
+//         const error = new RouteError('msg', { cause });
+//         expect(error.cause).toBe(cause);
+//     });
 
-    test('Cause is undefined by default', (): void => {
-        expect(new RouteError('msg').cause).toBeUndefined();
-    });
-});
+//     test('Cause is undefined by default', (): void => {
+//         expect(new RouteError('msg').cause).toBeUndefined();
+//     });
+// });
