@@ -16,7 +16,7 @@ export class Plugin {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
-        Shared.assertPlainObject(init, '"Plugin" constructor expects a plain object as init;');
+        Shared.assertPlainObject(init, '"Plugin" expects a plain object;');
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();

@@ -9,7 +9,7 @@ export class Route {
     readonly #middlewares: readonly Middleware[];
 
     public constructor(init: $Route.Init) {
-        Shared.assertPlainObject(init, '"Route" constructor expects a plain object as init;');
+        Shared.assertPlainObject(init, '"Route" expects a plain object;');
         this.#name = init.name;
         this.#path = init.path;
         this.#method = init.method;
