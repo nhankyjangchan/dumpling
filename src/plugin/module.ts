@@ -15,7 +15,7 @@ export class Plugin {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
-        Shared.assertPlainObject(init, '"Plugin" expects a plain object;');
+        Shared.assertPlainObject(init, 'Plugin expects a plain object;');
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();
@@ -88,11 +88,10 @@ export class Plugin {
     public ready(): void {
         this.#assertStatus('pending', 'ready');
         for (const plugin of this.#plugins.values()) {
-            if (plugin.scope === 'self') {
-                continue;
+            if (plugin.scope === 'global') {
+                this.use(...plugin.middlewares);
+                this.route(...plugin.routes);
             }
-            this.use(...plugin.middlewares);
-            this.route(...plugin.routes);
         }
         this.#status = 'ready';
     }
@@ -102,7 +101,7 @@ export class Plugin {
         if (actual === expected) {
             return;
         }
-        const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
+        const message = `"${this.#name}.${access}" expects ${expected}, got ${actual};`;
         throw new PluginErrors.Status(message);
     }
 
@@ -120,7 +119,7 @@ export class Plugin {
         this.#assertInstance(plugin, Plugin);
         const name: $Plugin.Name = plugin.name;
         if (plugin.status !== 'ready') {
-            const error = new PluginErrors.Status(`"${name}" is not ready (${plugin.status});`);
+            const error = new PluginErrors.Status(`Cannot mount "${name}" (${plugin.status});`);
             this.#failWith(error);
         }
         if (this.#plugins.has(name)) {
@@ -144,7 +143,7 @@ export class Plugin {
         if (input instanceof ExpectedClass) {
             return;
         }
-        const error = new PluginErrors.Argument(`Expected instance of "${ExpectedClass.name}";`);
+        const error = new PluginErrors.Argument(`Expected ${ExpectedClass.name} instance;`);
         this.#failWith(error);
     }
 

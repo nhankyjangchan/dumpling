@@ -9,7 +9,7 @@ export class Middleware {
     readonly #handler: $Middleware.Handler;
 
     public constructor(init: $Middleware.Init) {
-        Shared.assertPlainObject(init, '"Middleware" expects a plain object;');
+        Shared.assertPlainObject(init, 'Middleware expects a plain object;');
         this.#name = init.name;
         this.#hook = init.hook;
         this.#mode = init.mode;

@@ -1,4 +1,4 @@
-import { Middleware, type $Middleware } from '@middleware/index';
+import { Middleware, MiddlewareErrors, type $Middleware } from '@middleware/index';
 import { describe, test, expect } from 'bun:test';
 
 function createInit(overrides: Partial<$Middleware.Init> = {}): $Middleware.Init {
@@ -7,99 +7,109 @@ function createInit(overrides: Partial<$Middleware.Init> = {}): $Middleware.Init
         hook: 'onRequest',
         mode: 'sync',
         flow: 'pass',
-        handler: (): undefined => {},
+        handler: () => {},
         ...overrides
     } as $Middleware.Init;
 }
 
-describe('Middleware', (): void => {
-    test('Creates a new instance', (): void => {
-        const middleware = new Middleware(createInit());
-        expect(middleware).toBeInstanceOf(Middleware);
-    });
-
-    test('Stores name as-is', (): void => {
-        const name = 'auth@middleware';
-        const middleware = new Middleware(createInit({ name }));
-        expect(middleware.name).toBe(name);
-    });
-
-    for (const hook of ['onRequest', 'onResponse', 'onError'] as const) {
-        test(`Stores hook "${hook}" as-is`, (): void => {
-            const middleware = new Middleware(createInit({ hook }));
-            expect(middleware.hook).toBe(hook);
+describe('Middleware', () => {
+    describe('new instance initialization', () => {
+        test('creates a new instance', () => {
+            const middleware = new Middleware(createInit());
+            expect(middleware).toBeInstanceOf(Middleware);
         });
-    }
 
-    for (const mode of ['sync', 'async'] as const) {
-        test(`Stores mode "${mode}" as-is`, (): void => {
-            const middleware = new Middleware(createInit({ mode }));
-            expect(middleware.mode).toBe(mode);
+        test('stores name as-is', () => {
+            const name = 'auth@middleware';
+            const middleware = new Middleware(createInit({ name }));
+            expect(middleware.name).toBe(name);
         });
-    }
 
-    for (const flow of ['halt', 'pass'] as const) {
-        test(`Stores flow "${flow}" as-is`, (): void => {
-            const middleware = new Middleware(createInit({ flow }));
-            expect(middleware.flow).toBe(flow);
+        test('stores hooks as-is', () => {
+            const hooks = ['onRequest', 'onResponse', 'onError'] as const;
+            for (const hook of hooks) {
+                const middleware = new Middleware(createInit({ hook }));
+                expect(middleware.hook).toBe(hook);
+            }
         });
-    }
 
-    test('Stores the exact sync handler reference', (): void => {
-        const init = createInit({ handler: () => {} });
-        const middleware = new Middleware(init);
-        expect(middleware.handler).toBe(init.handler);
+        test('stores modes as-is', () => {
+            const modes = ['sync', 'async'] as const;
+            for (const mode of modes) {
+                const middleware = new Middleware(createInit({ mode }));
+                expect(middleware.mode).toBe(mode);
+            }
+        });
+
+        test('stores flows as-is', () => {
+            const flows = ['halt', 'pass'] as const;
+            for (const flow of flows) {
+                const middleware = new Middleware(createInit({ flow }));
+                expect(middleware.flow).toBe(flow);
+            }
+        });
+
+        test('stores the exact handler reference', () => {
+            const init = createInit({ handler: () => {} });
+            const middleware = new Middleware(init);
+            expect(middleware.handler).toBe(init.handler);
+        });
+
+        test('fields are read-only (getters without setters)', () => {
+            const fields = ['name', 'hook', 'mode', 'flow', 'handler'] as const;
+            const middleware = new Middleware(createInit());
+            for (const field of fields) {
+                expect(() => ((middleware as any)[field] = 'new value')).toThrow(TypeError);
+            }
+        });
     });
 
-    test('Stores the exact async handler reference', (): void => {
-        const handler = async (): Promise<undefined> => {};
-        const middleware = new Middleware(createInit({ mode: 'async', handler }));
-        expect(middleware.handler).toBe(handler);
-    });
+    describe('rejects non-plain-object init with TypeError', () => {
+        test('representative non-plain-object values', () => {
+            const objects: any[] = [new Map(), new Error(), new Array(), new Function()];
+            for (const input of objects) {
+                expect(() => new Middleware(input)).toThrow(TypeError);
+            }
+        });
 
-    test('Does not validate input shape at runtime (dumb data holder)', (): void => {
-        const primitives: unknown[] = ['str', 20, true, Symbol(), 1n];
-        for (const input of primitives) {
-            expect(() => new Middleware(input as never)).not.toThrow();
-        }
-    });
-
-    test('Throws on null or undefined via property access, not validation', (): void => {
-        expect(() => new Middleware(null as never)).toThrow(TypeError);
-        expect(() => new Middleware(undefined as never)).toThrow(TypeError);
-    });
-
-    test('Fields are read-only (getters without setters)', (): void => {
-        const fields: (keyof $Middleware.Init)[] = ['name', 'hook', 'mode', 'flow', 'handler'];
-        const middleware = new Middleware(createInit());
-        for (const field of fields) {
-            expect(() => {
-                (middleware as unknown as Record<string, unknown>)[field] = 'new value';
-            }).toThrow(TypeError);
-        }
+        test('preserves the given message verbatim', () => {
+            try {
+                new Middleware(null as never);
+            } catch (error) {
+                expect(error).toBeInstanceOf(TypeError);
+                expect((error as Error).message).toBe('Middleware expects a plain object;');
+            }
+        });
     });
 });
 
-// describe('MiddlewareError', (): void => {
-//     test('Is an instance of Error', (): void => {
-//         expect(new MiddlewareErrors.InvalidInit()).toBeInstanceOf(Error);
-//     });
+describe('MiddlewareErrors', () => {
+    describe('Base', () => {
+        test('is an instance of Error', () => {
+            expect(new MiddlewareErrors.Base()).toBeInstanceOf(Error);
+        });
 
-//     test('Has its own name', (): void => {
-//         expect(new MiddlewareError().name).toBe('MiddlewareError');
-//     });
+        test('has qualified name', () => {
+            expect(new MiddlewareErrors.Base().name).toBe('MiddlewareError');
+        });
 
-//     test('Preserves the message', (): void => {
-//         expect(new MiddlewareError('some message').message).toBe('some message');
-//     });
+        test('preserves message', () => {
+            expect(new MiddlewareErrors.Base('some message').message).toBe('some message');
+        });
 
-//     test('Preserves the cause', (): void => {
-//         const cause = new Error('root');
-//         const error = new MiddlewareError('msg', { cause });
-//         expect(error.cause).toBe(cause);
-//     });
+        test('preserves cause', () => {
+            const cause = new Error('root');
+            expect(new MiddlewareErrors.Base('msg', { cause }).cause).toBe(cause);
+        });
+    });
 
-//     test('Cause is undefined by default', (): void => {
-//         expect(new MiddlewareError('msg').cause).toBeUndefined();
-//     });
-// });
+    describe('Registration', () => {
+        test('extends Base', () => {
+            expect(new MiddlewareErrors.Registration()).toBeInstanceOf(MiddlewareErrors.Base);
+        });
+
+        test('has qualified name', () => {
+            expect(new MiddlewareErrors.Registration().name).toBe('MiddlewareRegistrationError');
+        });
+    });
+});
