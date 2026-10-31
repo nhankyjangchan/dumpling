@@ -104,7 +104,7 @@ export class Plugin {
             return;
         }
         const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
-        throw new PluginErrors.InvalidStatus(message);
+        throw new PluginErrors.Status(message);
     }
 
     #registerMiddleware(middleware: Middleware): void {
@@ -121,9 +121,7 @@ export class Plugin {
         this.#assertInstance(plugin, Plugin);
         const name: $Plugin.Name = plugin.name;
         if (plugin.status !== 'ready') {
-            const error = new PluginErrors.InvalidStatus(
-                `Cannot mount "${name}": status is "${plugin.status}";`
-            );
+            const error = new PluginErrors.Status(`"${name}" is not ready (${plugin.status});`);
             this.#failWith(error);
         }
         if (this.#plugins.has(name)) {
@@ -147,9 +145,7 @@ export class Plugin {
         if (input instanceof ExpectedClass) {
             return;
         }
-        const error = new PluginErrors.InvalidArgument(
-            `Expected instance of "${ExpectedClass.name}";`
-        );
+        const error = new PluginErrors.Argument(`Expected instance of "${ExpectedClass.name}";`);
         this.#failWith(error);
     }
 

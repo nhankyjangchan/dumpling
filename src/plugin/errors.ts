@@ -7,11 +7,11 @@ export namespace PluginErrors {
         public override readonly name = 'PluginRegistrationError';
     }
 
-    export class InvalidStatus extends Base {
+    export class Status extends Base {
         public override readonly name = 'PluginInvalidStatusError';
     }
 
-    export class InvalidArgument extends Base {
+    export class Argument extends Base {
         public override readonly name = 'PluginInvalidArgumentError';
     }
 }
