@@ -1,7 +1,7 @@
 import { Shared } from '@/module';
 import { MiddlewareErrors, Middleware, type $Middleware } from '@middleware/index';
 import { RouteErrors, Route, type $Route } from '@route/index';
-import { PluginError } from './errors';
+import { PluginErrors } from './errors';
 import type { $Shared } from '@/types';
 import type { $Plugin } from './types';
 
@@ -104,14 +104,14 @@ export class Plugin {
             return;
         }
         const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
-        throw new PluginError(message);
+        throw new PluginErrors.InvalidStatus(message);
     }
 
     #registerMiddleware(middleware: Middleware): void {
         this.#assertInstance(middleware, Middleware);
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
-            const error = new MiddlewareErrors.FailedRegistration(`"${name}" already registered;`);
+            const error = new MiddlewareErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#middlewares.set(name, middleware);
@@ -121,11 +121,13 @@ export class Plugin {
         this.#assertInstance(plugin, Plugin);
         const name: $Plugin.Name = plugin.name;
         if (plugin.status !== 'ready') {
-            const error = new PluginError(`Cannot mount "${name}": status is "${plugin.status}";`);
+            const error = new PluginErrors.InvalidStatus(
+                `Cannot mount "${name}": status is "${plugin.status}";`
+            );
             this.#failWith(error);
         }
         if (this.#plugins.has(name)) {
-            const error = new PluginError(`"${name}" already registered;`);
+            const error = new PluginErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#plugins.set(name, plugin);
@@ -135,7 +137,7 @@ export class Plugin {
         this.#assertInstance(route, Route);
         const name: $Route.Name = route.name;
         if (this.#routes.has(name)) {
-            const error = new RouteErrors.FailedRegistration(`"${name}" already registered;`);
+            const error = new RouteErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#routes.set(name, route);
@@ -145,7 +147,9 @@ export class Plugin {
         if (input instanceof ExpectedClass) {
             return;
         }
-        const error = new PluginError(`Expected instance of "${ExpectedClass.name}";`);
+        const error = new PluginErrors.InvalidArgument(
+            `Expected instance of "${ExpectedClass.name}";`
+        );
         this.#failWith(error);
     }
 

@@ -1,9 +1,9 @@
 export namespace RouteErrors {
-    export class Default extends Error {
+    export class Base extends Error {
         public override name = 'RouteError';
     }
 
-    export class FailedRegistration extends Default {
+    export class Registration extends Base {
         public override readonly name = 'RouteRegistrationError';
     }
 }
