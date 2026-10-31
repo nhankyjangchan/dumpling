@@ -1,3 +1,3 @@
-export { RouteErrors } from './errors';
+export { RouteError } from './errors';
 export { Route } from './module';
 export type { $Route } from './types';

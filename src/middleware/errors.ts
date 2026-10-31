@@ -1,9 +1,6 @@
-export namespace MiddlewareErrors {
-    export class Base extends Error {
-        public override readonly name: string = 'MiddlewareError';
-    }
-
-    export class Registration extends Base {
-        public override readonly name: string = 'MiddlewareRegistrationError';
+export class MiddlewareError extends Error {
+    public constructor(message?: string, options?: ErrorOptions) {
+        super(message, options);
+        this.name = 'MiddlewareError';
     }
 }

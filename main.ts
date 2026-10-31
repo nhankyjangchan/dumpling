@@ -1,9 +1,9 @@
 export { Compiler, CompilerError } from '@compiler/index';
 export { Factory } from '@factory/index';
 export { RequestContext, OutgoingResponse, HttpError } from '@http/index';
-export { Middleware, MiddlewareErrors } from '@middleware/index';
-export { Plugin, PluginErrors } from '@plugin/index';
-export { Route, RouteErrors } from '@route/index';
+export { Middleware, MiddlewareError } from '@middleware/index';
+export { Plugin, PluginError } from '@plugin/index';
+export { Route, RouteError } from '@route/index';
 export { Verifier } from '@verifier/index';
 
 export type { $Compiler } from '@compiler/types';
