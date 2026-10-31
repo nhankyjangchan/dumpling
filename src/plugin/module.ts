@@ -1,8 +1,7 @@
-import { Shared } from '@/module';
+import { Shared, type $Shared } from '@/index';
 import { MiddlewareErrors, Middleware, type $Middleware } from '@middleware/index';
 import { RouteErrors, Route, type $Route } from '@route/index';
 import { PluginErrors } from './errors';
-import type { $Shared } from '@/types';
 import type { $Plugin } from './types';
 
 export class Plugin {

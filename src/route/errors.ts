@@ -1,9 +1,9 @@
 export namespace RouteErrors {
     export class Base extends Error {
-        public override name = 'RouteError';
+        public override readonly name: string = 'RouteError';
     }
 
     export class Registration extends Base {
-        public override readonly name = 'RouteRegistrationError';
+        public override readonly name: string = 'RouteRegistrationError';
     }
 }

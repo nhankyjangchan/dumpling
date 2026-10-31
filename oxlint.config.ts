@@ -29,7 +29,6 @@ export default defineConfig({
     plugins: ['eslint', 'unicorn', 'typescript', 'oxc', 'import', 'promise', 'node'],
     rules: {
         'no-magic-numbers': ['error', { ignore: [0, 1, 200, 500] }],
-        'no-implicit-coercion': ['error', { boolean: false }],
         'one-var': 'off',
         'sort-imports': 'off',
         'sort-keys': 'off',
@@ -57,6 +56,7 @@ export default defineConfig({
         'typescript/no-inferrable-types': 'off',
         'oxc/no-rest-spread-properties': 'off',
         'oxc/no-optional-chaining': 'off',
-        'unicorn/no-null': 'off'
+        'unicorn/no-null': 'off',
+        'unicorn/custom-error-definition': 'off'
     }
 });
