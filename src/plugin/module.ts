@@ -85,7 +85,7 @@ export class Plugin {
         return this;
     }
 
-    public ready(): void {
+    public ready(): this {
         this.#assertStatus('pending', 'ready');
         for (const plugin of this.#plugins.values()) {
             if (plugin.scope === 'global') {
@@ -94,6 +94,7 @@ export class Plugin {
             }
         }
         this.#status = 'ready';
+        return this;
     }
 
     #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {

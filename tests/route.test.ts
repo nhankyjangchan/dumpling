@@ -1,5 +1,5 @@
 import { Middleware, type $Middleware } from '@middleware/index';
-import { Route, RouteErrors, type $Route } from '@route/index';
+import { Route, RouteError, type $Route } from '@route/index';
 import { describe, test, expect } from 'bun:test';
 
 function createMiddleware(overrides: Partial<$Middleware.Init> = {}): Middleware {
@@ -89,32 +89,20 @@ describe('Route', () => {
 });
 
 describe('RouteErrors', () => {
-    describe('Base', () => {
-        test('is an instance of Error', () => {
-            expect(new RouteErrors.Base()).toBeInstanceOf(Error);
-        });
-
-        test('has qualified name', () => {
-            expect(new RouteErrors.Base().name).toBe('RouteError');
-        });
-
-        test('preserves message', () => {
-            expect(new RouteErrors.Base('some message').message).toBe('some message');
-        });
-
-        test('preserves cause', () => {
-            const cause = new Error('root');
-            expect(new RouteErrors.Base('msg', { cause }).cause).toBe(cause);
-        });
+    test('is an instance of Error', () => {
+        expect(new RouteError()).toBeInstanceOf(Error);
     });
 
-    describe('Registration', () => {
-        test('extends Base', () => {
-            expect(new RouteErrors.Registration()).toBeInstanceOf(RouteErrors.Base);
-        });
+    test('has qualified name', () => {
+        expect(new RouteError().name).toBe('RouteError');
+    });
 
-        test('has qualified name', () => {
-            expect(new RouteErrors.Registration().name).toBe('RouteRegistrationError');
-        });
+    test('preserves message', () => {
+        expect(new RouteError('some message').message).toBe('some message');
+    });
+
+    test('preserves cause', () => {
+        const cause = new Error('root');
+        expect(new RouteError('msg', { cause }).cause).toBe(cause);
     });
 });

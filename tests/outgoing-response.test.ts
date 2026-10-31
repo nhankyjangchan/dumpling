@@ -1,13 +1,13 @@
 import { OutgoingResponse } from '@http/outgoing-response/module';
 import { describe, test, expect } from 'bun:test';
 
-describe('OutgoingResponse', (): void => {
-    describe('constructor', (): void => {
-        test('Creates a new instance', (): void => {
+describe('OutgoingResponse', () => {
+    describe('new instance initialization', () => {
+        test('creates a new instance', () => {
             expect(new OutgoingResponse()).toBeInstanceOf(OutgoingResponse);
         });
 
-        test('Applies defaults when called without init or with empty init', (): void => {
+        test('applies defaults when called without init or with empty init', () => {
             for (const init of [undefined, {}]) {
                 const response = new OutgoingResponse(init);
                 expect(response.status).toBe(200);
@@ -18,7 +18,7 @@ describe('OutgoingResponse', (): void => {
             }
         });
 
-        test('Creates a fresh Headers instance per instance', (): void => {
+        test('creates a fresh Headers instance per instance', () => {
             const a = new OutgoingResponse();
             const b = new OutgoingResponse();
             expect(a.headers).not.toBe(b.headers);
@@ -26,7 +26,7 @@ describe('OutgoingResponse', (): void => {
             expect(b.headers.has('x-test')).toBe(false);
         });
 
-        test('Stores all provided values as-is (including reference equality)', (): void => {
+        test('stores all provided values as-is (including reference equality)', () => {
             const headers = new Headers({ 'x-test': '1' });
             const body = new Uint8Array([1, 2, 3]);
             const response = new OutgoingResponse({
@@ -42,20 +42,20 @@ describe('OutgoingResponse', (): void => {
         });
     });
 
-    describe('getters and setters', (): void => {
-        test('status getter/setter', (): void => {
+    describe('getters and setters', () => {
+        test('status getter/setter', () => {
             const response = new OutgoingResponse();
             response.status = 404;
             expect(response.status).toBe(404);
         });
 
-        test('statusText getter/setter', (): void => {
+        test('statusText getter/setter', () => {
             const response = new OutgoingResponse();
             response.statusText = 'Not Found';
             expect(response.statusText).toBe('Not Found');
         });
 
-        test('headers getter/setter replaces reference', (): void => {
+        test('headers getter/setter replaces reference', () => {
             const response = new OutgoingResponse();
             const original = response.headers;
             const replacement = new Headers({ 'x-test': '1' });
@@ -64,7 +64,7 @@ describe('OutgoingResponse', (): void => {
             expect(response.headers).not.toBe(original);
         });
 
-        test('body getter/setter', (): void => {
+        test('body getter/setter', () => {
             const response = new OutgoingResponse();
             response.body = 'hello';
             expect(response.body).toBe('hello');
@@ -73,12 +73,12 @@ describe('OutgoingResponse', (): void => {
         });
     });
 
-    describe('build', (): void => {
-        test('Returns a Response instance', (): void => {
+    describe('build', () => {
+        test('returns a Response instance', () => {
             expect(new OutgoingResponse().build()).toBeInstanceOf(Response);
         });
 
-        test('Reflects values set after construction', (): void => {
+        test('reflects values set after construction', async () => {
             const outgoing = new OutgoingResponse();
             outgoing.status = 201;
             outgoing.statusText = 'Created';
@@ -88,59 +88,52 @@ describe('OutgoingResponse', (): void => {
             expect(response.status).toBe(201);
             expect(response.statusText).toBe('Created');
             expect(response.headers.get('x-id')).toBe('42');
+            expect(await response.text()).toBe('ok');
         });
 
-        test('Handles string body', async (): Promise<void> => {
+        test('handles string body', async () => {
             const response = new OutgoingResponse({ body: 'hello' }).build();
             expect(await response.text()).toBe('hello');
         });
 
-        test('Handles Uint8Array body', async (): Promise<void> => {
+        test('handles Uint8Array body', async () => {
             const body = new Uint8Array([1, 2, 3]);
             const response = new OutgoingResponse({ body }).build();
             expect(new Uint8Array(await response.arrayBuffer())).toEqual(body);
         });
 
-        test('Handles null body', (): void => {
-            const response = new OutgoingResponse({ body: null }).build();
-            expect(response.body).toBeNull();
+        test('handles null body (including 204 status)', () => {
+            const defaulted = new OutgoingResponse({ body: null }).build();
+            expect(defaulted.body).toBeNull();
+            const nullBodyStatus = new OutgoingResponse({ status: 204 }).build();
+            expect(nullBodyStatus.status).toBe(204);
+            expect(nullBodyStatus.body).toBeNull();
         });
 
-        test('Allows null body with null-body status (204)', (): void => {
-            const response = new OutgoingResponse({ status: 204 }).build();
-            expect(response.status).toBe(204);
-            expect(response.body).toBeNull();
-        });
-
-        test('Copies headers into Response (subsequent mutations do not leak)', (): void => {
-            const outgoing = new OutgoingResponse();
+        test('built Response is a snapshot, independent of later mutations', () => {
+            const outgoing = new OutgoingResponse({ status: 200 });
             outgoing.headers.set('x-a', '1');
             const response = outgoing.build();
+            outgoing.status = 500;
+            outgoing.statusText = 'Internal Server Error';
             outgoing.headers.set('x-b', '2');
+            expect(response.status).toBe(200);
+            expect(response.statusText).toBe('');
             expect(response.headers.get('x-a')).toBe('1');
             expect(response.headers.get('x-b')).toBeNull();
         });
 
-        test('Built Response is a snapshot, independent of later mutations', (): void => {
-            const outgoing = new OutgoingResponse({ status: 200 });
-            const response = outgoing.build();
-            outgoing.status = 500;
-            outgoing.statusText = 'Internal Server Error';
-            expect(response.status).toBe(200);
-            expect(response.statusText).toBe('');
-        });
-
-        test('Throws RangeError for status outside [200, 599]', (): void => {
+        test('throws RangeError for status outside [200, 599]', () => {
             expect(() => new OutgoingResponse({ status: 199 }).build()).toThrow(RangeError);
             expect(() => new OutgoingResponse({ status: 600 }).build()).toThrow(RangeError);
         });
 
-        test('Bun allows non-null body with null-body status (no spec validation)', (): void => {
+        test('Bun allows non-null body with null-body status (no spec validation)', () => {
             const response = new OutgoingResponse({ status: 204, body: 'x' }).build();
             expect(response.status).toBe(204);
         });
 
-        test('Bun allows CR/LF in statusText (no spec validation)', (): void => {
+        test('Bun allows CR/LF in statusText (no spec validation)', () => {
             const response = new OutgoingResponse({ statusText: 'a\nb' }).build();
             expect(response.statusText).toBe('a\nb');
         });
