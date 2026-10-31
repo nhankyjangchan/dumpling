@@ -1,16 +1,10 @@
-import { shared } from '@/module';
-import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
-import { RouteError, Route, type $Route } from '@route/index';
-import { PluginError } from './errors';
-import { PluginEvents } from './public';
-import type { $Shared } from '@/types';
+import { Shared, type $Shared } from '@/index';
+import { MiddlewareErrors, Middleware, type $Middleware } from '@middleware/index';
+import { RouteErrors, Route, type $Route } from '@route/index';
+import { PluginErrors } from './errors';
 import type { $Plugin } from './types';
 
-/**
- * The EventTarget API for Plugin is experimental and may be removed in the future. It remains until
- * sufficient feedback is collected.
- */
-export class Plugin extends EventTarget {
+export class Plugin {
     readonly #name: $Plugin.Name;
     readonly #scope: $Plugin.Scope;
 
@@ -21,8 +15,7 @@ export class Plugin extends EventTarget {
     #status: $Plugin.Status = 'pending';
 
     public constructor(init: $Plugin.Init) {
-        shared.assertInitObject(init, PluginError);
-        super();
+        Shared.assertPlainObject(init, 'Plugin expects a plain object;');
         this.#name = init.name;
         this.#scope = init.scope;
         this.#middlewares = new Map();
@@ -95,14 +88,12 @@ export class Plugin extends EventTarget {
     public ready(): void {
         this.#assertStatus('pending', 'ready');
         for (const plugin of this.#plugins.values()) {
-            if (plugin.scope === 'self') {
-                continue;
+            if (plugin.scope === 'global') {
+                this.use(...plugin.middlewares);
+                this.route(...plugin.routes);
             }
-            this.use(...plugin.middlewares);
-            this.route(...plugin.routes);
         }
         this.#status = 'ready';
-        this.dispatchEvent(new PluginEvents.Ready(this));
     }
 
     #assertStatus(expected: $Plugin.Status, access: keyof Plugin): void {
@@ -110,15 +101,15 @@ export class Plugin extends EventTarget {
         if (actual === expected) {
             return;
         }
-        const message = `"${this.#name}.${access}" expects "${expected}", got "${actual}";`;
-        throw new PluginError(message);
+        const message = `"${this.#name}.${access}" expects ${expected}, got ${actual};`;
+        throw new PluginErrors.Status(message);
     }
 
     #registerMiddleware(middleware: Middleware): void {
         this.#assertInstance(middleware, Middleware);
         const name: $Middleware.Name = middleware.name;
         if (this.#middlewares.has(name)) {
-            const error = new MiddlewareError(`"${name}" already registered;`);
+            const error = new MiddlewareErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#middlewares.set(name, middleware);
@@ -128,11 +119,11 @@ export class Plugin extends EventTarget {
         this.#assertInstance(plugin, Plugin);
         const name: $Plugin.Name = plugin.name;
         if (plugin.status !== 'ready') {
-            const error = new PluginError(`Cannot mount "${name}": status is "${plugin.status}";`);
+            const error = new PluginErrors.Status(`Cannot mount "${name}" (${plugin.status});`);
             this.#failWith(error);
         }
         if (this.#plugins.has(name)) {
-            const error = new PluginError(`"${name}" already registered;`);
+            const error = new PluginErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#plugins.set(name, plugin);
@@ -142,7 +133,7 @@ export class Plugin extends EventTarget {
         this.#assertInstance(route, Route);
         const name: $Route.Name = route.name;
         if (this.#routes.has(name)) {
-            const error = new RouteError(`"${name}" already registered;`);
+            const error = new RouteErrors.Registration(`"${name}" already registered;`);
             this.#failWith(error);
         }
         this.#routes.set(name, route);
@@ -152,7 +143,7 @@ export class Plugin extends EventTarget {
         if (input instanceof ExpectedClass) {
             return;
         }
-        const error = new PluginError(`Expected instance of "${ExpectedClass.name}";`);
+        const error = new PluginErrors.Argument(`Expected ${ExpectedClass.name} instance;`);
         this.#failWith(error);
     }
 
@@ -165,7 +156,6 @@ export class Plugin extends EventTarget {
      */
     #failWith(error: Error): never {
         this.#status = 'failed';
-        this.dispatchEvent(new PluginEvents.Failed(this, error));
         throw error;
     }
 }
