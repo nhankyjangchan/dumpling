@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareErrors, type $Middleware } from '@middleware/index';
+import { Middleware, MiddlewareError, type $Middleware } from '@middleware/index';
 import { describe, test, expect } from 'bun:test';
 
 function createInit(overrides: Partial<$Middleware.Init> = {}): $Middleware.Init {
@@ -83,33 +83,21 @@ describe('Middleware', () => {
     });
 });
 
-describe('MiddlewareErrors', () => {
-    describe('Base', () => {
-        test('is an instance of Error', () => {
-            expect(new MiddlewareErrors.Base()).toBeInstanceOf(Error);
-        });
-
-        test('has qualified name', () => {
-            expect(new MiddlewareErrors.Base().name).toBe('MiddlewareError');
-        });
-
-        test('preserves message', () => {
-            expect(new MiddlewareErrors.Base('some message').message).toBe('some message');
-        });
-
-        test('preserves cause', () => {
-            const cause = new Error('root');
-            expect(new MiddlewareErrors.Base('msg', { cause }).cause).toBe(cause);
-        });
+describe('MiddlewareError', () => {
+    test('is an instance of Error', () => {
+        expect(new MiddlewareError()).toBeInstanceOf(Error);
     });
 
-    describe('Registration', () => {
-        test('extends Base', () => {
-            expect(new MiddlewareErrors.Registration()).toBeInstanceOf(MiddlewareErrors.Base);
-        });
+    test('has qualified name', () => {
+        expect(new MiddlewareError().name).toBe('MiddlewareError');
+    });
 
-        test('has qualified name', () => {
-            expect(new MiddlewareErrors.Registration().name).toBe('MiddlewareRegistrationError');
-        });
+    test('preserves message', () => {
+        expect(new MiddlewareError('some message').message).toBe('some message');
+    });
+
+    test('preserves cause', () => {
+        const cause = new Error('root');
+        expect(new MiddlewareError('msg', { cause }).cause).toBe(cause);
     });
 });
