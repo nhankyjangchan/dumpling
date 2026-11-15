@@ -1,5 +1,5 @@
-import { Compiler, type $Compiler } from '@compiler/index';
-import type { Plugin } from '@plugin/module';
+import { Compiler, type $Compiler } from '~runtime/compiler';
+import type { Plugin } from '~entities/plugin/module';
 import type { $Factory } from './types';
 
 export namespace Factory {
@@ -13,16 +13,16 @@ export namespace Factory {
 
     export function compileToRoutes(plugin: Plugin): $Compiler.ServeRoutes {
         const routes: $Compiler.ServeRoutes[] = [Compiler.compile(plugin)];
-        collectSelfRoutes(routes, plugin);
+        _collectSelfRoutes(routes, plugin);
         return Compiler.merge(...routes);
     }
 
-    function collectSelfRoutes(routes: $Compiler.ServeRoutes[], plugin: Plugin): void {
+    function _collectSelfRoutes(routes: $Compiler.ServeRoutes[], plugin: Plugin): void {
         for (const child of plugin.plugins) {
             if (child.scope === 'self') {
                 routes.push(Compiler.compile(child));
             }
-            collectSelfRoutes(routes, child);
+            _collectSelfRoutes(routes, child);
         }
     }
 }

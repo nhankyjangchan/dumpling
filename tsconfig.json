@@ -29,14 +29,9 @@
         "noResolve": false,
         "noUncheckedSideEffectImports": true,
         "paths": {
-            "@/*": ["./src/*"],
-            "@compiler/*": ["./src/compiler/*"],
-            "@factory/*": ["./src/factory/*"],
-            "@http/*": ["./src/http/*"],
-            "@middleware/*": ["./src/middleware/*"],
-            "@plugin/*": ["./src/plugin/*"],
-            "@route/*": ["./src/route/*"],
-            "@verifier/*": ["./src/verifier/*"]
+            "~internal/*": ["./src/_internal/*"],
+            "~entities/*": ["./src/entities/*"],
+            "~runtime/*": ["./src/runtime/*"]
         },
         "resolveJsonModule": true,
         "resolvePackageJsonExports": true,

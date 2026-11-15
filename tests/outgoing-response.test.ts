@@ -1,4 +1,4 @@
-import { OutgoingResponse } from '@http/outgoing-response/module';
+import { OutgoingResponse } from '~runtime/http/outgoing-response';
 import { describe, test, expect } from 'bun:test';
 
 describe('OutgoingResponse', () => {

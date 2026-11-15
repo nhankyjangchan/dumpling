@@ -1,4 +1,4 @@
-import { Shared } from '@/module';
+import { Shared } from '~internal/shared';
 import { describe, test, expect } from 'bun:test';
 
 describe('Shared.assertPlainObject', () => {

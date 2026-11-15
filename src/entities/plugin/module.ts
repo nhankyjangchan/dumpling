@@ -1,6 +1,6 @@
-import { Shared, type $Shared } from '@/index';
-import { MiddlewareError, Middleware, type $Middleware } from '@middleware/index';
-import { RouteError, Route, type $Route } from '@route/index';
+import { MiddlewareError, Middleware, type $Middleware } from '~entities/middleware';
+import { RouteError, Route, type $Route } from '~entities/route';
+import { Shared, type $Shared } from '~internal/shared';
 import { PluginError } from './errors';
 import type { $Plugin } from './types';
 

@@ -1,5 +1,5 @@
-import type { Middleware } from '@middleware/module';
-import type { Route } from '@route/module';
+import type { Middleware } from '~entities/middleware/module';
+import type { Route } from '~entities/route/module';
 import type { Plugin } from './module';
 
 export namespace $Plugin {

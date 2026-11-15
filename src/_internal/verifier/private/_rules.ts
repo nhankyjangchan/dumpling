@@ -1,6 +1,6 @@
-import { Middleware } from '@middleware/module';
-import { Plugin } from '@plugin/module';
-import { Route } from '@route/module';
+import { Middleware } from '~entities/middleware/module';
+import { Plugin } from '~entities/plugin/module';
+import { Route } from '~entities/route/module';
 
 export const verifierRules = {
     forMiddleware: [

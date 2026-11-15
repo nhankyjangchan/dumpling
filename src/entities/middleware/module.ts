@@ -1,4 +1,4 @@
-import { Shared } from '@/module';
+import { Shared } from '~internal/shared/module';
 import type { $Middleware } from './types';
 
 export class Middleware {

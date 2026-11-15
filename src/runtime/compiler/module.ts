@@ -1,9 +1,9 @@
-import { RequestContext } from '@http/request-context/module';
-import { Verifier } from '@verifier/module';
+import { Verifier } from '~internal/verifier/module';
+import { RequestContext } from '~runtime/http/request-context/module';
 import { CompilerError } from './errors';
-import type { Middleware, $Middleware } from '@middleware/index';
-import type { Plugin } from '@plugin/module';
-import type { Route } from '@route/module';
+import type { Middleware, $Middleware } from '~entities/middleware';
+import type { Plugin } from '~entities/plugin/module';
+import type { Route } from '~entities/route/module';
 import type { $Compiler } from './types';
 
 export namespace Compiler {

@@ -1,6 +1,6 @@
-import { HttpError } from '@http/errors';
-import { OutgoingResponse, type $OutgoingResponse } from '@http/outgoing-response';
-import type { Plugin } from '@plugin/module';
+import { HttpError } from '~runtime/http/errors';
+import { OutgoingResponse, type $OutgoingResponse } from '~runtime/http/outgoing-response';
+import type { Plugin } from '~entities/plugin/module';
 import type { $RequestContext } from './types';
 
 export class RequestContext {

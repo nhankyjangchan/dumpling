@@ -1,4 +1,4 @@
-import type { $Shared } from '@/types';
+import type { $Shared } from '~internal/shared/types';
 
 export const verifierCodes = {
     invalidInstance(ClassRef: $Shared.AnyConstructor): string {

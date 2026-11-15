@@ -1,5 +1,5 @@
-import { Shared } from '@/module';
-import type { Middleware } from '@middleware/module';
+import { Shared } from '~internal/shared/module';
+import type { Middleware } from '~entities/middleware/module';
 import type { $Route } from './types';
 
 export class Route {

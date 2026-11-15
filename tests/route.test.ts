@@ -1,5 +1,5 @@
-import { Middleware, type $Middleware } from '@middleware/index';
-import { Route, RouteError, type $Route } from '@route/index';
+import { Middleware, type $Middleware } from '~entities/middleware';
+import { Route, RouteError, type $Route } from '~entities/route';
 import { describe, test, expect } from 'bun:test';
 
 function createMiddleware(overrides: Partial<$Middleware.Init> = {}): Middleware {

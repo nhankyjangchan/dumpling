@@ -1,6 +1,6 @@
-import { Middleware, MiddlewareError, type $Middleware } from '@middleware/index';
-import { Plugin, PluginError, type $Plugin } from '@plugin/index';
-import { Route, RouteError, type $Route } from '@route/index';
+import { Middleware, MiddlewareError, type $Middleware } from '~entities/middleware';
+import { Plugin, PluginError, type $Plugin } from '~entities/plugin';
+import { Route, RouteError, type $Route } from '~entities/route';
 import { describe, test, expect } from 'bun:test';
 
 function createMiddleware(overrides: Partial<$Middleware.Init> = {}): Middleware {

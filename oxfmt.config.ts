@@ -26,7 +26,7 @@ export default defineConfig({
             'unknown'
         ],
         ignoreCase: false,
-        internalPattern: ['@'],
+        internalPattern: ['~'],
         newlinesBetween: false,
         order: 'asc',
         partitionByComment: false,
