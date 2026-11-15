@@ -6,7 +6,7 @@ export default defineConfig({
     embeddedLanguageFormatting: 'auto',
     endOfLine: 'lf',
     experimentalOperatorPosition: 'start',
-    ignorePatterns: ['node_modules/**', 'build/**', 'coverage/**'],
+    ignorePatterns: ['node_modules/**', 'build/**'],
     insertFinalNewline: true,
     jsdoc: true,
     objectWrap: 'preserve',
@@ -16,7 +16,15 @@ export default defineConfig({
     semi: true,
     singleQuote: true,
     sortImports: {
-        groups: ['value-internal', 'value-sibling', 'type-internal', 'type-sibling', 'unknown'],
+        groups: [
+            'value-external',
+            'value-internal',
+            'value-sibling',
+            'type-external',
+            'type-internal',
+            'type-sibling',
+            'unknown'
+        ],
         ignoreCase: false,
         internalPattern: ['@'],
         newlinesBetween: false,

@@ -13,7 +13,7 @@ export class RequestContext {
     #state?: $RequestContext.State;
 
     public shouldBuild: boolean = true;
-    public catched?: unknown;
+    public caught?: unknown;
 
     public constructor(init: $RequestContext.Init) {
         this.#app = init.app;

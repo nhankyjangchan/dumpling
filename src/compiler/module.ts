@@ -87,7 +87,7 @@ export namespace Compiler {
             _generateCalls(onResponse, onResponseOffset),
             'return rc.build();',
             '} catch (e) {',
-            'rc.catched = e;',
+            'rc.caught = e;',
             _generateCalls(onError, onErrorOffset),
             `return rc.error.response.build();`,
             '}'
